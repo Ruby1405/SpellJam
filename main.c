@@ -14,6 +14,11 @@ typedef enum
     execute
 } magicCircleRing;
 
+float CircleRoation(int radius, float angle)
+{
+    return (angle * 5) / (radius * 0.0002 + 0.01);
+}
+
 int main()
 {
     v2f windowMiddle = {500, 500};
@@ -26,7 +31,7 @@ int main()
     magicCircleRing magicCircle[16];
     int ringCount = 0;
     float angle = 0;
-    float angleCoef = 1;
+    float angleCoef = 5;
 
     while (!WindowShouldClose())
     {
@@ -62,7 +67,7 @@ int main()
         ClearBackground(BLACK);
 
         // Draw magic circle
-        int radius = 10;
+        int radius = 50;
         int squareCount = 0;
         int triangleCount = 0;
         angle = fabs(angle);
@@ -79,16 +84,19 @@ int main()
             {
                 if (squareCount > 0)
                 {    
-                    DrawPolyLines(windowMiddle,4,radius,(-angle * angleCoef * radius) + 45,PINK);
+                    DrawPolyLines(windowMiddle,4,radius,-CircleRoation(radius,angle) + 45,PINK);
                     squareCount = 0;
                     continue;
                 }
-                radius = Vector2Length((Vector2){radius, radius});
+                if (i != 0)
+                {
+                    radius = Vector2Length((Vector2){radius, radius});
+                }
                 DrawPolyLines(
                     windowMiddle,
                     4,
                     radius,
-                    angle * angleCoef * radius,
+                    CircleRoation(radius,angle),
                     PINK);
                 angle = -angle;
                 squareCount ++;
@@ -97,17 +105,23 @@ int main()
             break;
             case triangle:
             {
-               if (triangleCount > 0)
+                if (radius < 100)
                 {
-                    DrawPolyLines(windowMiddle,3,radius,(-angle * angleCoef * radius) + 60, PINK);
-                    triangleCount = 0;
-                    continue;
+                    if (triangleCount > 0)
+                    {
+                        DrawPolyLines(windowMiddle,3,radius,-CircleRoation(radius,angle) + 60, PINK);
+                        triangleCount = 0;
+                        continue;
+                    }
+                    if (i != 0)
+                    {
+                        radius = radius / sin(30 * DEG2RAD);
+                    }
+                    DrawPolyLines(windowMiddle,3,radius,CircleRoation(radius,angle), PINK);
+                    squareCount = 0;
+                    angle = -angle;
+                    triangleCount ++;
                 }
-                radius = radius / sin(30 * DEG2RAD);
-                DrawPolyLines(windowMiddle,3,radius,angle * angleCoef * radius, PINK);
-                squareCount = 0;
-                angle = -angle;
-                triangleCount ++;
             }
             break;
             default:
@@ -128,7 +142,7 @@ int main()
             } break;
             }
         }
-        DrawText(TextFormat("%f",angle),20,20,18,WHITE);
+        DrawText(TextFormat("%d",radius),20,20,18,WHITE);
         
         EndDrawing();
     }
