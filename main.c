@@ -16,7 +16,7 @@ typedef enum
 
 float CircleRoation(int radius, float angle)
 {
-    return (angle * 5) / (radius * 0.0002 + 0.01);
+    return (angle * 3) / (radius * 0.0002 + 0.01);
 }
 
 int main()
@@ -105,14 +105,15 @@ int main()
             break;
             case triangle:
             {
+
+                if (triangleCount > 0)
+                {
+                    DrawPolyLines(windowMiddle,3,radius,-CircleRoation(radius,angle) + 60, PINK);
+                    triangleCount = 0;
+                    continue;
+                }
                 if (radius < 100)
                 {
-                    if (triangleCount > 0)
-                    {
-                        DrawPolyLines(windowMiddle,3,radius,-CircleRoation(radius,angle) + 60, PINK);
-                        triangleCount = 0;
-                        continue;
-                    }
                     if (i != 0)
                     {
                         radius = radius / sin(30 * DEG2RAD);
@@ -121,6 +122,14 @@ int main()
                     squareCount = 0;
                     angle = -angle;
                     triangleCount ++;
+                }
+                else
+                {
+                    radius += 10;
+                    for (int j = 0; j < 6; j++)
+                    {   
+                        DrawPolyLines(Vector2Add(windowMiddle,Vector2Rotate((Vector2){0,radius},j * 60 * DEG2RAD)),3,10,j*60,PINK);
+                    }
                 }
             }
             break;
