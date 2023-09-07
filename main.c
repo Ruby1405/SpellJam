@@ -83,8 +83,8 @@ int main()
             case square:
             {
                 if (squareCount > 0)
-                {    
-                    DrawPolyLines(windowMiddle,4,radius,-CircleRoation(radius,angle) + 45,PINK);
+                {
+                    DrawPolyLines(windowMiddle, 4, radius, -CircleRoation(radius, angle) + 45, PINK);
                     squareCount = 0;
                     continue;
                 }
@@ -96,19 +96,19 @@ int main()
                     windowMiddle,
                     4,
                     radius,
-                    CircleRoation(radius,angle),
+                    CircleRoation(radius, angle),
                     PINK);
                 angle = -angle;
-                squareCount ++;
+                squareCount++;
                 triangleCount = 0;
             }
             break;
             case triangle:
             {
 
-                if (triangleCount > 0)
+                if (triangleCount == 1)
                 {
-                    DrawPolyLines(windowMiddle,3,radius,-CircleRoation(radius,angle) + 60, PINK);
+                    DrawPolyLines(windowMiddle, 3, radius, -CircleRoation(radius, angle) + 60, PINK);
                     triangleCount = 0;
                     continue;
                 }
@@ -118,17 +118,33 @@ int main()
                     {
                         radius = radius / sin(30 * DEG2RAD);
                     }
-                    DrawPolyLines(windowMiddle,3,radius,CircleRoation(radius,angle), PINK);
+                    DrawPolyLines(windowMiddle, 3, radius, CircleRoation(radius, angle), PINK);
                     squareCount = 0;
                     angle = -angle;
-                    triangleCount ++;
+                    triangleCount = 1;
                 }
                 else
                 {
-                    radius += 10;
-                    for (int j = 0; j < 6; j++)
-                    {   
-                        DrawPolyLines(Vector2Add(windowMiddle,Vector2Rotate((Vector2){0,radius},j * 60 * DEG2RAD)),3,10,j*60,PINK);
+                    if (triangleCount == 2)
+                    {
+                        radius -= 10;
+                        for (int j = 0; j < 12; j++)
+                        {
+                            DrawPolyLines(Vector2Add(windowMiddle, Vector2Rotate((Vector2){0, radius}, (j * 30 - 15 - CircleRoation(radius, -angle)) * DEG2RAD)), 3, 10, j * -30 -45 + CircleRoation(radius, -angle), PINK);
+                        }
+                        radius += 10;
+                        triangleCount = 0;
+                    }
+                    else
+                    {
+                        radius += 10;
+                        for (int j = 0; j < 12; j++)
+                        {
+                            DrawPolyLines(Vector2Add(windowMiddle, Vector2Rotate((Vector2){0, radius}, (j * 30 - CircleRoation(radius, angle)) * DEG2RAD)), 3, 10, j * -30 + CircleRoation(radius, angle), PINK);
+                        }
+                        radius += 10;
+                        angle = -angle;
+                        triangleCount = 2;
                     }
                 }
             }
@@ -137,7 +153,7 @@ int main()
             {
                 if (i != 0)
                 {
-                    if (magicCircle[i-1] == cicle)
+                    if (magicCircle[i - 1] == cicle)
                     {
                         radius += 10;
                     }
@@ -146,13 +162,14 @@ int main()
                     windowMiddle.x,
                     windowMiddle.y,
                     radius, PINK);
-                    squareCount = 0;
-                    triangleCount = 0;
-            } break;
+                squareCount = 0;
+                triangleCount = 0;
+            }
+            break;
             }
         }
-        DrawText(TextFormat("%d",radius),20,20,18,WHITE);
-        
+        DrawText(TextFormat("%d", radius), 20, 20, 18, WHITE);
+
         EndDrawing();
     }
     return 0;
