@@ -1,78 +1,64 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h> 
-#include <time.h>
 #include "raylib.h"
-typedef enum direction{
-    North = 1,
-    East,
-    South,
-    West,//has fallen
-}
-typedef struct door{
-    int xpos;
-    int ypos;
-    char direction;//N,E,S,W
-}door;
-typedef struct room{
-    door[4];
+#include "raymath.h"
+#include "stdbool.h"
+#include "stdlib.h"
+// #include "terrainGen.c"
+#include "magicCircle.c"
 
-}room;
-room* RoomCreator(){
-    room[20][20] roomGrid={0};
-    int currentXPOS;
-    int currentYPOS;
-    
-    //Room occupancy checker
-    if()
-    
-    return roomGrid;
-}
+int main()
+{
+    // Ration ska vara 224, 256. Höjden behöver ökas med 6 för window rounding på mac
+    // 1120,1280 är *5
+    v2f windowSize = {1120, 1286};
+    InitWindow(windowSize.x, windowSize.y, "SpellJam");
 
-//En funktion för random terrain generation med "the drunkards walk" algoritmen
-bool* DrunkardsWalk (bool* mapIn, int height, int width, int staggering){
-    int drunkardsXPOS = width/2;
-    
-    int drunkardsYPOS = height/2;
+    bool squarePressed = false;
+    bool trianglePressed = false;
+    bool circlePressed = false;
+    bool executePressed = false;
 
-    bool drunkardOutOfBounds = false;
-    bool map[height][height]=mapIn;
+    v2f playerPosition = {500, 500};
 
-    int i = 0;
-    while (staggering&& drunkardOutOfBounds)
-    {
-        
-        switch (expression)
-        {
-        case drunkardsXPOS<0:
-            /* code */
-            break;
-        
-        default:
-            drunkardOutOfBounds = true;
-            break;
-        }
-        i++;
-    }
-    
-}
+    magicCircleRing magicCircle[16];
+    int ringCount = 0;
+    float angle = 0;
 
-int main(void)
-{   
-    //1120,1280 är *5 
-    InitWindow(1120,1286 , "SpellJam"); //Ration ska vara 224, 256. Höjden behöver ökas med 6 för window rounding på mac
-
-    Rectangle rec = {0,0,1120,1280};
     while (!WindowShouldClose())
     {
+        // ------
+        // INPUTS
+        // ------
+        squarePressed = IsKeyPressed(KEY_LEFT);
+        trianglePressed = IsKeyPressed(KEY_UP);
+        circlePressed = IsKeyPressed(KEY_RIGHT);
+        executePressed = IsKeyPressed(KEY_DOWN);
+
+        if (executePressed)
+        {
+            ringCount = 0;
+        }
+        if (squarePressed)
+        {
+            magicCircle[ringCount] = square;
+            ringCount++;
+        }
+        if (trianglePressed)
+        {
+            magicCircle[ringCount] = triangle;
+            ringCount++;
+        }
+        if (circlePressed)
+        {
+            magicCircle[ringCount] = circle;
+            ringCount++;
+        }
+
         BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawRectangleLinesEx(rec, 5, BLACK);
+        ClearBackground(BLACK);
+
+        DrawMagicCircle(playerPosition, magicCircle, ringCount, &angle);
+
         EndDrawing();
     }
-
-    CloseWindow();
-
     return 0;
 }
