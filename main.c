@@ -113,6 +113,7 @@ int main()
             case triangle:
             {
 
+                squareCount = 0;
                 if (triangleCount == 1)
                 {
                     DrawPolyLines(windowMiddle, 3, radius, -CircleRoation(radius, angle) + 60, ringColor);
@@ -126,7 +127,6 @@ int main()
                         radius = radius / sin(30 * DEG2RAD);
                     }
                     DrawPolyLines(windowMiddle, 3, radius, CircleRoation(radius, angle), ringColor);
-                    squareCount = 0;
                     angle = -angle;
                     triangleCount = 1;
                 }
