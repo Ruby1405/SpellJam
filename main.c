@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h> 
+#include <time.h>
 #include "raylib.h"
 #include "raymath.h"
 #include "stdbool.h"
@@ -11,14 +16,14 @@ int main()
     // 1120,1280 är *5
     v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-
+    
     bool squarePressed = false;
     bool trianglePressed = false;
     bool circlePressed = false;
     bool executePressed = false;
-
+    
     v2f playerPosition = {500, 500};
-
+    
     magicCircleRing magicCircle[16];
     int ringCount = 0;
     float angle = 0;
@@ -32,10 +37,10 @@ int main()
         trianglePressed = IsKeyPressed(KEY_UP);
         circlePressed = IsKeyPressed(KEY_RIGHT);
         executePressed = IsKeyPressed(KEY_DOWN);
-
+        
         if (executePressed)
         {
-            ringCount = 0;
+        ringCount = 0;
         }
         if (squarePressed)
         {
@@ -60,5 +65,8 @@ int main()
 
         EndDrawing();
     }
+
+    CloseWindow();
+
     return 0;
 }
