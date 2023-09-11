@@ -10,7 +10,7 @@ typedef enum
     none,
     square,
     triangle,
-    cicle,
+    circle,
     execute
 } magicCircleRing;
 
@@ -59,7 +59,7 @@ int main()
         }
         if (dPressed)
         {
-            magicCircle[ringCount] = cicle;
+            magicCircle[ringCount] = circle;
             ringCount++;
         }
 
@@ -70,6 +70,13 @@ int main()
         int radius = 50;
         int squareCount = 0;
         int triangleCount = 0;
+        Color ringColor = 
+        {
+            magicCircle[0] == circle? Clamp(0,255,255-(43*(ringCount-2))):255,
+            magicCircle[0] == triangle? Clamp(0,255,43*ringCount):0,
+            magicCircle[0] == square? Clamp(0,255,255-(43*(ringCount-2))):255,
+            255
+        };
         angle = fabs(angle);
         angle += 1 * GetFrameTime();
         if (angle > 360)
@@ -84,7 +91,7 @@ int main()
             {
                 if (squareCount > 0)
                 {
-                    DrawPolyLines(windowMiddle, 4, radius, -CircleRoation(radius, angle) + 45, PINK);
+                    DrawPolyLines(windowMiddle, 4, radius, -CircleRoation(radius, angle) + 45, ringColor);
                     squareCount = 0;
                     continue;
                 }
@@ -97,7 +104,7 @@ int main()
                     4,
                     radius,
                     CircleRoation(radius, angle),
-                    PINK);
+                    ringColor);
                 angle = -angle;
                 squareCount++;
                 triangleCount = 0;
@@ -108,7 +115,7 @@ int main()
 
                 if (triangleCount == 1)
                 {
-                    DrawPolyLines(windowMiddle, 3, radius, -CircleRoation(radius, angle) + 60, PINK);
+                    DrawPolyLines(windowMiddle, 3, radius, -CircleRoation(radius, angle) + 60, ringColor);
                     triangleCount = 0;
                     continue;
                 }
@@ -118,7 +125,7 @@ int main()
                     {
                         radius = radius / sin(30 * DEG2RAD);
                     }
-                    DrawPolyLines(windowMiddle, 3, radius, CircleRoation(radius, angle), PINK);
+                    DrawPolyLines(windowMiddle, 3, radius, CircleRoation(radius, angle), ringColor);
                     squareCount = 0;
                     angle = -angle;
                     triangleCount = 1;
@@ -130,7 +137,7 @@ int main()
                         radius -= 10;
                         for (int j = 0; j < 12; j++)
                         {
-                            DrawPolyLines(Vector2Add(windowMiddle, Vector2Rotate((Vector2){0, radius}, (j * 30 - 15 - CircleRoation(radius, -angle)) * DEG2RAD)), 3, 10, j * -30 -45 + CircleRoation(radius, -angle), PINK);
+                            DrawPolyLines(Vector2Add(windowMiddle, Vector2Rotate((Vector2){0, radius}, (j * 30 - 15 - CircleRoation(radius, -angle)) * DEG2RAD)), 3, 10, j * -30 -45 + CircleRoation(radius, -angle), ringColor);
                         }
                         radius += 10;
                         triangleCount = 0;
@@ -140,7 +147,7 @@ int main()
                         radius += 10;
                         for (int j = 0; j < 12; j++)
                         {
-                            DrawPolyLines(Vector2Add(windowMiddle, Vector2Rotate((Vector2){0, radius}, (j * 30 - CircleRoation(radius, angle)) * DEG2RAD)), 3, 10, j * -30 + CircleRoation(radius, angle), PINK);
+                            DrawPolyLines(Vector2Add(windowMiddle, Vector2Rotate((Vector2){0, radius}, (j * 30 - CircleRoation(radius, angle)) * DEG2RAD)), 3, 10, j * -30 + CircleRoation(radius, angle), ringColor);
                         }
                         radius += 10;
                         angle = -angle;
@@ -153,7 +160,7 @@ int main()
             {
                 if (i != 0)
                 {
-                    if (magicCircle[i - 1] == cicle)
+                    if (magicCircle[i - 1] == circle)
                     {
                         radius += 10;
                     }
@@ -161,7 +168,7 @@ int main()
                 DrawCircleLines(
                     windowMiddle.x,
                     windowMiddle.y,
-                    radius, PINK);
+                    radius, ringColor);
                 squareCount = 0;
                 triangleCount = 0;
             }
