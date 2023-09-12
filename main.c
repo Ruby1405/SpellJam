@@ -12,7 +12,6 @@
 
 int main()
 {
-    // Ration ska vara 224, 256. Höjden behöver ökas med 6 för window rounding på mac
     // 1120,1280 är *5
     v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
@@ -22,7 +21,7 @@ int main()
     bool circlePressed = false;
     bool executePressed = false;
     
-    v2f playerPosition = {500, 500};
+    v2f playerPosition = {windowSize.x/2, windowSize.y/2};
     
     magicCircleRing magicCircle[16];
     int ringCount = 0;
