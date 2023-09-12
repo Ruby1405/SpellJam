@@ -1,7 +1,7 @@
+#include <stdlib.h>
+#include <stdbool.h>
 #include "raylib.h"
 #include "raymath.h"
-#include "stdbool.h"
-#include "stdlib.h"
 
 #define CircleRotation(radius, angle) ((angle * 3) / (radius * 0.0002 + 0.01))
 
@@ -9,14 +9,29 @@ typedef struct Vector2 v2f;
 
 void DrawSpellMoonBeam(Vector2 targetLocation)
 {
-    int dave = GetRandomValue(200,255);
+    int dave = GetRandomValue(180,255);
     for (int i = 80; i > 20; i--)
     {
-        DrawEllipse(targetLocation.x,targetLocation.y,i*2,i,(Color){255,255,255,10});
+        DrawEllipse(targetLocation.x,targetLocation.y,i*2,i,(Color){dave,dave,255,15});
     }
+    DrawRectangle(targetLocation.x - 40, targetLocation.y-1000, 80, 1000, (Color){dave,dave,255,255});
+    DrawRectangle(targetLocation.x - 45, targetLocation.y-1000, 90, 1000, (Color){dave,dave,255,100});
+    DrawEllipse(targetLocation.x,targetLocation.y,40,20,(Color){dave,dave,255,255});
+}
+
+void DrawSpellManaSpark(Vector2 targetLocation, Vector2 aim)
+{
+    aim = Vector2Scale(Vector2Normalize(aim),4);
+    int r = 0;
+    int b = 0;
+    for (int i = 0; i < 9; i++)
+    {
+        r = GetRandomValue(200,255);
+        b = GetRandomValue(200,255);
+        DrawCircle(targetLocation.x + GetRandomValue(i-10,10-i) / 2 + i * aim.x, targetLocation.y + GetRandomValue(i-10,10-i) / 2 + i * aim.y, 10 - i + GetRandomValue(i-10,10-i) / 3, (Color){r,0,b,200});
+    }
+    DrawCircle(targetLocation.x, targetLocation.y, 12, (Color){r,0,b,200});
     
-    DrawRectangle(targetLocation.x - 40, targetLocation.y-1000, 80, 1000, (Color){dave,dave,dave,255});
-    DrawEllipse(targetLocation.x,targetLocation.y,40,20,(Color){dave,dave,dave,255});
 }
 
 typedef enum
