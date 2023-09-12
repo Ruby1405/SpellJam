@@ -28,10 +28,17 @@ void DrawSpellManaSpark(Vector2 targetLocation, Vector2 aim)
     {
         r = GetRandomValue(200,255);
         b = GetRandomValue(200,255);
-        DrawCircle(targetLocation.x + GetRandomValue(i-10,10-i) / 2 + i * aim.x, targetLocation.y + GetRandomValue(i-10,10-i) / 2 + i * aim.y, 10 - i + GetRandomValue(i-10,10-i) / 3, (Color){r,0,b,200});
+        DrawCircle(targetLocation.x + GetRandomValue(i-10,10-i) / 2 - i * aim.x, targetLocation.y + GetRandomValue(i-10,10-i) / 2 - i * aim.y, 10 - i + GetRandomValue(i-10,10-i) / 3, (Color){r,0,b,200});
     }
     DrawCircle(targetLocation.x, targetLocation.y, 12, (Color){r,0,b,200});
-    
+}
+
+void DrawSpellBlock(Vector2 playerPosition)
+{
+    DrawCircle(playerPosition.x,playerPosition.y,30,(Color){0,200,255,100});
+    DrawCircleLines(playerPosition.x,playerPosition.y,31,(Color){255,255,255,100});
+    DrawCircleLines(playerPosition.x,playerPosition.y,30,(Color){255,255,255,100});
+    DrawCircleLines(playerPosition.x,playerPosition.y,29,(Color){255,255,255,100});
 }
 
 typedef enum
