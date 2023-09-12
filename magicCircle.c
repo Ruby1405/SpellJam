@@ -33,6 +33,17 @@ void DrawSpellManaSpark(Vector2 targetLocation, Vector2 aim)
     DrawCircle(targetLocation.x, targetLocation.y, 12, (Color){r,0,b,200});
 }
 
+void DrawSpellFireBall(Vector2 targetLocation, Vector2 aim)
+{
+    aim = Vector2Scale(Vector2Normalize(aim),4);
+    int r = 0;
+    for (int i = 0; i < 19; i++)
+    {
+        r = GetRandomValue(200,255);
+        DrawCircle(targetLocation.x + GetRandomValue(-20,20) / 2 - i * aim.x, targetLocation.y + GetRandomValue(-20,20) / 2 - i * aim.y, 20 - i + GetRandomValue(i-20,20-i) / 5, (Color){r,200 - 20*i/2,0,200});
+    }
+}
+
 void DrawSpellBlock(Vector2 playerPosition)
 {
     DrawCircle(playerPosition.x,playerPosition.y,30,(Color){0,200,255,100});
