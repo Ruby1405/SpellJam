@@ -7,16 +7,16 @@
 
 typedef struct Vector2 v2f;
 
-void DrawSpellMoonBeam(Vector2 targetLocation)
+void DrawSpellMoonBeam(Vector2 targetLocation, float lifeTime)
 {
-    int dave = GetRandomValue(180, 255);
-    for (int i = 80; i > 20; i--)
+    int gitter = GetRandomValue(80+20*lifeTime, 155+20*lifeTime);
+    for (int i = 40 + 8*lifeTime; i > 20; i--)
     {
-        DrawEllipse(targetLocation.x, targetLocation.y, i * 2, i, (Color){dave, dave, 255, 15});
+        DrawEllipse(targetLocation.x, targetLocation.y, i * 2, i, (Color){gitter, gitter, 255, 15});
     }
-    DrawRectangle(targetLocation.x - 40, targetLocation.y - 1000, 80, 1000, (Color){dave, dave, 255, 255});
-    DrawRectangle(targetLocation.x - 45, targetLocation.y - 1000, 90, 1000, (Color){dave, dave, 255, 100});
-    DrawEllipse(targetLocation.x, targetLocation.y, 40, 20, (Color){dave, dave, 255, 255});
+    DrawRectangle(targetLocation.x - (80 - 0.005 * pow(5-lifeTime,6))/2, targetLocation.y - 1000, 80 - 0.005 * pow(5-lifeTime,6), 1000, (Color){gitter, gitter, 255, 255});
+    DrawRectangle(targetLocation.x - ((80 - 0.005 * pow(5-lifeTime,6))/2+1), targetLocation.y - 1000, 82 - 0.005 * pow(5-lifeTime,6), 1000, (Color){gitter, gitter, 255, 100});
+    DrawEllipse(targetLocation.x, targetLocation.y, (80 - 0.005 * pow(5-lifeTime,6))/2, (80 - 0.005 * pow(5-lifeTime,6))/4, (Color){gitter, gitter, 255, 255});
 }
 
 void DrawSpellManaSpark(Vector2 targetLocation, Vector2 aim)
@@ -52,6 +52,22 @@ void DrawSpellBlock(Vector2 playerPosition)
     DrawCircleLines(playerPosition.x, playerPosition.y, 29, (Color){255, 255, 255, 100});
 }
 
+typedef enum SpellName
+{
+    manaSpark,
+    block,
+    fireBall,
+    moonBeam
+} SpellName;
+
+typedef struct SpellEntity
+{
+    float lifetime;
+    SpellName name;
+    Vector2 position;
+    Vector2 aim;
+} SpellEntity;
+
 typedef enum
 {
     square,
@@ -60,34 +76,19 @@ typedef enum
     execute
 } Incantation;
 
-typedef enum SpellType
-{
-    manaSpark,
-    block,
-    fireBall,
-    moonBeam
-} SpellType;
-
 typedef struct Spell
 {
-    SpellType spellType;
+    SpellName name;
+    float startingLifeTime;
     Incantation Incantation[16];
 } Spell;
 
-typedef struct SpellEntity
-{
-    int lifetime;
-    SpellType type;
-    Vector2 position;
-    Vector2 aim;
-} SpellEntity;
-
 const int spellBookCount = 4;
 const Spell spellBook[spellBookCount] = {
-    (Spell){manaSpark, {square, square, execute}},
-    (Spell){block, {circle, circle, execute}},
-    (Spell){fireBall, {square, square, square, execute}},
-    (Spell){moonBeam, {square, square, circle, square, triangle, execute}}};
+    (Spell){manaSpark, 1, {square, square, execute}},
+    (Spell){block, 1, {circle, circle, execute}},
+    (Spell){fireBall, 1, {square, square, square, execute}},
+    (Spell){moonBeam, 5, {square, square, circle, square, triangle, execute}}};
 
 void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ringCount, float *angle)
 {

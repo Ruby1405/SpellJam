@@ -8,6 +8,19 @@
 // #include "terrainGen.c"
 #include "magicCircle.c"
 
+typedef enum gameState
+{
+    menu,
+    game,
+    pause,
+    gameOver
+} gameState;
+
+bool rectCollision(Rectangle rect, Vector2 point)
+{
+    return (rect.x < point.x && rect.x + rect.width > point.x && rect.y < point.y && rect.y + rect.height > point.y);
+}
+
 int main()
 {
     // 1120,1280 är *5
@@ -90,9 +103,9 @@ int main()
                         {
                             for (int k = 0; k < maxSpellEntities; k++)
                             {
-                                if (spellEntities[k].lifetime == 0)
+                                if (spellEntities[k].lifetime <= 0)
                                 {
-                                    spellEntities[k] = (SpellEntity){100, spellBook[i].spellType, playerPosition, playerAim};
+                                    spellEntities[k] = (SpellEntity){spellBook[i].startingLifeTime, spellBook[i].name, playerPosition, playerAim};
                                     goto spellCast;
                                 }
                             }
@@ -119,16 +132,61 @@ int main()
             ringCount++;
         }
 
+        // -------------
+        // SPELL UPDATES
+        // -------------
+        for (int i = 0; i < maxSpellEntities; i++)
+        {
+            if (spellEntities[i].lifetime > 0)
+            {
+                switch (spellEntities[i].name)
+                {
+                case manaSpark:
+                    spellEntities[i].position.x += spellEntities[i].aim.x * 500 * GetFrameTime();
+                    spellEntities[i].position.y += spellEntities[i].aim.y * 500 * GetFrameTime();
+                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
+                    break;
+
+                case fireBall:
+                    spellEntities[i].position.x += spellEntities[i].aim.x * 500 * GetFrameTime();
+                    spellEntities[i].position.y += spellEntities[i].aim.y * 500 * GetFrameTime();
+                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
+                    break;
+                
+                case block:
+                    spellEntities[i].position = playerPosition;
+                    spellEntities[i].lifetime -= GetFrameTime();
+                    break;
+
+                case moonBeam:
+                    spellEntities[i].lifetime -= GetFrameTime();
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }
+
         BeginDrawing();
         ClearBackground(BLACK);
 
-        DrawCircle(playerPosition.x, playerPosition.y, 30, (Color){100, 255, 100, 255});
+        DrawCircle(playerPosition.x, playerPosition.y, 20, (Color){100, 255, 100, 255});
+        DrawCircle(playerPosition.x - 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
+        DrawCircle(playerPosition.x + 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
+        DrawRectangle(playerPosition.x - 8, playerPosition.y + 2, 16, 2, (Color){0, 0, 0, 255});
 
         for (int i = 0; i < maxSpellEntities; i++)
         {
             if (spellEntities[i].lifetime > 0)
             {
-                switch (spellEntities[i].type)
+                switch (spellEntities[i].name)
                 {
                 case manaSpark:
                     DrawSpellManaSpark(spellEntities[i].position, spellEntities[i].aim);
@@ -143,7 +201,7 @@ int main()
                     break;
 
                 case moonBeam:
-                    DrawSpellMoonBeam(spellEntities[i].position);
+                    DrawSpellMoonBeam(spellEntities[i].position, spellEntities[i].lifetime);
                     break;
 
                 default:
