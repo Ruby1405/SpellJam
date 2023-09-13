@@ -105,7 +105,7 @@ int main()
                             {
                                 if (spellEntities[k].lifetime <= 0)
                                 {
-                                    spellEntities[k] = (SpellEntity){spellBook[i].startingLifeTime, spellBook[i].name, playerPosition, playerAim};
+                                    spellEntities[k] = (SpellEntity){spellBook[i].startingLifeTime, spellBook[i].name, playerPosition, Vector2Normalize(playerAim)};
                                     goto spellCast;
                                 }
                             }
@@ -158,7 +158,7 @@ int main()
                         spellEntities[i].lifetime = 0;
                     }
                     break;
-                
+
                 case block:
                     spellEntities[i].position = playerPosition;
                     spellEntities[i].lifetime -= GetFrameTime();
@@ -166,6 +166,16 @@ int main()
 
                 case moonBeam:
                     spellEntities[i].lifetime -= GetFrameTime();
+                    break;
+
+                case chromaticOrb:
+                    spellEntities[i].position.x += spellEntities[i].aim.x * 300 * GetFrameTime();
+                    spellEntities[i].position.y += spellEntities[i].aim.y * 300 * GetFrameTime();
+                    spellEntities[i].lifetime += GetFrameTime();
+                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
                     break;
 
                 default:
@@ -202,6 +212,10 @@ int main()
 
                 case moonBeam:
                     DrawSpellMoonBeam(spellEntities[i].position, spellEntities[i].lifetime);
+                    break;
+
+                case chromaticOrb:
+                    DrawSpellChromaticOrb(spellEntities[i].position, spellEntities[i].aim, spellEntities[i].lifetime);
                     break;
 
                 default:

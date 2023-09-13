@@ -9,14 +9,14 @@ typedef struct Vector2 v2f;
 
 void DrawSpellMoonBeam(Vector2 targetLocation, float lifeTime)
 {
-    int gitter = GetRandomValue(80+20*lifeTime, 155+20*lifeTime);
-    for (int i = 40 + 8*lifeTime; i > 20; i--)
+    int gitter = GetRandomValue(80 + 20 * lifeTime, 155 + 20 * lifeTime);
+    for (int i = 40 + 8 * lifeTime; i > 20; i--)
     {
         DrawEllipse(targetLocation.x, targetLocation.y, i * 2, i, (Color){gitter, gitter, 255, 15});
     }
-    DrawRectangle(targetLocation.x - (80 - 0.005 * pow(5-lifeTime,6))/2, targetLocation.y - 1000, 80 - 0.005 * pow(5-lifeTime,6), 1000, (Color){gitter, gitter, 255, 255});
-    DrawRectangle(targetLocation.x - ((80 - 0.005 * pow(5-lifeTime,6))/2+1), targetLocation.y - 1000, 82 - 0.005 * pow(5-lifeTime,6), 1000, (Color){gitter, gitter, 255, 100});
-    DrawEllipse(targetLocation.x, targetLocation.y, (80 - 0.005 * pow(5-lifeTime,6))/2, (80 - 0.005 * pow(5-lifeTime,6))/4, (Color){gitter, gitter, 255, 255});
+    DrawRectangle(targetLocation.x - (80 - 0.005 * pow(5 - lifeTime, 6)) / 2, targetLocation.y - 1000, 80 - 0.005 * pow(5 - lifeTime, 6), 1000, (Color){gitter, gitter, 255, 255});
+    DrawRectangle(targetLocation.x - ((80 - 0.005 * pow(5 - lifeTime, 6)) / 2 + 1), targetLocation.y - 1000, 82 - 0.005 * pow(5 - lifeTime, 6), 1000, (Color){gitter, gitter, 255, 100});
+    DrawEllipse(targetLocation.x, targetLocation.y, (80 - 0.005 * pow(5 - lifeTime, 6)) / 2, (80 - 0.005 * pow(5 - lifeTime, 6)) / 4, (Color){gitter, gitter, 255, 255});
 }
 
 void DrawSpellManaSpark(Vector2 targetLocation, Vector2 aim)
@@ -35,7 +35,7 @@ void DrawSpellManaSpark(Vector2 targetLocation, Vector2 aim)
 
 void DrawSpellFireBall(Vector2 targetLocation, Vector2 aim)
 {
-    aim = Vector2Scale(Vector2Normalize(aim), 4);
+    aim = Vector2Scale(aim, 4);
     int r = 0;
     for (int i = 0; i < 19; i++)
     {
@@ -52,12 +52,28 @@ void DrawSpellBlock(Vector2 playerPosition)
     DrawCircleLines(playerPosition.x, playerPosition.y, 29, (Color){255, 255, 255, 100});
 }
 
+void DrawSpellChromaticOrb(Vector2 targetLocation, Vector2 aim, float lifeTime)
+{
+    aim = Vector2Scale(aim, 4);
+    int h = (int)(lifeTime*100) % 36;
+    v2f pos = {0,8};
+    pos = Vector2Rotate(pos, -10 * h * DEG2RAD);
+    DrawCircle(targetLocation.x,targetLocation.y, 20, ColorAlpha(ColorFromHSV(h*10, 1, 1),0.5));
+    for (int i = 0; i < 16; i++)
+    {
+        pos = Vector2Rotate(pos, 22.5 * DEG2RAD);
+        DrawCircle(targetLocation.x + pos.x, targetLocation.y + pos.y, 8, ColorFromHSV(i*22.5, 1, 1));
+    }
+    
+}
+
 typedef enum SpellName
 {
     manaSpark,
     block,
     fireBall,
-    moonBeam
+    moonBeam,
+    chromaticOrb
 } SpellName;
 
 typedef struct SpellEntity
@@ -83,12 +99,13 @@ typedef struct Spell
     Incantation Incantation[16];
 } Spell;
 
-const int spellBookCount = 4;
+const int spellBookCount = 5;
 const Spell spellBook[spellBookCount] = {
     (Spell){manaSpark, 1, {square, square, execute}},
     (Spell){block, 1, {circle, circle, execute}},
-    (Spell){fireBall, 1, {square, square, square, execute}},
-    (Spell){moonBeam, 5, {square, square, circle, square, triangle, execute}}};
+    (Spell){fireBall, 1, {square, circle, square, execute}},
+    (Spell){moonBeam, 5, {square, square, circle, square, triangle, execute}},
+    (Spell){chromaticOrb, 1, {square, triangle, triangle, square, execute}}};
 
 void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ringCount, float *angle)
 {
