@@ -57,34 +57,6 @@ int getRandomDir() {
 
 // }
 
-Room* RoomCreator(){
-    bool doorAvailability[4]={false};
-    Room roomGrid[21][21]={0};
-    for(int i= 0; i < 21; i++){
-        for(int j = 0; j<21 ;j++){
-            roomGrid[i][j].empty = true;
-        }
-    }
-    int currentXPOS;
-    int currentYPOS;
-    
-    //Room occupancy checker
-    if(roomGrid[currentXPOS-1][currentYPOS].empty==true){//North
-        doorAvailability[0]=true;
-    }
-    if(roomGrid[currentXPOS][currentYPOS+1].empty==true){//East
-        doorAvailability[1]=true;
-    }
-    if(roomGrid[currentXPOS+1][currentYPOS].empty==true){//South
-        doorAvailability[2]=true;
-    }
-    if(roomGrid[currentXPOS][currentYPOS-1].empty==true){//West
-        doorAvailability[0]=true;
-    }
-
-    return roomGrid;
-}
-
 //En funktion för random terrain generation med "the drunkards walk" algoritmen
 Room DrunkardsWalk (bool north, bool east, bool south, bool west, int staggering, Point StartPOS){
     Room map;
@@ -160,3 +132,50 @@ Room DrunkardsWalk (bool north, bool east, bool south, bool west, int staggering
     }
     return map;
 }
+
+
+/*
+TODO
+- Implement a way to randomise rooms in certain ways such as
+    - Treasure rooms 
+    - Multiple doors in a room
+    - Boss rooms if the drunkard is trapped
+- Boss room 
+*/
+Room* RoomCreator(){
+    Point startPOS;
+    startPOS.x=112;
+    startPOS.y=112;
+    bool doorAvailability[4]={false};
+    Room roomGrid[21][21]={0};
+    for(int i= 0; i < 21; i++){
+        for(int j = 0; j<21 ;j++){
+            roomGrid[i][j].empty = true;
+        }
+    }
+    for(int i = 0; i < 10; i++){
+        int currentXPOS;
+        int currentYPOS;
+        
+        //Room occupancy checker
+        if(roomGrid[currentXPOS-1][currentYPOS].empty==true){//North
+            doorAvailability[0]=true;
+        }
+        if(roomGrid[currentXPOS][currentYPOS+1].empty==true){//East
+            doorAvailability[1]=true;
+        }
+        if(roomGrid[currentXPOS+1][currentYPOS].empty==true){//South
+            doorAvailability[2]=true;
+        }
+        if(roomGrid[currentXPOS][currentYPOS-1].empty==true){//West
+            doorAvailability[3]=true;
+        }
+
+        //224*224 är 50176
+        DrunkardsWalk(doorAvailability[0],doorAvailability[1],doorAvailability[2],doorAvailability[3],33450,startPOS);
+
+    }
+    
+    return roomGrid;
+}
+
