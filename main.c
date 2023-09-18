@@ -5,7 +5,7 @@
 #include <time.h>
 #include "raylib.h"
 #include "raymath.h"
-// #include "terrainGen.c"
+#include "terrainGen.c"
 #include "magicCircle.c"
 
 typedef enum gameState
@@ -184,8 +184,13 @@ int main()
             }
         }
 
+        // ------
+        // RENDER
+        // ------
         BeginDrawing();
         ClearBackground(BLACK);
+        // Draw Rooms
+        DrunkardsWalk(true, true, true, true, 100, (Point){0, 0});
 
         DrawCircle(playerPosition.x, playerPosition.y, 20, (Color){100, 255, 100, 255});
         DrawCircle(playerPosition.x - 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
