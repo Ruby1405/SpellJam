@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-#include "raylib.h"
-#include "raymath.h"
+#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raylib.h"
+#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raymath.h"
 #include "terrainGen.c"
 #include "magicCircle.c"
 
@@ -23,6 +23,8 @@ bool rectCollision(Rectangle rect, Vector2 point)
 
 int main()
 {
+    time_t t;
+srand((unsigned)time(&t));
     // 1120,1280 är *5
     v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
@@ -51,6 +53,8 @@ int main()
     Incantation magicCircle[16];
     int ringCount = 0;
     float angle = 0;
+
+    Room room = DrunkardsWalk(false, true, true, false, 2500, (Point){16, 16});
 
     while (!WindowShouldClose())
     {
@@ -190,7 +194,32 @@ int main()
         BeginDrawing();
         ClearBackground(BLACK);
         // Draw Rooms
-        DrunkardsWalk(true, true, true, true, 100, (Point){0, 0});
+        for (int i = 0; i < 28; i ++)
+        {
+            for (int j = 0; j < 28; j ++)
+            {
+                switch (room.data[i][j])
+                {
+                case TILE_TYPE_BLOCKED:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 255, 255, 255});
+                    break;
+                case TILE_TYPE_DOOR_NORTH:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 255, 0, 255});
+                    break;
+                case TILE_TYPE_DOOR_EAST:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 0, 255, 255});
+                    break;
+                case TILE_TYPE_DOOR_SOUTH:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){0, 255, 255, 255});
+                    break;
+                case TILE_TYPE_DOOR_WEST:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){0, 255, 0, 255});
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
 
         DrawCircle(playerPosition.x, playerPosition.y, 20, (Color){100, 255, 100, 255});
         DrawCircle(playerPosition.x - 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});

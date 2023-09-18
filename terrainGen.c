@@ -5,7 +5,7 @@
 #include <time.h>
 #include "/opt/homebrew/Cellar/raylib/4.5.0/include/raylib.h"
 
-static int roomSize = 64;
+const int roomSize = 28;
 
 typedef enum TileType
 {
@@ -53,8 +53,7 @@ typedef struct Point
 
 int getRandomDir()
 {
-    time_t t;
-    srand((unsigned)time(&t));
+    
     return rand() % 4;
 }
 
@@ -63,7 +62,7 @@ int getRandomDir()
 
 // }
 
-Room *RoomCreator()
+/* Room *RoomCreator()
 {
     bool doorAvailability[4] = {false};
     Room roomGrid[21][21] = {0};
@@ -96,7 +95,7 @@ Room *RoomCreator()
     }
 
     return roomGrid;
-}
+} */
 
 // En funktion för random terrain generation med "the drunkards walk" algoritmen
 Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering, Point StartPOS)
@@ -119,6 +118,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
     int i = 0;
     while (i <= staggering || !drunkardOutOfBounds)
     {
+        printf("%d\n", i);
         // Sets the drunkard loose
         switch (getRandomDir())
         {
@@ -141,6 +141,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
 
         if (drunkardsPOS.x < 0) // THE WEST HAS FALLEN
         {
+            puts("The west has fallen");
             drunkardsPOS.x++;
             if (!west)
             {
@@ -150,6 +151,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
         }
         else if (drunkardsPOS.x > roomSize) // East bound and down, loaded up and truckin'
         {
+            puts("East bound and down, loaded up and truckin'");
             drunkardsPOS.x--;
             if (!east)
             {
@@ -159,6 +161,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
         }
         else if (drunkardsPOS.y < 0) // King in the north
         {
+            puts("King in the north");
             drunkardsPOS.y++;
             if (!north)
             {
@@ -168,6 +171,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
         }
         else if (drunkardsPOS.y > roomSize) // Away down South in the land of traitors, rattlesnakes and alligators
         {
+            puts("Away down South in the land of traitors, rattlesnakes and alligators");
             drunkardsPOS.y--;
             if (!south)
             {
