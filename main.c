@@ -3,13 +3,28 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-#include "raylib.h"
-#include "raymath.h"
-// #include "terrainGen.c"
+#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raylib.h"
+#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raymath.h"
+#include "terrainGen.c"
 #include "magicCircle.c"
+
+typedef enum gameState
+{
+    menu,
+    game,
+    pause,
+    gameOver
+} gameState;
+
+bool rectCollision(Rectangle rect, Vector2 point)
+{
+    return (rect.x < point.x && rect.x + rect.width > point.x && rect.y < point.y && rect.y + rect.height > point.y);
+}
 
 int main()
 {
+    time_t t;
+srand((unsigned)time(&t));
     // 1120,1280 är *5
     v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
@@ -38,6 +53,8 @@ int main()
     Incantation magicCircle[16];
     int ringCount = 0;
     float angle = 0;
+
+    Room room = DrunkardsWalk(false, true, true, false, 2500, (Point){16, 16});
 
     while (!WindowShouldClose())
     {
@@ -90,9 +107,9 @@ int main()
                         {
                             for (int k = 0; k < maxSpellEntities; k++)
                             {
-                                if (spellEntities[k].lifetime == 0)
+                                if (spellEntities[k].lifetime <= 0)
                                 {
-                                    spellEntities[k] = (SpellEntity){100, spellBook[i].spellType, playerPosition, playerAim};
+                                    spellEntities[k] = (SpellEntity){spellBook[i].startingLifeTime, spellBook[i].name, playerPosition, Vector2Normalize(playerAim)};
                                     goto spellCast;
                                 }
                             }
@@ -119,16 +136,101 @@ int main()
             ringCount++;
         }
 
+        // -------------
+        // SPELL UPDATES
+        // -------------
+        for (int i = 0; i < maxSpellEntities; i++)
+        {
+            if (spellEntities[i].lifetime > 0)
+            {
+                switch (spellEntities[i].name)
+                {
+                case manaSpark:
+                    spellEntities[i].position.x += spellEntities[i].aim.x * 500 * GetFrameTime();
+                    spellEntities[i].position.y += spellEntities[i].aim.y * 500 * GetFrameTime();
+                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
+                    break;
+
+                case fireBall:
+                    spellEntities[i].position.x += spellEntities[i].aim.x * 500 * GetFrameTime();
+                    spellEntities[i].position.y += spellEntities[i].aim.y * 500 * GetFrameTime();
+                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
+                    break;
+
+                case block:
+                    spellEntities[i].position = playerPosition;
+                    spellEntities[i].lifetime -= GetFrameTime();
+                    break;
+
+                case moonBeam:
+                    spellEntities[i].lifetime -= GetFrameTime();
+                    break;
+
+                case chromaticOrb:
+                    spellEntities[i].position.x += spellEntities[i].aim.x * 300 * GetFrameTime();
+                    spellEntities[i].position.y += spellEntities[i].aim.y * 300 * GetFrameTime();
+                    spellEntities[i].lifetime += GetFrameTime();
+                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }
+
+        // ------
+        // RENDER
+        // ------
         BeginDrawing();
         ClearBackground(BLACK);
+        // Draw Rooms
+        for (int i = 0; i < 28; i ++)
+        {
+            for (int j = 0; j < 28; j ++)
+            {
+                switch (room.data[i][j])
+                {
+                case TILE_TYPE_BLOCKED:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 255, 255, 255});
+                    break;
+                case TILE_TYPE_DOOR_NORTH:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 255, 0, 255});
+                    break;
+                case TILE_TYPE_DOOR_EAST:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 0, 255, 255});
+                    break;
+                case TILE_TYPE_DOOR_SOUTH:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){0, 255, 255, 255});
+                    break;
+                case TILE_TYPE_DOOR_WEST:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){0, 255, 0, 255});
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
 
-        DrawCircle(playerPosition.x, playerPosition.y, 30, (Color){100, 255, 100, 255});
+        DrawCircle(playerPosition.x, playerPosition.y, 20, (Color){100, 255, 100, 255});
+        DrawCircle(playerPosition.x - 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
+        DrawCircle(playerPosition.x + 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
+        DrawRectangle(playerPosition.x - 8, playerPosition.y + 2, 16, 2, (Color){0, 0, 0, 255});
 
         for (int i = 0; i < maxSpellEntities; i++)
         {
             if (spellEntities[i].lifetime > 0)
             {
-                switch (spellEntities[i].type)
+                switch (spellEntities[i].name)
                 {
                 case manaSpark:
                     DrawSpellManaSpark(spellEntities[i].position, spellEntities[i].aim);
@@ -143,7 +245,11 @@ int main()
                     break;
 
                 case moonBeam:
-                    DrawSpellMoonBeam(spellEntities[i].position);
+                    DrawSpellMoonBeam(spellEntities[i].position, spellEntities[i].lifetime);
+                    break;
+
+                case chromaticOrb:
+                    DrawSpellChromaticOrb(spellEntities[i].position, spellEntities[i].aim, spellEntities[i].lifetime);
                     break;
 
                 default:

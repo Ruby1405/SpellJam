@@ -1,22 +1,66 @@
 #include <stdlib.h>
 #include <stdbool.h>
-#include "raylib.h"
-#include "raymath.h"
+#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raylib.h"
+#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raymath.h"
 
 #define CircleRotation(radius, angle) ((angle * 3) / (radius * 0.0002 + 0.01))
 
 typedef struct Vector2 v2f;
 
-void DrawSpellMoonBeam(Vector2 targetLocation)
+typedef enum SpellName
 {
-    int dave = GetRandomValue(180, 255);
-    for (int i = 80; i > 20; i--)
+    manaSpark,
+    block,
+    fireBall,
+    moonBeam,
+    chromaticOrb
+} SpellName;
+
+typedef struct SpellEntity
+{
+    float lifetime;
+    SpellName name;
+    Vector2 position;
+    Vector2 aim;
+} SpellEntity;
+
+typedef enum
+{
+    square,
+    triangle,
+    circle,
+    execute
+} Incantation;
+
+typedef struct Spell
+{
+    SpellName name;
+    float startingLifeTime;
+    Incantation Incantation[16];
+} Spell;
+
+const int spellBookCount = 5;
+const Spell spellBook[spellBookCount] = {
+    (Spell){manaSpark, 1, {square, square, execute}},
+    (Spell){block, 1, {circle, circle, execute}},
+    (Spell){fireBall, 1, {square, circle, square, execute}},
+    (Spell){moonBeam, 5, {square, square, circle, square, triangle, execute}},
+    (Spell){chromaticOrb, 1, {square, triangle, triangle, square, execute}}};
+
+void DrawSpellMoonBeam(Vector2 targetLocation, float lifeTime)
+{
+    float a = 2;
+    float b = 4.8;
+    float c = 3.6;
+    float curve = 80 - pow(a,b * (spellBook[moonBeam].startingLifeTime - lifeTime-c));
+    int gitter = GetRandomValue(80 + 20 * lifeTime, 155 + 20 * lifeTime);
+    for (int i = 40 + 8 * lifeTime; i > 20; i--)
     {
-        DrawEllipse(targetLocation.x, targetLocation.y, i * 2, i, (Color){dave, dave, 255, 15});
+        DrawEllipse(targetLocation.x, targetLocation.y, i * 2, i, (Color){gitter, gitter, 255, 15});
     }
-    DrawRectangle(targetLocation.x - 40, targetLocation.y - 1000, 80, 1000, (Color){dave, dave, 255, 255});
-    DrawRectangle(targetLocation.x - 45, targetLocation.y - 1000, 90, 1000, (Color){dave, dave, 255, 100});
-    DrawEllipse(targetLocation.x, targetLocation.y, 40, 20, (Color){dave, dave, 255, 255});
+    DrawRectangle(targetLocation.x - curve / 2, targetLocation.y - 1000, curve, 1000, (Color){gitter, gitter, 255, 255});
+    DrawRectangle(targetLocation.x - (curve / 2 + 1), targetLocation.y - 1000, curve + 2, 1000, (Color){gitter, gitter, 255, 100});
+    DrawEllipse(targetLocation.x, targetLocation.y, curve / 2, curve / 4, (Color){gitter, gitter, 255, 255});
 }
 
 void DrawSpellManaSpark(Vector2 targetLocation, Vector2 aim)
@@ -35,7 +79,7 @@ void DrawSpellManaSpark(Vector2 targetLocation, Vector2 aim)
 
 void DrawSpellFireBall(Vector2 targetLocation, Vector2 aim)
 {
-    aim = Vector2Scale(Vector2Normalize(aim), 4);
+    aim = Vector2Scale(aim, 4);
     int r = 0;
     for (int i = 0; i < 19; i++)
     {
@@ -52,42 +96,20 @@ void DrawSpellBlock(Vector2 playerPosition)
     DrawCircleLines(playerPosition.x, playerPosition.y, 29, (Color){255, 255, 255, 100});
 }
 
-typedef enum
+void DrawSpellChromaticOrb(Vector2 targetLocation, Vector2 aim, float lifeTime)
 {
-    square,
-    triangle,
-    circle,
-    execute
-} Incantation;
-
-typedef enum SpellType
-{
-    manaSpark,
-    block,
-    fireBall,
-    moonBeam
-} SpellType;
-
-typedef struct Spell
-{
-    SpellType spellType;
-    Incantation Incantation[16];
-} Spell;
-
-typedef struct SpellEntity
-{
-    int lifetime;
-    SpellType type;
-    Vector2 position;
-    Vector2 aim;
-} SpellEntity;
-
-const int spellBookCount = 4;
-const Spell spellBook[spellBookCount] = {
-    (Spell){manaSpark, {square, square, execute}},
-    (Spell){block, {circle, circle, execute}},
-    (Spell){fireBall, {square, square, square, execute}},
-    (Spell){moonBeam, {square, square, circle, square, triangle, execute}}};
+    aim = Vector2Scale(aim, 4);
+    int h = (int)(lifeTime*100) % 36;
+    v2f pos = {0,8};
+    pos = Vector2Rotate(pos, -10 * h * DEG2RAD);
+    DrawCircle(targetLocation.x,targetLocation.y, 20, ColorAlpha(ColorFromHSV(h*10, 1, 1),0.5));
+    for (int i = 0; i < 16; i++)
+    {
+        pos = Vector2Rotate(pos, 22.5 * DEG2RAD);
+        DrawCircle(targetLocation.x + pos.x, targetLocation.y + pos.y, 8, ColorFromHSV(i*22.5, 1, 1));
+    }
+    
+}
 
 void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ringCount, float *angle)
 {
