@@ -60,10 +60,6 @@ srand((unsigned)time(&t));
     enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 150, 100, 0, warrior, chase};
     enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 0, mage, chase};
 
-    Enemy enemies[32];
-    enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 150, 100, 0, warrior, chase};
-    enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 0, mage, chase};
-
     Room room = DrunkardsWalk(false, true, true, false, 2500, (Point){14, 14});
 
     while (!WindowShouldClose())
