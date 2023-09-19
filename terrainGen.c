@@ -14,7 +14,8 @@ typedef enum TileType
     TILE_TYPE_DOOR_NORTH,
     TILE_TYPE_DOOR_EAST,
     TILE_TYPE_DOOR_SOUTH,
-    TILE_TYPE_DOOR_WEST
+    TILE_TYPE_DOOR_WEST,
+    SCHEDULED_FOR_DELETE
 } TileType;
 
 typedef enum Directions
@@ -107,43 +108,94 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
         {
             puts("The west has fallen");
             drunkardsPOS.x++;
-            if (!west)
+            if (!west && i >= staggering)
             {
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y] = TILE_TYPE_DOOR_WEST;
             }
+            else{
+                puts("smhing my hed");
+            }
         }
-        else if (drunkardsPOS.x > roomSize) // East bound and down, loaded up and truckin'
+        else if (drunkardsPOS.x >= roomSize-1) // East bound and down, loaded up and truckin'
         {
             puts("East bound and down, loaded up and truckin'");
             drunkardsPOS.x--;
-            if (!east)
+            if (!east && i >= staggering)
             {
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y] = TILE_TYPE_DOOR_EAST;
+            }
+            else{
+                puts("We're gonna do what they say cant be done");
             }
         }
         else if (drunkardsPOS.y < 0) // King in the north
         {
             puts("King in the north");
             drunkardsPOS.y++;
-            if (!north)
+            if (!north && i >= staggering)
             {
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y] = TILE_TYPE_DOOR_NORTH;
             }
+            else{
+                puts("He ded");
+            }
         }
-        else if (drunkardsPOS.y > roomSize) // Away down South in the land of traitors, rattlesnakes and alligators
+        else if (drunkardsPOS.y >= roomSize-1) // Away down South in the land of traitors, rattlesnakes and alligators
         {
             puts("Away down South in the land of traitors, rattlesnakes and alligators");
             drunkardsPOS.y--;
-            if (!south)
+            if (!south && i >= staggering)
             {
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y] = TILE_TYPE_DOOR_SOUTH;
             }
+            else if(south){
+                puts("Come away");
+            }
         }
         i++;
+    }
+    //Dunkard cleanup
+    for(int i = 0; i< roomSize; i++){
+        for(int j = 0; j<roomSize; j++){
+            if(i == 0 || i == roomSize || j == 0 || j == roomSize){}
+            else{
+                int borderWalls = 4 ;
+                int leftRight =0;
+                int upDown = 0 ;
+                if(map.data[i][j]==TILE_TYPE_BLOCKED){
+                    if(map.data[i-1][j]==TILE_TYPE_EMPTY){
+                        borderWalls--;
+                        leftRight++;
+                    };//Left
+                    if(map.data[i+1][j]==TILE_TYPE_EMPTY){
+                        borderWalls--;
+                        leftRight++;
+                    };//Right
+                    if(map.data[i][j-1]==TILE_TYPE_EMPTY){
+                        borderWalls--;
+                        upDown++;
+                    };//Up
+                    if(map.data[i][j+1]==TILE_TYPE_EMPTY){
+                        borderWalls--;
+                        upDown++;
+                    };//Down
+                }
+                if(borderWalls<2||leftRight==2||upDown==2){
+                    map.data[i][j]=SCHEDULED_FOR_DELETE;
+                    }
+            }
+        }
+    }
+    for(int i = 0; i<roomSize; i++){
+        for(int j = 0; j < roomSize; j ++){
+            if(map.data[i][j]==SCHEDULED_FOR_DELETE){
+                map.data[i][j]=TILE_TYPE_EMPTY;
+            }
+        }
     }
     return map;
 }
@@ -169,8 +221,8 @@ Room* RoomCreator(){
         }
     }
     for(int i = 0; i < 10; i++){
-        int currentXPOS;
-        int currentYPOS;
+        int currentXPOS =0;
+        int currentYPOS =0;
         
         //Room occupancy checker
         if(roomGrid[currentXPOS-1][currentYPOS].empty==true){//North

@@ -54,7 +54,7 @@ srand((unsigned)time(&t));
     int ringCount = 0;
     float angle = 0;
 
-    Room room = DrunkardsWalk(false, true, true, false, 2500, (Point){16, 16});
+    Room room = DrunkardsWalk(false, true, true, false, 2500, (Point){14, 14});
 
     while (!WindowShouldClose())
     {
@@ -194,9 +194,9 @@ srand((unsigned)time(&t));
         BeginDrawing();
         ClearBackground(BLACK);
         // Draw Rooms
-        for (int i = 0; i < 28; i ++)
+        for (int i = 0; i < roomSize; i ++)
         {
-            for (int j = 0; j < 28; j ++)
+            for (int j = 0; j < roomSize; j ++)
             {
                 switch (room.data[i][j])
                 {
@@ -214,6 +214,9 @@ srand((unsigned)time(&t));
                     break;
                 case TILE_TYPE_DOOR_WEST:
                     DrawRectangle(i * 30, j * 30, 30, 30, (Color){0, 255, 0, 255});
+                    break;
+                case TILE_TYPE_EMPTY:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){40, 40, 45, 255});
                     break;
                 default:
                     break;
