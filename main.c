@@ -7,6 +7,8 @@
 #include "/opt/homebrew/Cellar/raylib/4.5.0/include/raymath.h"
 #include "terrainGen.c"
 #include "magicCircle.c"
+#include "enemy.c"
+#include "boss.c"
 
 typedef enum gameState
 {
@@ -53,6 +55,10 @@ srand((unsigned)time(&t));
     Incantation magicCircle[16];
     int ringCount = 0;
     float angle = 0;
+
+    Enemy enemies[32];
+    enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 150, 100, 0, warrior, chase};
+    enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 0, mage, chase};
 
     Room room = DrunkardsWalk(false, true, true, false, 2500, (Point){16, 16});
 
@@ -188,6 +194,17 @@ srand((unsigned)time(&t));
             }
         }
 
+        // ------------
+        // ENEMY UPDATE
+        // ------------
+        for (int i = 0; i < 32; i++)
+        {
+            if (enemies[i].health > 0)
+            {
+                UpdateEnemy(&enemies[i], playerPosition);
+            }
+        }
+
         // ------
         // RENDER
         // ------
@@ -225,6 +242,16 @@ srand((unsigned)time(&t));
         DrawCircle(playerPosition.x - 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
         DrawCircle(playerPosition.x + 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
         DrawRectangle(playerPosition.x - 8, playerPosition.y + 2, 16, 2, (Color){0, 0, 0, 255});
+
+        DrawEnemy(enemies[0]);
+        DrawEnemy(enemies[1]);
+        /* for (int i = 0; i < 32; i++)
+        {
+            if (enemies[i].health > 0)
+            {
+                DrawEnemy(enemies[i]);
+            }
+        } */
 
         for (int i = 0; i < maxSpellEntities; i++)
         {
