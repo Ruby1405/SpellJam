@@ -60,7 +60,7 @@ srand((unsigned)time(&t));
     enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, warrior, chase};
     enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, mage, chase};
 
-    Room room = DrunkardsWalk(false, true, false, false, 2500, (Point){14, 14});
+    Room room = DrunkardsWalk(false, false, false, false, 2500, (Point){14, 14});
 
     while (!WindowShouldClose())
     {
@@ -296,6 +296,8 @@ srand((unsigned)time(&t));
                 case TILE_TYPE_EMPTY:
                     DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){40, 40, 45, 255});
                     break;
+                case SCHEDULED_FOR_DELETE:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){80, 40, 45, 255});
                 default:
                     break;
                 }

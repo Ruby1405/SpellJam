@@ -85,6 +85,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
     {
         printf("%d\n", i);
         // Sets the drunkard loose
+        map.data[drunkardsPOS.x][drunkardsPOS.y] = TILE_TYPE_EMPTY;
         switch (getRandomDir())
         {
         case North: // North
@@ -100,7 +101,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
             drunkardsPOS.x--;
             break;
         }
-        map.data[drunkardsPOS.x][drunkardsPOS.y] = TILE_TYPE_EMPTY;
+        
 
         // checks if the drunkard is out of bounds
 
@@ -117,7 +118,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 puts("smhing my hed");
             }
         }
-        else if (drunkardsPOS.x >= roomSize-1) // East bound and down, loaded up and truckin'
+        else if (drunkardsPOS.x >= roomSize) // East bound and down, loaded up and truckin'
         {
             puts("East bound and down, loaded up and truckin'");
             drunkardsPOS.x--;
@@ -143,7 +144,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 puts("He ded");
             }
         }
-        else if (drunkardsPOS.y >= roomSize-1) // Away down South in the land of traitors, rattlesnakes and alligators
+        else if (drunkardsPOS.y >= roomSize) // Away down South in the land of traitors, rattlesnakes and alligators
         {
             puts("Away down South in the land of traitors, rattlesnakes and alligators");
             drunkardsPOS.y--;
@@ -161,40 +162,70 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
     //Dunkard cleanup
     for(int i = 0; i< roomSize; i++){
         for(int j = 0; j<roomSize; j++){
-            if(i == 0 || i == roomSize || j == 0 || j == roomSize){}
+            if(i == 0 || i == roomSize-1 || j == 0 || j == roomSize-1){}
             else{
                 int borderWalls = 4 ;
                 int leftRight =0;
                 int upDown = 0 ;
                 if(map.data[i][j]==TILE_TYPE_BLOCKED){
-                    if(map.data[i-1][j]==TILE_TYPE_EMPTY){
+                    if(map.data[i-1][j]==TILE_TYPE_EMPTY || map.data[i-1][j]==SCHEDULED_FOR_DELETE ){
                         borderWalls--;
                         leftRight++;
                     };//Left
-                    if(map.data[i+1][j]==TILE_TYPE_EMPTY){
+                    if(map.data[i+1][j]==TILE_TYPE_EMPTY || map.data[i+1][j]==SCHEDULED_FOR_DELETE){
                         borderWalls--;
                         leftRight++;
                     };//Right
-                    if(map.data[i][j-1]==TILE_TYPE_EMPTY){
+                    if(map.data[i][j-1]==TILE_TYPE_EMPTY || map.data[i][j-1]==SCHEDULED_FOR_DELETE){
                         borderWalls--;
                         upDown++;
                     };//Up
-                    if(map.data[i][j+1]==TILE_TYPE_EMPTY){
+                    if(map.data[i][j+1]==TILE_TYPE_EMPTY || map.data[i][j+1]==SCHEDULED_FOR_DELETE){
                         borderWalls--;
                         upDown++;
                     };//Down
                 }
-                if(borderWalls<2||leftRight==2||upDown==2){
+                if(borderWalls<2||leftRight==2||upDown==2)
+                {
                     map.data[i][j]=SCHEDULED_FOR_DELETE;
-                    }
+                }
             }
         }
     }
     for(int i = 0; i<roomSize; i++){
-        for(int j = 0; j < roomSize; j ++){
-            if(map.data[i][j]==SCHEDULED_FOR_DELETE){
-                map.data[i][j]=TILE_TYPE_EMPTY;
-            }
+        for(int j = 0; j < roomSize; j ++)
+        {if(i == 0 || i == roomSize-1 || j == 0 || j == roomSize-1){}
+                else
+                {
+                    int borderWalls = 4 ;
+                    int leftRight =0;
+                    int upDown = 0 ;
+                    if(map.data[i][j]==TILE_TYPE_BLOCKED){
+                        if(map.data[i-1][j]==TILE_TYPE_EMPTY || map.data[i-1][j]==SCHEDULED_FOR_DELETE ){
+                            borderWalls--;
+                            leftRight++;
+                        };//Left
+                        if(map.data[i+1][j]==TILE_TYPE_EMPTY || map.data[i+1][j]==SCHEDULED_FOR_DELETE){
+                            borderWalls--;
+                            leftRight++;
+                        };//Right
+                        if(map.data[i][j-1]==TILE_TYPE_EMPTY || map.data[i][j-1]==SCHEDULED_FOR_DELETE){
+                            borderWalls--;
+                            upDown++;
+                        };//Up
+                        if(map.data[i][j+1]==TILE_TYPE_EMPTY || map.data[i][j+1]==SCHEDULED_FOR_DELETE){
+                            borderWalls--;
+                            upDown++;
+                        };//Down
+                    }
+                    if(borderWalls<2||leftRight==2||upDown==2){
+                        map.data[i][j]=SCHEDULED_FOR_DELETE;
+                    }
+                }
+            // if(map.data[i][j]==SCHEDULED_FOR_DELETE){
+                
+            //     map.data[i][j]=TILE_TYPE_EMPTY;
+            // }
         }
     }
     return map;
