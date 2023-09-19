@@ -60,7 +60,7 @@ srand((unsigned)time(&t));
     enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 150, 100, 0, warrior, chase};
     enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 0, mage, chase};
 
-    Room room = DrunkardsWalk(false, true, true, false, 2500, (Point){14, 14});
+    Room room = DrunkardsWalk(false, false, false, false, 2500, (Point){14, 14});
 
     while (!WindowShouldClose())
     {
@@ -219,6 +219,8 @@ srand((unsigned)time(&t));
                 {
                 case TILE_TYPE_BLOCKED:
                     DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 255, 255, 255});
+                    DrawLine(i*30, (j*30)+30, (i*30)+30, (j*30)+30, BLACK);
+                    DrawLine((i*30)+30, j*30, (i*30)+30, (j*30)+30, BLACK);
                     break;
                 case TILE_TYPE_DOOR_NORTH:
                     DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 255, 0, 255});
@@ -234,7 +236,11 @@ srand((unsigned)time(&t));
                     break;
                 case TILE_TYPE_EMPTY:
                     DrawRectangle(i * 30, j * 30, 30, 30, (Color){40, 40, 45, 255});
+                    DrawLine(i*30, (j*30)+30, (i*30)+30, (j*30)+30, WHITE);
+                    DrawLine((i*30)+30, j*30, (i*30)+30, (j*30)+30, WHITE);
                     break;
+                case SCHEDULED_FOR_DELETE:
+                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){80, 40, 45, 255});
                 default:
                     break;
                 }
