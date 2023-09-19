@@ -56,11 +56,11 @@ srand((unsigned)time(&t));
     int ringCount = 0;
     float angle = 0;
 
-    Enemy enemies[32];
-    enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 150, 100, 0, warrior, chase};
-    enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 0, mage, chase};
+    Enemy enemies[32] = {0};
+    enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, warrior, chase};
+    enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, mage, chase};
 
-    Room room = DrunkardsWalk(false, true, true, false, 2500, (Point){14, 14});
+    Room room = DrunkardsWalk(false, true, false, false, 2500, (Point){14, 14});
 
     while (!WindowShouldClose())
     {
@@ -76,26 +76,35 @@ srand((unsigned)time(&t));
         circlePressed = IsKeyPressed(KEY_RIGHT);
         executePressed = IsKeyPressed(KEY_DOWN);
 
+        playerAim = (Vector2){0, 0};
         if (upDown)
         {
-            playerPosition.y -= moveSpeed * GetFrameTime();
+            //playerPosition.y -= moveSpeed * GetFrameTime();
             playerAim.y = -1;
         }
         if (downDown)
         {
-            playerPosition.y += moveSpeed * GetFrameTime();
+            //playerPosition.y += moveSpeed * GetFrameTime();
             playerAim.y = 1;
         }
         if (leftDown)
         {
-            playerPosition.x -= moveSpeed * GetFrameTime();
+            //playerPosition.x -= moveSpeed * GetFrameTime();
             playerAim.x = -1;
         }
         if (rightDown)
         {
-            playerPosition.x += moveSpeed * GetFrameTime();
+            //playerPosition.x += moveSpeed * GetFrameTime();
             playerAim.x = 1;
         }
+        playerAim = Vector2Normalize(playerAim);
+        playerPosition.x += playerAim.x * moveSpeed * GetFrameTime();
+        playerPosition.y += playerAim.y * moveSpeed * GetFrameTime();
+        if (playerAim.x == 0 && playerAim.y == 0)
+        {
+            playerAim = (Vector2){0, -1};
+        }
+
         if (executePressed)
         {
             magicCircle[ringCount] = execute;
@@ -158,6 +167,17 @@ srand((unsigned)time(&t));
                     {
                         spellEntities[i].lifetime = 0;
                     }
+                    for (int j = 0; j < 32; j++)
+                    {
+                        if (enemies[j].health > 0)
+                        {
+                            if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[j].position, enemyRadius))
+                            {
+                                enemies[j].health -= 10;
+                                spellEntities[i].lifetime = 0;
+                            }
+                        }
+                    }
                     break;
 
                 case fireBall:
@@ -166,6 +186,26 @@ srand((unsigned)time(&t));
                     if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
                     {
                         spellEntities[i].lifetime = 0;
+                    }
+                    for (int j = 0; j < 32; j++)
+                    {
+                        if (enemies[j].health > 0)
+                        {
+                            if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[j].position, enemyRadius))
+                            {
+                                enemies[j].health -= 20;
+                                spellEntities[i].lifetime = 0;
+                                for (int buffIndex = 0; buffIndex < 8; buffIndex++)
+                                {
+                                    if (enemies[j].buffs[buffIndex].duration <= 0)
+                                    {
+                                        enemies[j].buffs[buffIndex] = (Buff){5, 5};
+                                        break;
+                                    }
+                                }
+                                
+                            }
+                        }
                     }
                     break;
 
@@ -176,6 +216,16 @@ srand((unsigned)time(&t));
 
                 case moonBeam:
                     spellEntities[i].lifetime -= GetFrameTime();
+                    for (int j = 0; j < 32; j++)
+                    {
+                        if (enemies[j].health > 0)
+                        {
+                            if (CheckCollisionCircles(spellEntities[i].position, 50, enemies[j].position, enemyRadius))
+                            {
+                                enemies[j].health -= 20 * GetFrameTime();
+                            }
+                        }
+                    }
                     break;
 
                 case chromaticOrb:
@@ -185,6 +235,16 @@ srand((unsigned)time(&t));
                     if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
                     {
                         spellEntities[i].lifetime = 0;
+                    }
+                    for (int j = 0; j < 32; j++)
+                    {
+                        if (enemies[j].health > 0)
+                        {
+                            if (CheckCollisionCircles(spellEntities[i].position, 16, enemies[j].position, enemyRadius))
+                            {
+                                enemies[j].health -= 150 * GetFrameTime();
+                            }
+                        }
                     }
                     break;
 
@@ -211,6 +271,7 @@ srand((unsigned)time(&t));
         BeginDrawing();
         ClearBackground(BLACK);
         // Draw Rooms
+        int tileSize = 40;
         for (int i = 0; i < roomSize; i ++)
         {
             for (int j = 0; j < roomSize; j ++)
@@ -218,22 +279,22 @@ srand((unsigned)time(&t));
                 switch (room.data[i][j])
                 {
                 case TILE_TYPE_BLOCKED:
-                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 255, 255, 255});
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_DOOR_NORTH:
-                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 255, 0, 255});
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 0, 255});
                     break;
                 case TILE_TYPE_DOOR_EAST:
-                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){255, 0, 255, 255});
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 0, 255, 255});
                     break;
                 case TILE_TYPE_DOOR_SOUTH:
-                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){0, 255, 255, 255});
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){0, 255, 255, 255});
                     break;
                 case TILE_TYPE_DOOR_WEST:
-                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){0, 255, 0, 255});
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){0, 255, 0, 255});
                     break;
                 case TILE_TYPE_EMPTY:
-                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){40, 40, 45, 255});
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){40, 40, 45, 255});
                     break;
                 default:
                     break;
@@ -246,15 +307,13 @@ srand((unsigned)time(&t));
         DrawCircle(playerPosition.x + 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
         DrawRectangle(playerPosition.x - 8, playerPosition.y + 2, 16, 2, (Color){0, 0, 0, 255});
 
-        DrawEnemy(enemies[0]);
-        DrawEnemy(enemies[1]);
-        /* for (int i = 0; i < 32; i++)
+        for (int i = 0; i < 32; i++)
         {
             if (enemies[i].health > 0)
             {
                 DrawEnemy(enemies[i]);
             }
-        } */
+        }
 
         for (int i = 0; i < maxSpellEntities; i++)
         {
