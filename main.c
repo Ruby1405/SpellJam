@@ -297,7 +297,7 @@ srand((unsigned)time(&t));
                     DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){40, 40, 45, 255});
                     break;
                 case SCHEDULED_FOR_DELETE:
-                    DrawRectangle(i * 30, j * 30, 30, 30, (Color){80, 40, 45, 255});
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){80, 40, 45, 255});
                 default:
                     break;
                 }

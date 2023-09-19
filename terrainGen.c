@@ -222,10 +222,10 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                         map.data[i][j]=SCHEDULED_FOR_DELETE;
                     }
                 }
-            // if(map.data[i][j]==SCHEDULED_FOR_DELETE){
+            if(map.data[i][j]==SCHEDULED_FOR_DELETE){
                 
-            //     map.data[i][j]=TILE_TYPE_EMPTY;
-            // }
+                map.data[i][j]=TILE_TYPE_EMPTY;
+            }
         }
     }
     return map;
