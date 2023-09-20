@@ -278,9 +278,9 @@ srand((unsigned)time(&t));
         {
             for (int j = 0; j < roomSize; j ++)
             {
-                switch (room.data[i][j])
+                switch (room.data[i][j][0])
                 {
-                case TILE_TYPE_BLOCKED:
+                case TILE_TYPE_WALL:
                     DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_DOOR_NORTH:
@@ -303,6 +303,41 @@ srand((unsigned)time(&t));
                 default:
                     break;
                 }
+                switch (room.data[i][j][1])
+                {
+                case TILE_TYPE_WALL_NORTH:
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 200, 255});
+                    break;
+                case TILE_TYPE_WALL_EAST:
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 200, 255, 255});
+                    break;
+                case TILE_TYPE_WALL_SOUTH:
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){200, 255, 255, 255});
+                    break;
+                case TILE_TYPE_WALL_WEST:
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){200, 255, 200, 255});
+                    break;
+                case TILE_TYPE_CORNER_NORTH_EAST:
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 100, 255});
+                    DrawLine(i*tileSize,(j+1)*tileSize,(i+1)*tileSize,j*tileSize,(Color){255, 30, 255, 255});
+                    DrawLine((i+1)*tileSize,(j+1)*tileSize,i*tileSize,j*tileSize,(Color){255, 30, 255, 255});
+                    break;
+                case TILE_TYPE_CORNER_NORTH_WEST:
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 100, 255});
+                    DrawLine(i*tileSize,(j+1)*tileSize,(i+1)*tileSize,j*tileSize,(Color){30, 255, 30, 255});
+                    DrawLine((i+1)*tileSize,(j+1)*tileSize,i*tileSize,j*tileSize,(Color){30, 255, 30, 255});
+                    break;
+                case TILE_TYPE_CORNER_SOUTH_EAST:
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){100, 255, 255, 255});
+                    DrawLine(i*tileSize,(j+1)*tileSize,(i+1)*tileSize,j*tileSize,(Color){255, 30, 255, 255});
+                    DrawLine((i+1)*tileSize,(j+1)*tileSize,i*tileSize,j*tileSize,(Color){255, 30, 255, 255});
+                    break;
+                case TILE_TYPE_CORNER_SOUTH_WEST:
+                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){100, 255, 255, 255});
+                    DrawLine(i*tileSize,(j+1)*tileSize,(i+1)*tileSize,j*tileSize,(Color){30, 255, 30, 255});
+                    DrawLine((i+1)*tileSize,(j+1)*tileSize,i*tileSize,j*tileSize,(Color){30, 255, 30, 255});
+                }
+
             }
         }
 
