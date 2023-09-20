@@ -31,6 +31,11 @@ srand((unsigned)time(&t));
     v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
 
+    // ------------
+    // Get textures
+    // ------------
+    Texture2D worldSprites = LoadTexture("Assets/world.png");
+
     bool upDown = false;
     bool downDown = false;
     bool leftDown = false;
@@ -281,7 +286,7 @@ srand((unsigned)time(&t));
                 switch (room.data[i][j][0])
                 {
                 case TILE_TYPE_WALL:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){40, 0, 80, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_DOOR_NORTH:
                     DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 0, 255});
@@ -296,13 +301,14 @@ srand((unsigned)time(&t));
                     DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){0, 255, 0, 255});
                     break;
                 case TILE_TYPE_EMPTY:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){40, 40, 45, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){0, 0, 40, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case SCHEDULED_FOR_DELETE:
                     DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){80, 40, 45, 255});
                 default:
                     break;
                 }
+                
                 switch (room.data[i][j][1])
                 {
                 case TILE_TYPE_WALL_NORTH:
@@ -337,10 +343,10 @@ srand((unsigned)time(&t));
                     DrawLine(i*tileSize,(j+1)*tileSize,(i+1)*tileSize,j*tileSize,(Color){30, 255, 30, 255});
                     DrawLine((i+1)*tileSize,(j+1)*tileSize,i*tileSize,j*tileSize,(Color){30, 255, 30, 255});
                 }
-
             }
         }
 
+        DrawCircle(playerPosition.x+1, playerPosition.y+1, 20, (Color){0, 0, 0, 255});
         DrawCircle(playerPosition.x, playerPosition.y, 20, (Color){100, 255, 100, 255});
         DrawCircle(playerPosition.x - 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
         DrawCircle(playerPosition.x + 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
@@ -387,6 +393,9 @@ srand((unsigned)time(&t));
         }
 
         DrawMagicCircle(playerPosition, magicCircle, ringCount, &angle);
+
+        DrawText(TextFormat("%s", GetGamepadName(1)), 10, 10, 20, (Color){255, 255, 255, 255});
+        DrawText(TextFormat("%f", GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X)), 10, 40, 20, (Color){255, 255, 255, 255});
 
         EndDrawing();
     }

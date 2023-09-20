@@ -40,6 +40,7 @@ typedef struct Enemy
 
 void DrawEnemy(Enemy enemy)
 {
+    DrawCircle(enemy.position.x+1, enemy.position.y+1, 20, (Color){0, 0, 0, 255});
     DrawCircle(enemy.position.x, enemy.position.y, 20, (Color){255, 100, 100, 255});
     DrawCircle(enemy.position.x - 12, enemy.position.y - 1, 2, (Color){0, 0, 0, 255});
     DrawCircle(enemy.position.x + 12, enemy.position.y - 1, 2, (Color){0, 0, 0, 255});
