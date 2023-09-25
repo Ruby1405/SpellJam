@@ -10,6 +10,9 @@
 #include "enemy.c"
 #include "boss.c"
 
+static int playerRadius = 20;
+static int tileSize = 40;
+
 typedef enum gameState
 {
     menu,
@@ -26,7 +29,7 @@ bool rectCollision(Rectangle rect, Vector2 point)
 int main()
 {
     time_t t;
-srand((unsigned)time(&t));
+    srand((unsigned)time(&t));
     // 1120,1280 är *5
     v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
@@ -55,7 +58,8 @@ srand((unsigned)time(&t));
     }
 
     v2f playerPosition = {windowSize.x / 2, windowSize.y / 2};
-    v2f playerAim = {-1, 0};
+    v2f playerAim = {0, 0};
+    v2f spellAim = {0, -1};
 
     Incantation magicCircle[16];
     int ringCount = 0;
@@ -83,33 +87,59 @@ srand((unsigned)time(&t));
         circlePressed = IsKeyPressed(KEY_RIGHT);
         executePressed = IsKeyPressed(KEY_DOWN);
 
-        playerAim = (Vector2){0, 0};
+        playerAim = (v2f){0, 0};
         if (upDown)
         {
-            //playerPosition.y -= moveSpeed * GetFrameTime();
             playerAim.y = -1;
         }
         if (downDown)
         {
-            //playerPosition.y += moveSpeed * GetFrameTime();
             playerAim.y = 1;
         }
         if (leftDown)
         {
-            //playerPosition.x -= moveSpeed * GetFrameTime();
             playerAim.x = -1;
         }
         if (rightDown)
         {
-            //playerPosition.x += moveSpeed * GetFrameTime();
             playerAim.x = 1;
         }
+        v2f playerRadiusVector = {playerRadius * playerAim.x, playerRadius * playerAim.y};
         playerAim = Vector2Normalize(playerAim);
-        playerPosition.x += playerAim.x * moveSpeed * GetFrameTime();
-        playerPosition.y += playerAim.y * moveSpeed * GetFrameTime();
-        if (playerAim.x == 0 && playerAim.y == 0)
+
+        // -----------
+        // Move Player
+        // -----------
+        v2f redRect = {0, 0};
+        bool redRectX = false;
+        bool redRectY = false;
+        v2f playerMovePosition = Vector2Add(playerPosition, Vector2Scale(playerAim, (moveSpeed * GetFrameTime())));
+        if (room.data[(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize)][(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)][0] != TILE_TYPE_WALL)
         {
-            playerAim = (Vector2){0, -1};
+            playerPosition.x = playerMovePosition.x;
+            playerPosition.y = playerMovePosition.y;
+        }
+        else
+        {
+            redRect = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize), (int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)};
+            if (room.data[(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] != TILE_TYPE_WALL)
+            {
+                redRectX = true;
+                playerPosition.x = playerMovePosition.x;
+            }
+            else if (room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)][0] != TILE_TYPE_WALL)
+            {
+                redRectY = true;
+                playerPosition.y = playerMovePosition.y;
+            }
+        }
+
+        // -------------
+        // Spell Casting
+        // -------------
+        if (playerAim.x != 0 || playerAim.y != 0)
+        {
+            spellAim = playerAim;
         }
 
         if (executePressed)
@@ -131,7 +161,7 @@ srand((unsigned)time(&t));
                             {
                                 if (spellEntities[k].lifetime <= 0)
                                 {
-                                    spellEntities[k] = (SpellEntity){spellBook[i].startingLifeTime, spellBook[i].name, playerPosition, Vector2Normalize(playerAim)};
+                                    spellEntities[k] = (SpellEntity){spellBook[i].startingLifeTime, spellBook[i].name, playerPosition, Vector2Normalize(spellAim)};
                                     goto spellCast;
                                 }
                             }
@@ -142,20 +172,23 @@ srand((unsigned)time(&t));
         spellCast:
             ringCount = 0;
         }
-        if (squarePressed)
+        if (ringCount < 16)
         {
-            magicCircle[ringCount] = square;
-            ringCount++;
-        }
-        if (trianglePressed)
-        {
-            magicCircle[ringCount] = triangle;
-            ringCount++;
-        }
-        if (circlePressed)
-        {
-            magicCircle[ringCount] = circle;
-            ringCount++;
+            if (squarePressed)
+            {
+                magicCircle[ringCount] = square;
+                ringCount++;
+            }
+            if (trianglePressed)
+            {
+                magicCircle[ringCount] = triangle;
+                ringCount++;
+            }
+            if (circlePressed)
+            {
+                magicCircle[ringCount] = circle;
+                ringCount++;
+            }
         }
 
         // -------------
@@ -210,7 +243,6 @@ srand((unsigned)time(&t));
                                         break;
                                     }
                                 }
-                                
                             }
                         }
                     }
@@ -278,10 +310,9 @@ srand((unsigned)time(&t));
         BeginDrawing();
         ClearBackground(BLACK);
         // Draw Rooms
-        int tileSize = 40;
-        for (int i = 0; i < roomSize; i ++)
+        for (int i = 0; i < roomSize; i++)
         {
-            for (int j = 0; j < roomSize; j ++)
+            for (int j = 0; j < roomSize; j++)
             {
                 switch (room.data[i][j][0])
                 {
@@ -308,7 +339,7 @@ srand((unsigned)time(&t));
                 default:
                     break;
                 }
-                
+
                 switch (room.data[i][j][1])
                 {
                 case TILE_TYPE_WALL_NORTH:
@@ -324,34 +355,22 @@ srand((unsigned)time(&t));
                     DrawTextureRec(worldSprites, (Rectangle){80, 0, 120, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_CORNER_NORTH_EAST:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 100, 255});
-                    DrawLine(i*tileSize,(j+1)*tileSize,(i+1)*tileSize,j*tileSize,(Color){255, 30, 255, 255});
-                    DrawLine((i+1)*tileSize,(j+1)*tileSize,i*tileSize,j*tileSize,(Color){255, 30, 255, 255});
                     DrawTextureRec(worldSprites, (Rectangle){120, 40, 160, 80}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_CORNER_NORTH_WEST:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 100, 255});
-                    DrawLine(i*tileSize,(j+1)*tileSize,(i+1)*tileSize,j*tileSize,(Color){30, 255, 30, 255});
-                    DrawLine((i+1)*tileSize,(j+1)*tileSize,i*tileSize,j*tileSize,(Color){30, 255, 30, 255});
                     DrawTextureRec(worldSprites, (Rectangle){160, 40, 200, 80}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_CORNER_SOUTH_EAST:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){100, 255, 255, 255});
-                    DrawLine(i*tileSize,(j+1)*tileSize,(i+1)*tileSize,j*tileSize,(Color){255, 30, 255, 255});
-                    DrawLine((i+1)*tileSize,(j+1)*tileSize,i*tileSize,j*tileSize,(Color){255, 30, 255, 255});
                     DrawTextureRec(worldSprites, (Rectangle){120, 0, 160, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_CORNER_SOUTH_WEST:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){100, 255, 255, 255});
-                    DrawLine(i*tileSize,(j+1)*tileSize,(i+1)*tileSize,j*tileSize,(Color){30, 255, 30, 255});
-                    DrawLine((i+1)*tileSize,(j+1)*tileSize,i*tileSize,j*tileSize,(Color){30, 255, 30, 255});
                     DrawTextureRec(worldSprites, (Rectangle){160, 0, 200, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
                 }
             }
         }
 
-        DrawCircle(playerPosition.x+1, playerPosition.y+1, 20, (Color){0, 0, 0, 255});
-        DrawCircle(playerPosition.x, playerPosition.y, 20, (Color){100, 255, 100, 255});
+        DrawCircle(playerPosition.x + 1, playerPosition.y + 1, playerRadius, (Color){0, 0, 0, 255});
+        DrawCircle(playerPosition.x, playerPosition.y, playerRadius, (Color){100, 255, 100, 255});
         DrawCircle(playerPosition.x - 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
         DrawCircle(playerPosition.x + 12, playerPosition.y - 1, 2, (Color){0, 0, 0, 255});
         DrawRectangle(playerPosition.x - 8, playerPosition.y + 2, 16, 2, (Color){0, 0, 0, 255});
@@ -395,6 +414,16 @@ srand((unsigned)time(&t));
                 }
             }
         }
+
+        if (redRect.x != 0 || redRect.y != 0)
+        {
+            DrawRectangleLines(redRect.x * tileSize, redRect.y * tileSize, tileSize, tileSize, (Color){255, 0, 0, 255});
+            DrawRectangle(redRect.x * tileSize, redRect.y * tileSize + 15, tileSize, 10, redRectX ? GREEN : (Color){255, 0, 0, 255});
+            DrawRectangle(redRect.x * tileSize + 15, redRect.y * tileSize, 10, tileSize, redRectY ? GREEN : (Color){255, 0, 0, 255});
+        }
+        
+        DrawLine(playerPosition.x, playerPosition.y, playerPosition.x + spellAim.x * tileSize, playerPosition.y + spellAim.y * tileSize, (Color){255, 0, 255, 255});
+        DrawLine(playerPosition.x, playerPosition.y, playerPosition.x + playerAim.x * tileSize, playerPosition.y + playerAim.y * tileSize, (Color){255, 255, 255, 255});
 
         DrawMagicCircle(playerPosition, magicCircle, ringCount, &angle);
 
