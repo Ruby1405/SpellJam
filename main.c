@@ -34,6 +34,7 @@ int main()
     v2f windowSize = {560, 643};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
 
+    bool littleBoolOfMine = false;
     // ------------
     // Get textures
     // ------------
@@ -57,7 +58,7 @@ int main()
         spellEntities[i] = (SpellEntity){0};
     }
 
-    v2f playerPosition = {windowSize.x / 2, windowSize.y / 2};
+    v2f playerPosition = {roomSize / 2 * tileSize + tileSize / 2, roomSize / 2 * tileSize + tileSize / 2};
     v2f playerAim = {0, 0};
     v2f spellAim = {0, -1};
 
@@ -66,10 +67,10 @@ int main()
     float angle = 0;
 
     Enemy enemies[32] = {0};
-    enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, warrior, chase};
+    /* enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, warrior, chase};
     enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, mage, chase};
     enemies[2] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, {0}, mage, chase};
-    enemies[3] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, {0}, warrior, chase};
+    enemies[3] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, {0}, warrior, chase}; */
 
     Room room = DrunkardsWalk(false, false, false, false, 2500, (Point){14, 14});
 
@@ -110,29 +111,124 @@ int main()
         // -----------
         // Move Player
         // -----------
-        v2f redRect = {0, 0};
-        bool redRectX = false;
-        bool redRectY = false;
+        v2f redRectx = {0, 0};
+        v2f redRecty = {0, 0};
         v2f playerMovePosition = Vector2Add(playerPosition, Vector2Scale(playerAim, (moveSpeed * GetFrameTime())));
-        if (room.data[(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize)][(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)][0] != TILE_TYPE_WALL)
+        redRectx = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerPosition.y + playerRadiusVector.y) / tileSize)};
+        redRecty = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)};
+        if (room.data[(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] == TILE_TYPE_WALL)
         {
-            playerPosition.x = playerMovePosition.x;
-            playerPosition.y = playerMovePosition.y;
+            playerMovePosition.x = playerPosition.x;
         }
-        else
+        if (room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)][0] == TILE_TYPE_WALL)
         {
-            redRect = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize), (int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)};
-            if (room.data[(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] != TILE_TYPE_WALL)
+            playerMovePosition.y = playerPosition.y;
+        }
+
+        v2f playerTilePosition = {playerPosition.x / tileSize, playerPosition.y / tileSize};
+        for (int x = -1; x < 2; x++)
+        {
+            for (int y = -1; y < 2; y++)
             {
-                redRectX = true;
-                playerPosition.x = playerMovePosition.x;
-            }
-            else if (room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)][0] != TILE_TYPE_WALL)
-            {
-                redRectY = true;
-                playerPosition.y = playerMovePosition.y;
+                if (x + (int)(playerPosition.x / tileSize) >= 0 && y + (int)(playerPosition.y / tileSize) >= 0 && x + (int)(playerPosition.x / tileSize) < roomSize && y + (int)(playerPosition.y / tileSize) < roomSize)
+                {
+                    switch (room.data[x + (int)(playerPosition.x / tileSize)][y + (int)(playerPosition.y / tileSize)][1])
+                    {
+                    case TILE_TYPE_CORNER_NORTH_EAST:
+                    {
+                        v2f cornerVector = (Vector2){
+                            (x + 1 + (int)(playerPosition.x / tileSize)) * tileSize,
+                            (y + (int)(playerPosition.y / tileSize)) * tileSize};
+                        if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
+                        {
+                            littleBoolOfMine = true;
+                            if (Vector2Distance(playerMovePosition, cornerVector) < 20)
+                            {
+                                if (abs(playerMovePosition.x - cornerVector.x) < abs(playerMovePosition.y - cornerVector.y))
+                                {
+                                    playerMovePosition.x += cornerVector.x - (playerPosition.x - 20);
+                                }
+                                else if (abs(playerMovePosition.x - cornerVector.x) > abs(playerMovePosition.y - cornerVector.y))
+                                {
+                                    playerMovePosition.y -= (playerPosition.y + 20) - cornerVector.y;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    case TILE_TYPE_CORNER_NORTH_WEST:
+                    {
+                        v2f cornerVector = (Vector2){
+                            (x + (int)(playerPosition.x / tileSize)) * tileSize,
+                            (y + (int)(playerPosition.y / tileSize)) * tileSize};
+                        if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
+                        {
+                            littleBoolOfMine = true;
+                            if (Vector2Distance(playerMovePosition, cornerVector) < 20)
+                            {
+                                if (abs(playerMovePosition.x - cornerVector.x) < abs(playerMovePosition.y - cornerVector.y))
+                                {
+                                    playerMovePosition.x -= (playerPosition.x + 20) - cornerVector.x;
+                                }
+                                else if (abs(playerMovePosition.x - cornerVector.x) > abs(playerMovePosition.y - cornerVector.y))
+                                {
+                                    playerMovePosition.y -= (playerPosition.y + 20) - cornerVector.y;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    case TILE_TYPE_CORNER_SOUTH_EAST:
+                    {
+                        v2f cornerVector = (Vector2){
+                            (x + 1 + (int)(playerPosition.x / tileSize)) * tileSize,
+                            (y + 1 + (int)(playerPosition.y / tileSize)) * tileSize};
+                        if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
+                        {
+                            littleBoolOfMine = true;
+                            if (Vector2Distance(playerMovePosition, cornerVector) < 20)
+                            {
+                                if (abs(playerMovePosition.x - cornerVector.x) < abs(playerMovePosition.y - cornerVector.y))
+                                {
+                                    playerMovePosition.x += cornerVector.x - (playerPosition.x - 20);
+                                }
+                                else if (abs(playerMovePosition.x - cornerVector.x) > abs(playerMovePosition.y - cornerVector.y))
+                                {
+                                    playerMovePosition.y += cornerVector.y - (playerPosition.y - 20);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    case TILE_TYPE_CORNER_SOUTH_WEST:
+                    {
+                        v2f cornerVector = (Vector2){
+                            (x + (int)(playerPosition.x / tileSize)) * tileSize,
+                            (y + 1 + (int)(playerPosition.y / tileSize)) * tileSize};
+                        if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
+                        {
+                            littleBoolOfMine = true;
+                            if (Vector2Distance(playerMovePosition, cornerVector) < 20)
+                            {
+                                if (abs(playerMovePosition.x - cornerVector.x) < abs(playerMovePosition.y - cornerVector.y))
+                                {
+                                    playerMovePosition.x -= (playerPosition.x + 20) - cornerVector.x;
+                                }
+                                else if (abs(playerMovePosition.x - cornerVector.x) > abs(playerMovePosition.y - cornerVector.y))
+                                {
+                                    playerMovePosition.y += cornerVector.y - (playerPosition.y - 20);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    default:
+                        break;
+                    }
+                }
             }
         }
+        playerPosition = playerMovePosition;
 
         // -------------
         // Spell Casting
@@ -141,7 +237,6 @@ int main()
         {
             spellAim = playerAim;
         }
-
         if (executePressed)
         {
             magicCircle[ringCount] = execute;
@@ -415,20 +510,34 @@ int main()
             }
         }
 
-        if (redRect.x != 0 || redRect.y != 0)
+        DrawMagicCircle(playerPosition, magicCircle, ringCount, &angle);
+
+        if (redRectx.x != 0 || redRectx.y != 0)
         {
-            DrawRectangleLines(redRect.x * tileSize, redRect.y * tileSize, tileSize, tileSize, (Color){255, 0, 0, 255});
-            DrawRectangle(redRect.x * tileSize, redRect.y * tileSize + 15, tileSize, 10, redRectX ? GREEN : (Color){255, 0, 0, 255});
-            DrawRectangle(redRect.x * tileSize + 15, redRect.y * tileSize, 10, tileSize, redRectY ? GREEN : (Color){255, 0, 0, 255});
+            DrawRectangleLines(redRectx.x * tileSize, redRectx.y * tileSize, tileSize, tileSize, (Color){255, 0, 0, 255});
+        }
+        if (redRecty.x != 0 || redRecty.y != 0)
+        {
+            DrawRectangleLines(redRecty.x * tileSize, redRecty.y * tileSize, tileSize, tileSize, (Color){255, 0, 0, 255});
         }
         
+        /*
         DrawLine(playerPosition.x, playerPosition.y, playerPosition.x + spellAim.x * tileSize, playerPosition.y + spellAim.y * tileSize, (Color){255, 0, 255, 255});
         DrawLine(playerPosition.x, playerPosition.y, playerPosition.x + playerAim.x * tileSize, playerPosition.y + playerAim.y * tileSize, (Color){255, 255, 255, 255});
+        
 
-        DrawMagicCircle(playerPosition, magicCircle, ringCount, &angle);
+        for (int x = -1; x < 2; x++)
+        {
+            for (int y = -1; y < 2; y++)
+            {
+                DrawPoly((Vector2){(x + (int)(playerPosition.x / tileSize)) * tileSize, (y + (int)(playerPosition.y / tileSize)) * tileSize}, 4, 3, 0, PURPLE);
+                DrawPoly((Vector2){(x + (int)(playerPosition.x / tileSize)) * tileSize + tileSize, (y + (int)(playerPosition.y / tileSize)) * tileSize + tileSize}, 4, 3, 0, ORANGE);
+            }
+        }
 
         DrawText(TextFormat("%s", GetGamepadName(1)), 10, 10, 20, (Color){255, 255, 255, 255});
         DrawText(TextFormat("%f", GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X)), 10, 40, 20, (Color){255, 255, 255, 255});
+        DrawText(TextFormat("%d", (int)littleBoolOfMine), 10, 70, 20, WHITE); */
 
         EndDrawing();
     }
