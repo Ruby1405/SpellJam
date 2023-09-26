@@ -34,7 +34,6 @@ int main()
     v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
 
-    bool littleBoolOfMine = false;
     // ------------
     // Get textures
     // ------------
@@ -67,10 +66,10 @@ int main()
     float angle = 0;
 
     Enemy enemies[32] = {0};
-    /* enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, warrior, chase};
+    enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, warrior, chase};
     enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, mage, chase};
     enemies[2] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, {0}, mage, chase};
-    enemies[3] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, {0}, warrior, chase}; */
+    enemies[3] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, {0}, warrior, chase};
 
     Room room = DrunkardsWalk(false, false, false, false, 2500, (Point){14, 14});
 
@@ -111,11 +110,9 @@ int main()
         // -----------
         // Move Player
         // -----------
-        v2f redRectx = {0, 0};
-        v2f redRecty = {0, 0};
         v2f playerMovePosition = Vector2Add(playerPosition, Vector2Scale(playerAim, (moveSpeed * GetFrameTime())));
-        redRectx = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerPosition.y + playerRadiusVector.y) / tileSize)};
-        redRecty = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)};
+        //v2f redRectx = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerPosition.y + playerRadiusVector.y) / tileSize)};
+        //v2f redRecty = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)};
         if (room.data[(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] == TILE_TYPE_WALL)
         {
             playerMovePosition.x = playerPosition.x;
@@ -125,7 +122,6 @@ int main()
             playerMovePosition.y = playerPosition.y;
         }
 
-        v2f playerTilePosition = {playerPosition.x / tileSize, playerPosition.y / tileSize};
         for (int x = -1; x < 2; x++)
         {
             for (int y = -1; y < 2; y++)
@@ -141,14 +137,13 @@ int main()
                             (y + (int)(playerPosition.y / tileSize)) * tileSize};
                         if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
                         {
-                            littleBoolOfMine = true;
                             if (Vector2Distance(playerMovePosition, cornerVector) < 20)
                             {
-                                if (abs(playerMovePosition.x - cornerVector.x) < abs(playerMovePosition.y - cornerVector.y))
+                                if (fabsf(playerMovePosition.x - cornerVector.x) < fabsf(playerMovePosition.y - cornerVector.y))
                                 {
                                     playerMovePosition.x += cornerVector.x - (playerPosition.x - 20);
                                 }
-                                else if (abs(playerMovePosition.x - cornerVector.x) > abs(playerMovePosition.y - cornerVector.y))
+                                else if (fabsf(playerMovePosition.x - cornerVector.x) > fabsf(playerMovePosition.y - cornerVector.y))
                                 {
                                     playerMovePosition.y -= (playerPosition.y + 20) - cornerVector.y;
                                 }
@@ -163,14 +158,13 @@ int main()
                             (y + (int)(playerPosition.y / tileSize)) * tileSize};
                         if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
                         {
-                            littleBoolOfMine = true;
                             if (Vector2Distance(playerMovePosition, cornerVector) < 20)
                             {
-                                if (abs(playerMovePosition.x - cornerVector.x) < abs(playerMovePosition.y - cornerVector.y))
+                                if (fabsf(playerMovePosition.x - cornerVector.x) < fabsf(playerMovePosition.y - cornerVector.y))
                                 {
                                     playerMovePosition.x -= (playerPosition.x + 20) - cornerVector.x;
                                 }
-                                else if (abs(playerMovePosition.x - cornerVector.x) > abs(playerMovePosition.y - cornerVector.y))
+                                else if (fabsf(playerMovePosition.x - cornerVector.x) > fabsf(playerMovePosition.y - cornerVector.y))
                                 {
                                     playerMovePosition.y -= (playerPosition.y + 20) - cornerVector.y;
                                 }
@@ -185,14 +179,13 @@ int main()
                             (y + 1 + (int)(playerPosition.y / tileSize)) * tileSize};
                         if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
                         {
-                            littleBoolOfMine = true;
                             if (Vector2Distance(playerMovePosition, cornerVector) < 20)
                             {
-                                if (abs(playerMovePosition.x - cornerVector.x) < abs(playerMovePosition.y - cornerVector.y))
+                                if (fabsf(playerMovePosition.x - cornerVector.x) < fabsf(playerMovePosition.y - cornerVector.y))
                                 {
                                     playerMovePosition.x += cornerVector.x - (playerPosition.x - 20);
                                 }
-                                else if (abs(playerMovePosition.x - cornerVector.x) > abs(playerMovePosition.y - cornerVector.y))
+                                else if (fabsf(playerMovePosition.x - cornerVector.x) > fabsf(playerMovePosition.y - cornerVector.y))
                                 {
                                     playerMovePosition.y += cornerVector.y - (playerPosition.y - 20);
                                 }
@@ -207,14 +200,13 @@ int main()
                             (y + 1 + (int)(playerPosition.y / tileSize)) * tileSize};
                         if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
                         {
-                            littleBoolOfMine = true;
                             if (Vector2Distance(playerMovePosition, cornerVector) < 20)
                             {
-                                if (abs(playerMovePosition.x - cornerVector.x) < abs(playerMovePosition.y - cornerVector.y))
+                                if (fabsf(playerMovePosition.x - cornerVector.x) < fabsf(playerMovePosition.y - cornerVector.y))
                                 {
                                     playerMovePosition.x -= (playerPosition.x + 20) - cornerVector.x;
                                 }
-                                else if (abs(playerMovePosition.x - cornerVector.x) > abs(playerMovePosition.y - cornerVector.y))
+                                else if (fabsf(playerMovePosition.x - cornerVector.x) > fabsf(playerMovePosition.y - cornerVector.y))
                                 {
                                     playerMovePosition.y += cornerVector.y - (playerPosition.y - 20);
                                 }
