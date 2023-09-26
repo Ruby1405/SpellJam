@@ -382,7 +382,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
     //South except for south west corner
     for(int i = 0; i<roomSize-1; i++){
         if(map.data[i][roomSize-1][0]==TILE_TYPE_WALL){
-            if(i==roomSize-1){
+            if(i==0){
                 int north = map.data[i][roomSize-2][0];
                 int west = map.data[i-1][roomSize-1][0];
                 int northWest = map.data[i-1][roomSize-1][0] + map.data[i-1][roomSize-2][0] + map.data[i][roomSize-2][0];
