@@ -28,7 +28,7 @@ int main()
     time_t t;
 srand((unsigned)time(&t));
     // 1120,1280 är *5
-    v2f windowSize = {1120, 1286};
+    v2f windowSize = {560, 643};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
 
     // ------------
@@ -278,7 +278,7 @@ srand((unsigned)time(&t));
         BeginDrawing();
         ClearBackground(BLACK);
         // Draw Rooms
-        int tileSize = 40;
+        int tileSize = 20;
         for (int i = 0; i < roomSize; i ++)
         {
             for (int j = 0; j < roomSize; j ++)
