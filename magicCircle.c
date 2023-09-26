@@ -52,7 +52,7 @@ void DrawSpellMoonBeam(Vector2 targetLocation, float lifeTime)
     float a = 2;
     float b = 4.8;
     float c = 3.6;
-    float curve = 80 - pow(a,b * (spellBook[moonBeam].startingLifeTime - lifeTime-c));
+    float curve = 80 - pow(a, b * (spellBook[moonBeam].startingLifeTime - lifeTime - c));
     int gitter = GetRandomValue(80 + 20 * lifeTime, 155 + 20 * lifeTime);
     for (int i = 40 + 8 * lifeTime; i > 20; i--)
     {
@@ -99,20 +99,20 @@ void DrawSpellBlock(Vector2 playerPosition)
 void DrawSpellChromaticOrb(Vector2 targetLocation, Vector2 aim, float lifeTime)
 {
     aim = Vector2Scale(aim, 4);
-    int h = (int)(lifeTime*100) % 36;
-    v2f pos = {0,8};
+    int h = (int)(lifeTime * 100) % 36;
+    v2f pos = {0, 8};
     pos = Vector2Rotate(pos, -10 * h * DEG2RAD);
-    DrawCircle(targetLocation.x,targetLocation.y, 20, ColorAlpha(ColorFromHSV(h*10, 1, 1),0.5));
+    DrawCircle(targetLocation.x, targetLocation.y, 20, ColorAlpha(ColorFromHSV(h * 10, 1, 1), 0.5));
     for (int i = 0; i < 16; i++)
     {
         pos = Vector2Rotate(pos, 22.5 * DEG2RAD);
-        DrawCircle(targetLocation.x + pos.x, targetLocation.y + pos.y, 8, ColorFromHSV(i*22.5, 1, 1));
+        DrawCircle(targetLocation.x + pos.x, targetLocation.y + pos.y, 8, ColorFromHSV(i * 22.5, 1, 1));
     }
-    
 }
 
 void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ringCount, float *angle)
 {
+    float lineThickness = 3;
     int radius = 50;
     int squareCount = 0;
     int triangleCount = 0;
@@ -136,7 +136,7 @@ void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ri
         {
             if (squareCount > 0)
             {
-                DrawPolyLines(playerPosition, 4, radius, -CircleRotation(radius, *angle) + 45, ringColor);
+                DrawPolyLinesEx(playerPosition, 4, radius, -CircleRotation(radius, *angle) + 45, lineThickness + 3, ringColor);
                 squareCount = 0;
                 continue;
             }
@@ -144,11 +144,12 @@ void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ri
             {
                 radius = Vector2Length((Vector2){radius, radius});
             }
-            DrawPolyLines(
+            DrawPolyLinesEx(
                 playerPosition,
                 4,
                 radius,
                 CircleRotation(radius, *angle),
+                lineThickness + 3,
                 ringColor);
             *angle = -*angle;
             squareCount++;
@@ -161,7 +162,7 @@ void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ri
             squareCount = 0;
             if (triangleCount == 1)
             {
-                DrawPolyLines(playerPosition, 3, radius, -CircleRotation(radius, *angle) + 60, ringColor);
+                DrawPolyLinesEx(playerPosition, 3, radius, -CircleRotation(radius, *angle) + 60, lineThickness + 5, ringColor);
                 triangleCount = 0;
                 continue;
             }
@@ -171,7 +172,7 @@ void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ri
                 {
                     radius = radius / sin(30 * DEG2RAD);
                 }
-                DrawPolyLines(playerPosition, 3, radius, CircleRotation(radius, *angle), ringColor);
+                DrawPolyLinesEx(playerPosition, 3, radius, CircleRotation(radius, *angle), lineThickness + 5, ringColor);
                 *angle = -*angle;
                 triangleCount = 1;
             }
@@ -182,7 +183,7 @@ void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ri
                     radius -= 10;
                     for (int j = 0; j < 12; j++)
                     {
-                        DrawPolyLines(Vector2Add(playerPosition, Vector2Rotate((Vector2){0, radius}, (j * 30 - 15 - CircleRotation(radius, -*angle)) * DEG2RAD)), 3, 10, j * -30 - 45 + CircleRotation(radius, -*angle), ringColor);
+                        DrawPolyLinesEx(Vector2Add(playerPosition, Vector2Rotate((Vector2){0, radius}, (j * 30 - 15 - CircleRotation(radius, -*angle)) * DEG2RAD)), 3, 10, j * -30 - 45 + CircleRotation(radius, -*angle), lineThickness + 5, ringColor);
                     }
                     radius += 10;
                     triangleCount = 0;
@@ -192,7 +193,7 @@ void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ri
                     radius += 10;
                     for (int j = 0; j < 12; j++)
                     {
-                        DrawPolyLines(Vector2Add(playerPosition, Vector2Rotate((Vector2){0, radius}, (j * 30 - CircleRotation(radius, *angle)) * DEG2RAD)), 3, 10, j * -30 + CircleRotation(radius, *angle), ringColor);
+                        DrawPolyLinesEx(Vector2Add(playerPosition, Vector2Rotate((Vector2){0, radius}, (j * 30 - CircleRotation(radius, *angle)) * DEG2RAD)), 3, 10, j * -30 + CircleRotation(radius, *angle), lineThickness + 5, ringColor);
                     }
                     radius += 10;
                     *angle = -*angle;
@@ -210,10 +211,13 @@ void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ri
                     radius += 10;
                 }
             }
-            DrawCircleLines(
-                playerPosition.x,
-                playerPosition.y,
-                radius, ringColor);
+            DrawPolyLinesEx(
+                (v2f){
+                    playerPosition.x,
+                    playerPosition.y},
+                60, radius,
+                1, lineThickness,
+                ringColor);
             squareCount = 0;
             triangleCount = 0;
         }
