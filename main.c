@@ -33,7 +33,6 @@ int main()
     // 1120,1280 är *5
     v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-    SetTargetFPS(10);
 
     bool littleBoolOfMine = false;
     // ------------
