@@ -33,6 +33,7 @@ int main()
     // 1120,1280 är *5
     v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
+    SetTargetFPS(10);
 
     bool littleBoolOfMine = false;
     // ------------
@@ -404,64 +405,72 @@ int main()
         // ------
         BeginDrawing();
         ClearBackground(BLACK);
+        
         // Draw Rooms
-        for (int i = 0; i < roomSize; i++)
+        for (int x = 0; x < roomSize; x++)
         {
-            for (int j = 0; j < roomSize; j++)
+            for (int y = 0; y < roomSize; y++)
             {
-                switch (room.data[i][j][0])
+                switch (room.data[x][y][0])
                 {
                 case TILE_TYPE_WALL:
-                    DrawTextureRec(worldSprites, (Rectangle){0, 40, 40, 80}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){0, 40, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_DOOR_NORTH:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 255, 0, 255});
+                    DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, (Color){255, 255, 0, 255});
                     break;
                 case TILE_TYPE_DOOR_EAST:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){255, 0, 255, 255});
+                    DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, (Color){255, 0, 255, 255});
                     break;
                 case TILE_TYPE_DOOR_SOUTH:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){0, 255, 255, 255});
+                    DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, (Color){0, 255, 255, 255});
                     break;
                 case TILE_TYPE_DOOR_WEST:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){0, 255, 0, 255});
+                    DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, (Color){0, 255, 0, 255});
                     break;
                 case TILE_TYPE_EMPTY:
-                    DrawTextureRec(worldSprites, (Rectangle){0, 0, 40, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){0, 0, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case SCHEDULED_FOR_DELETE:
-                    DrawRectangle(i * tileSize, j * tileSize, tileSize, tileSize, (Color){80, 40, 45, 255});
+                    DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, (Color){80, 40, 45, 255});
                 default:
                     break;
                 }
 
-                switch (room.data[i][j][1])
+                switch (room.data[x][y][1])
                 {
                 case TILE_TYPE_WALL_NORTH:
-                    DrawTextureRec(worldSprites, (Rectangle){80, 40, 120, 80}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){80, 40, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_WALL_EAST:
-                    DrawTextureRec(worldSprites, (Rectangle){40, 40, 80, 80}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){40, 40, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_WALL_SOUTH:
-                    DrawTextureRec(worldSprites, (Rectangle){40, 0, 80, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){40, 0, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_WALL_WEST:
-                    DrawTextureRec(worldSprites, (Rectangle){80, 0, 120, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){80, 0, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_CORNER_NORTH_EAST:
-                    DrawTextureRec(worldSprites, (Rectangle){120, 40, 160, 80}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){120, 40, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_CORNER_NORTH_WEST:
-                    DrawTextureRec(worldSprites, (Rectangle){160, 40, 200, 80}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){160, 40, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_CORNER_SOUTH_EAST:
-                    DrawTextureRec(worldSprites, (Rectangle){120, 0, 160, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){120, 0, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                     break;
                 case TILE_TYPE_CORNER_SOUTH_WEST:
-                    DrawTextureRec(worldSprites, (Rectangle){160, 0, 200, 40}, (Vector2){i * tileSize, j * tileSize}, (Color){255, 255, 255, 255});
+                    DrawTextureRec(worldSprites, (Rectangle){160, 0, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
                 }
+                // Number tiles
+                // if (y != 0)
+                // {
+                //     DrawText(TextFormat("%d", y), x * tileSize + 10, y * tileSize + 10, 20, (Color){255, 255, 255, 255});
+                // }
             }
+            // Number tiles
+            // DrawText(TextFormat("%d", x), x * tileSize + 10, 10, 20, (Color){255, 255, 255, 255});
         }
 
         DrawCircle(playerPosition.x + 1, playerPosition.y + 1, playerRadius, (Color){0, 0, 0, 255});
@@ -512,14 +521,14 @@ int main()
 
         DrawMagicCircle(playerPosition, magicCircle, ringCount, &angle);
 
-        if (redRectx.x != 0 || redRectx.y != 0)
+        /* if (redRectx.x != 0 || redRectx.y != 0)
         {
             DrawRectangleLines(redRectx.x * tileSize, redRectx.y * tileSize, tileSize, tileSize, (Color){255, 0, 0, 255});
         }
         if (redRecty.x != 0 || redRecty.y != 0)
         {
             DrawRectangleLines(redRecty.x * tileSize, redRecty.y * tileSize, tileSize, tileSize, (Color){255, 0, 0, 255});
-        }
+        } */
         
         /*
         DrawLine(playerPosition.x, playerPosition.y, playerPosition.x + spellAim.x * tileSize, playerPosition.y + spellAim.y * tileSize, (Color){255, 0, 255, 255});
@@ -534,10 +543,10 @@ int main()
                 DrawPoly((Vector2){(x + (int)(playerPosition.x / tileSize)) * tileSize + tileSize, (y + (int)(playerPosition.y / tileSize)) * tileSize + tileSize}, 4, 3, 0, ORANGE);
             }
         }
-
         DrawText(TextFormat("%s", GetGamepadName(1)), 10, 10, 20, (Color){255, 255, 255, 255});
         DrawText(TextFormat("%f", GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X)), 10, 40, 20, (Color){255, 255, 255, 255});
-        DrawText(TextFormat("%d", (int)littleBoolOfMine), 10, 70, 20, WHITE); */
+        DrawText(TextFormat("%d", (int)littleBoolOfMine), 10, 70, 20, WHITE);
+        */
 
         EndDrawing();
     }
