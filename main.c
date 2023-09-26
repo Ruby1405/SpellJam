@@ -31,7 +31,7 @@ int main()
     time_t t;
     srand((unsigned)time(&t));
     // 1120,1280 är *5
-    v2f windowSize = {560, 643};
+    v2f windowSize = {1120, 1286};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
 
     bool littleBoolOfMine = false;
