@@ -68,9 +68,61 @@ int getRandomDir()
 
 // Sebastian kod
 //  bool carvePath(Point current, Point direction) {
-
 // }
 
+//counts the amount of booleans in an array which are true
+int trueCount(bool boolArray[],int length){
+    int sum;
+    for(int i = 0; i < length; i++){
+        if(boolArray[i]==true){sum++;}    
+    }
+    return sum;
+}
+Room DrunkardsCleanup(Room map){
+    bool blockChanged = true;
+    while(blockChanged){
+        blockChanged=false;
+        for(int i = 0; i< roomSize; i++){
+            for(int j = 0; j<roomSize; j++){
+                int borderWalls = 4 ;
+                int leftRight =0;
+                int upDown = 0 ;
+                if(map.data[j][i][0]==TILE_TYPE_WALL){
+                    if(!(j == 0 || j == roomSize-1 )){//Not on the west or east sides
+                        if(map.data[j-1][i][0]==TILE_TYPE_EMPTY || map.data[j-1][i][0]==SCHEDULED_FOR_DELETE ){
+                            borderWalls--;
+                            leftRight++;
+                        };//Left
+                        if(map.data[j+1][i][0]==TILE_TYPE_EMPTY || map.data[j+1][i][0]==SCHEDULED_FOR_DELETE){
+                            borderWalls--;
+                            leftRight++;
+                        };//Right
+                    }
+                    if(!(i == 0 || i == roomSize-1)){//Not on the north or south sides
+                        if(map.data[j][i-1][0]==TILE_TYPE_EMPTY || map.data[j][i-1][0]==SCHEDULED_FOR_DELETE){
+                            borderWalls--;
+                            upDown++;
+                        };//Up
+                        if(map.data[j][i+1][0]==TILE_TYPE_EMPTY || map.data[j][i+1][0]==SCHEDULED_FOR_DELETE){
+                            borderWalls--;
+                            upDown++;
+                        };//Down
+                    }
+                    
+                    if(borderWalls<2||leftRight==2||upDown==2)
+                    {
+                        map.data[j][i][0]=TILE_TYPE_EMPTY;
+                        blockChanged=true;
+                    }
+                }
+                
+            }
+        }
+    }
+    
+    
+    return map;
+}
 // En funktion för random terrain generation med "the drunkards walk" algoritmen
 Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering, Point StartPOS)
 {
@@ -170,74 +222,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
         i++;
     }
     //Dunkard cleanup
-    for(int i = 0; i< roomSize; i++){
-        for(int j = 0; j<roomSize; j++){
-            if(i == 0 || i == roomSize-1 || j == 0 || j == roomSize-1){}
-            else{
-                int borderWalls = 4 ;
-                int leftRight =0;
-                int upDown = 0 ;
-                if(map.data[j][i][0]==TILE_TYPE_WALL){
-                    if(map.data[j-1][i][0]==TILE_TYPE_EMPTY || map.data[j-1][i][0]==SCHEDULED_FOR_DELETE ){
-                        borderWalls--;
-                        leftRight++;
-                    };//Left
-                    if(map.data[j+1][i][0]==TILE_TYPE_EMPTY || map.data[j+1][i][0]==SCHEDULED_FOR_DELETE){
-                        borderWalls--;
-                        leftRight++;
-                    };//Right
-                    if(map.data[j][i-1][0]==TILE_TYPE_EMPTY || map.data[j][i-1][0]==SCHEDULED_FOR_DELETE){
-                        borderWalls--;
-                        upDown++;
-                    };//Up
-                    if(map.data[j][i+1][0]==TILE_TYPE_EMPTY || map.data[j][i+1][0]==SCHEDULED_FOR_DELETE){
-                        borderWalls--;
-                        upDown++;
-                    };//Down
-                }
-                if(borderWalls<2||leftRight==2||upDown==2)
-                {
-                    map.data[j][i][0]=SCHEDULED_FOR_DELETE;
-                }
-            }
-        }
-    }
-    for(int i = 0; i<roomSize; i++){
-        for(int j = 0; j < roomSize; j ++)
-        {if(i == 0 || i == roomSize-1 || j == 0 || j == roomSize-1){}
-                else
-                {
-                    int borderWalls = 4 ;
-                    int leftRight =0;
-                    int upDown = 0 ;
-                    if(map.data[j][i][0]==TILE_TYPE_WALL){
-                        if(map.data[j-1][i][0]==TILE_TYPE_EMPTY || map.data[j-1][i][0]==SCHEDULED_FOR_DELETE ){
-                            borderWalls--;
-                            leftRight++;
-                        };//Left
-                        if(map.data[j+1][i][0]==TILE_TYPE_EMPTY || map.data[j+1][i][0]==SCHEDULED_FOR_DELETE){
-                            borderWalls--;
-                            leftRight++;
-                        };//Right
-                        if(map.data[j][i-1][0]==TILE_TYPE_EMPTY || map.data[j][i-1][0]==SCHEDULED_FOR_DELETE){
-                            borderWalls--;
-                            upDown++;
-                        };//Up
-                        if(map.data[j][i+1][0]==TILE_TYPE_EMPTY || map.data[j][i+1][0]==SCHEDULED_FOR_DELETE){
-                            borderWalls--;
-                            upDown++;
-                        };//Down
-                    }
-                    if(borderWalls<2||leftRight==2||upDown==2){
-                        map.data[j][i][0]=SCHEDULED_FOR_DELETE;
-                    }
-                }
-            if(map.data[j][i][0]==SCHEDULED_FOR_DELETE){
-                
-                map.data[j][i][0]=TILE_TYPE_EMPTY;
-            }
-        }
-    }
+    map = DrunkardsCleanup(map);
 
     //Corners
     //God has forsaken me for this disgusting code
@@ -474,7 +459,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
             }
         }
     }
-
+    map.empty=false;
     return map;
 }
 
@@ -489,38 +474,83 @@ TODO
 */
 Room* RoomCreator(){
     Point startPOS;
-    startPOS.x=112;
-    startPOS.y=112;
-    bool doorAvailability[4]={false};
+    startPOS.x=roomSize/2;
+    startPOS.y=roomSize/2;
+    
+    bool treasureRoom=false;
+
     Room roomGrid[21][21]={0};
     for(int i= 0; i < 21; i++){
         for(int j = 0; j<21 ;j++){
-            roomGrid[i][j].empty = true;
+            roomGrid[j][i].empty = true;
         }
     }
+    Point currentPOS;
+    currentPOS.x=0;
+    currentPOS.y=0;
     for(int i = 0; i < 10; i++){
-        int currentXPOS =0;
-        int currentYPOS =0;
+       bool doorAvailability[4]={true};
+       bool failsafe = true;
+        while(failsafe)
+        {
+            //Room occupancy checker
+            if(roomGrid[currentPOS.x][currentPOS.y-1].empty==true){//North
+                doorAvailability[North]=false;
+            }
+            if(roomGrid[currentPOS.x+1][currentPOS.y].empty==true){//East
+                doorAvailability[East]=false;
+            }
+            if(roomGrid[currentPOS.x][currentPOS.y+1].empty==true){//South
+                doorAvailability[South]=false;
+            }
+            if(roomGrid[currentPOS.x-1][currentPOS.y].empty==true){//West
+                doorAvailability[West]=false;
+            }
+            switch (getRandomDir())
+            {
+            case North: // North
+                if(doorAvailability[North]==false){
+                    currentPOS.y--;
+                    failsafe=false;
+                    break;
+                }
+            case East: // East
+                if(doorAvailability[East]==false){
+                    currentPOS.x++;
+                    failsafe=false;
+                    break;
+                }
+            case South: // South
+                if(doorAvailability[South==false]){
+                    currentPOS.y++;
+                    failsafe=false;
+                    break;
+                }
+            case West: // West
+                if(doorAvailability[West]==false){
+                    currentPOS.x--;
+                    failsafe=false;
+                    break;
+                }
+            default:
+                break;
+            }
+        }
         
-        //Room occupancy checker
-        if(roomGrid[currentXPOS-1][currentYPOS].empty==true){//North
-            doorAvailability[0]=true;
+        if(trueCount(doorAvailability,4)==4){
+            treasureRoom=true;
         }
-        if(roomGrid[currentXPOS][currentYPOS+1].empty==true){//East
-            doorAvailability[1]=true;
+        //while true loop för gilltig rum värde, ingen double back
+        if(treasureRoom){
+            //Treasure room
+            break;
         }
-        if(roomGrid[currentXPOS+1][currentYPOS].empty==true){//South
-            doorAvailability[2]=true;
-        }
-        if(roomGrid[currentXPOS][currentYPOS-1].empty==true){//West
-            doorAvailability[3]=true;
-        }
-
         //224*224 är 50176
-        DrunkardsWalk(doorAvailability[0],doorAvailability[1],doorAvailability[2],doorAvailability[3],33450,startPOS);
+        DrunkardsWalk(doorAvailability[North],doorAvailability[East],doorAvailability[South],doorAvailability[West],2500,startPOS);
 
     }
-    
+    //Boss room
+
     return roomGrid;
 }
 
