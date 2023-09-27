@@ -10,8 +10,8 @@
 #include "enemy.c"
 #include "boss.c"
 
-static int playerRadius = 20;
-static int tileSize = 40;
+const int playerRadius = 20;
+const int tileSize = 40;
 
 typedef enum gameState
 {
@@ -31,9 +31,11 @@ int main()
     time_t t;
     srand((unsigned)time(&t));
     // 1120,1280 är *5
-    v2f windowSize = {1120, 1286};
+    // v2f windowSize = {1120, 1286};
+    // v2f windowSize = {1440, 900};
+    v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-
+    ToggleFullscreen();
     // ------------
     // Get textures
     // ------------
@@ -66,10 +68,10 @@ int main()
     float angle = 0;
 
     Enemy enemies[32] = {0};
-    enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, warrior, chase};
-    enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, {0}, mage, chase};
-    enemies[2] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, {0}, mage, chase};
-    enemies[3] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, {0}, warrior, chase};
+    enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, warrior, chase};
+    enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, mage, chase};
+    enemies[2] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, mage, chase};
+    enemies[3] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, warrior, chase};
 
     Room room = DrunkardsWalk(false, false, false, false, 2500, (Point){14, 14});
     RoomGrid roomGrid;
@@ -117,8 +119,10 @@ int main()
         // Move Player
         // -----------
         v2f playerMovePosition = Vector2Add(playerPosition, Vector2Scale(playerAim, (moveSpeed * GetFrameTime())));
-        //v2f redRectx = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerPosition.y + playerRadiusVector.y) / tileSize)};
-        //v2f redRecty = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)};
+        // v2f redRectx = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerPosition.y + playerRadiusVector.y) / tileSize)};
+        // v2f redRecty = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)};
+
+        // Broad phase collision
         if (room.data[(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] == TILE_TYPE_WALL)
         {
             playerMovePosition.x = playerPosition.x;
@@ -170,15 +174,15 @@ int main()
                             (y + (int)(playerPosition.y / tileSize)) * tileSize};
                         if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
                         {
-                            if (Vector2Distance(playerMovePosition, cornerVector) < 20)
+                            if (Vector2Distance(playerMovePosition, cornerVector) < playerRadius)
                             {
                                 if (fabsf(playerMovePosition.x - cornerVector.x) < fabsf(playerMovePosition.y - cornerVector.y))
                                 {
-                                    playerMovePosition.x += cornerVector.x - (playerPosition.x - 20);
+                                    playerMovePosition.x += cornerVector.x - (playerPosition.x - playerRadius);
                                 }
                                 else if (fabsf(playerMovePosition.x - cornerVector.x) > fabsf(playerMovePosition.y - cornerVector.y))
                                 {
-                                    playerMovePosition.y -= (playerPosition.y + 20) - cornerVector.y;
+                                    playerMovePosition.y -= (playerPosition.y + playerRadius) - cornerVector.y;
                                 }
                             }
                         }
@@ -191,15 +195,15 @@ int main()
                             (y + (int)(playerPosition.y / tileSize)) * tileSize};
                         if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
                         {
-                            if (Vector2Distance(playerMovePosition, cornerVector) < 20)
+                            if (Vector2Distance(playerMovePosition, cornerVector) < playerRadius)
                             {
                                 if (fabsf(playerMovePosition.x - cornerVector.x) < fabsf(playerMovePosition.y - cornerVector.y))
                                 {
-                                    playerMovePosition.x -= (playerPosition.x + 20) - cornerVector.x;
+                                    playerMovePosition.x -= (playerPosition.x + playerRadius) - cornerVector.x;
                                 }
                                 else if (fabsf(playerMovePosition.x - cornerVector.x) > fabsf(playerMovePosition.y - cornerVector.y))
                                 {
-                                    playerMovePosition.y -= (playerPosition.y + 20) - cornerVector.y;
+                                    playerMovePosition.y -= (playerPosition.y + playerRadius) - cornerVector.y;
                                 }
                             }
                         }
@@ -212,15 +216,15 @@ int main()
                             (y + 1 + (int)(playerPosition.y / tileSize)) * tileSize};
                         if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
                         {
-                            if (Vector2Distance(playerMovePosition, cornerVector) < 20)
+                            if (Vector2Distance(playerMovePosition, cornerVector) < playerRadius)
                             {
                                 if (fabsf(playerMovePosition.x - cornerVector.x) < fabsf(playerMovePosition.y - cornerVector.y))
                                 {
-                                    playerMovePosition.x += cornerVector.x - (playerPosition.x - 20);
+                                    playerMovePosition.x += cornerVector.x - (playerPosition.x - playerRadius);
                                 }
                                 else if (fabsf(playerMovePosition.x - cornerVector.x) > fabsf(playerMovePosition.y - cornerVector.y))
                                 {
-                                    playerMovePosition.y += cornerVector.y - (playerPosition.y - 20);
+                                    playerMovePosition.y += cornerVector.y - (playerPosition.y - playerRadius);
                                 }
                             }
                         }
@@ -233,15 +237,15 @@ int main()
                             (y + 1 + (int)(playerPosition.y / tileSize)) * tileSize};
                         if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
                         {
-                            if (Vector2Distance(playerMovePosition, cornerVector) < 20)
+                            if (Vector2Distance(playerMovePosition, cornerVector) < playerRadius)
                             {
                                 if (fabsf(playerMovePosition.x - cornerVector.x) < fabsf(playerMovePosition.y - cornerVector.y))
                                 {
-                                    playerMovePosition.x -= (playerPosition.x + 20) - cornerVector.x;
+                                    playerMovePosition.x -= (playerPosition.x + playerRadius) - cornerVector.x;
                                 }
                                 else if (fabsf(playerMovePosition.x - cornerVector.x) > fabsf(playerMovePosition.y - cornerVector.y))
                                 {
-                                    playerMovePosition.y += cornerVector.y - (playerPosition.y - 20);
+                                    playerMovePosition.y += cornerVector.y - (playerPosition.y - playerRadius);
                                 }
                             }
                         }
@@ -265,25 +269,89 @@ int main()
         if (executePressed)
         {
             magicCircle[ringCount] = execute;
-            for (int i = 0; i < spellBookCount; i++)
+            for (int spellIndex = 0; spellIndex < spellBookCount; spellIndex++)
             {
-                for (int j = 0; j < ringCount + 1; j++)
+                for (int ringIndex = 0; ringIndex < ringCount + 1; ringIndex++)
                 {
-                    if (magicCircle[j] != spellBook[i].Incantation[j])
+                    if (magicCircle[ringIndex] != spellBook[spellIndex].Incantation[ringIndex])
                     {
                         break;
                     }
                     else
                     {
-                        if (magicCircle[j] == execute)
+                        if (magicCircle[ringIndex] == execute)
                         {
-                            for (int k = 0; k < maxSpellEntities; k++)
+                            switch (spellBook[spellIndex].name)
                             {
-                                if (spellEntities[k].lifetime <= 0)
+                            case fireBall:
+                            case manaSpark:
+                            case chromaticOrb:
+                            {
+                                for (int k = 0; k < maxSpellEntities; k++)
                                 {
-                                    spellEntities[k] = (SpellEntity){spellBook[i].startingLifeTime, spellBook[i].name, playerPosition, Vector2Normalize(spellAim)};
-                                    goto spellCast;
+                                    if (spellEntities[k].lifetime <= 0)
+                                    {
+                                        spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, playerPosition, Vector2Normalize(spellAim), 0};
+                                        break;
+                                    }
                                 }
+                                goto spellCast;
+                            }
+                            case magicMissile:
+                            {
+                                for (int i = 0; i < 3; i++)
+                                {
+                                    for (int k = 0; k < maxSpellEntities; k++)
+                                    {
+                                        if (spellEntities[k].lifetime <= 0)
+                                        {
+                                            int targetIndex = -1;
+                                            spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, (v2f){playerPosition.x + k*5, playerPosition.y + k*5}, Vector2Normalize(spellAim), targetIndex};
+                                            for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
+                                            {
+                                                if (enemies[enemyIndex].health > 0)
+                                                {
+                                                    targetIndex = enemyIndex;
+                                                    break;
+                                                }
+                                            }
+                                            if (targetIndex != -1)
+                                            {
+                                                for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
+                                                {
+                                                    if (enemies[enemyIndex].health > 0)
+                                                    {
+                                                        printf("%f\n", Vector2Distance(spellEntities[k].position, enemies[enemyIndex].position));
+                                                        if (Vector2Distance(spellEntities[k].position, enemies[targetIndex].position) > Vector2Distance(spellEntities[k].position, enemies[enemyIndex].position))
+                                                        {
+                                                            targetIndex = enemyIndex;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            spellEntities[k].targetIndex = targetIndex;
+                                            break;
+                                        }
+                                    }
+                                }
+                                goto spellCast;
+                            }
+                            case moonBeam:
+                            {
+                                for (int k = 0; k < maxSpellEntities; k++)
+                                {
+                                    if (spellEntities[k].lifetime <= 0)
+                                    {
+                                        spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, Vector2Add(Vector2Scale(spellAim, 100), playerPosition), Vector2Normalize(spellAim), 0};
+                                        break;
+                                    }
+                                }
+                                goto spellCast;
+                            }
+                            default:
+                            {
+                                goto spellCast;
+                            }
                             }
                         }
                     }
@@ -407,6 +475,15 @@ int main()
                     }
                     break;
 
+                case magicMissile:
+                {
+                    float magicMissileSpeed = 200;
+                    
+                    spellEntities[i].aim = Vector2Add(spellEntities[i].aim, Vector2Normalize(Vector2Subtract(enemies[spellEntities[i].targetIndex].position, spellEntities[i].position)));
+                    spellEntities[i].position = Vector2Add(spellEntities[i].position, Vector2Scale(Vector2Normalize(spellEntities[i].aim), magicMissileSpeed * GetFrameTime()));
+                }
+                break;
+
                 default:
                     break;
                 }
@@ -420,7 +497,7 @@ int main()
         {
             if (enemies[i].health > 0)
             {
-                UpdateEnemy(&enemies[i], playerPosition);
+                UpdateEnemy(&enemies[i], playerPosition, &room);
             }
         }
 
@@ -429,7 +506,7 @@ int main()
         // ------
         BeginDrawing();
         ClearBackground(BLACK);
-        
+
         // Draw Rooms
         for (int x = 0; x < roomSize; x++)
         {
@@ -507,7 +584,7 @@ int main()
         {
             if (enemies[i].health > 0)
             {
-                DrawEnemy(enemies[i]);
+                DrawEnemy(&enemies[i]);
             }
         }
 
@@ -537,6 +614,10 @@ int main()
                     DrawSpellChromaticOrb(spellEntities[i].position, spellEntities[i].aim, spellEntities[i].lifetime);
                     break;
 
+                case magicMissile:
+                    DrawSpellMagicMissile(spellEntities[i].position, spellEntities[i].aim, enemies[spellEntities[i].targetIndex].position);
+                    break;
+
                 default:
                     break;
                 }
@@ -553,11 +634,11 @@ int main()
         {
             DrawRectangleLines(redRecty.x * tileSize, redRecty.y * tileSize, tileSize, tileSize, (Color){255, 0, 0, 255});
         } */
-        
+
         /*
         DrawLine(playerPosition.x, playerPosition.y, playerPosition.x + spellAim.x * tileSize, playerPosition.y + spellAim.y * tileSize, (Color){255, 0, 255, 255});
         DrawLine(playerPosition.x, playerPosition.y, playerPosition.x + playerAim.x * tileSize, playerPosition.y + playerAim.y * tileSize, (Color){255, 255, 255, 255});
-        
+
 
         for (int x = -1; x < 2; x++)
         {
