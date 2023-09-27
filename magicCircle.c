@@ -13,7 +13,8 @@ typedef enum SpellName
     block,
     fireBall,
     moonBeam,
-    chromaticOrb
+    chromaticOrb,
+    magicMissile
 } SpellName;
 
 typedef struct SpellEntity
@@ -22,6 +23,7 @@ typedef struct SpellEntity
     SpellName name;
     Vector2 position;
     Vector2 aim;
+    int targetIndex;
 } SpellEntity;
 
 typedef enum
@@ -39,13 +41,15 @@ typedef struct Spell
     Incantation Incantation[16];
 } Spell;
 
-const int spellBookCount = 5;
+const int spellBookCount = 6;
 const Spell spellBook[spellBookCount] = {
     (Spell){manaSpark, 1, {square, square, execute}},
     (Spell){block, 1, {circle, circle, execute}},
     (Spell){fireBall, 1, {square, circle, square, execute}},
     (Spell){moonBeam, 5, {square, square, circle, square, triangle, execute}},
-    (Spell){chromaticOrb, 1, {square, triangle, triangle, square, execute}}};
+    (Spell){chromaticOrb, 1, {square, triangle, circle, square, execute}},
+    (Spell){magicMissile, 1, {square, triangle, triangle, square, execute}}
+};
 
 void DrawSpellMoonBeam(Vector2 targetLocation, float lifeTime)
 {
@@ -108,6 +112,12 @@ void DrawSpellChromaticOrb(Vector2 targetLocation, Vector2 aim, float lifeTime)
         pos = Vector2Rotate(pos, 22.5 * DEG2RAD);
         DrawCircle(targetLocation.x + pos.x, targetLocation.y + pos.y, 8, ColorFromHSV(i * 22.5, 1, 1));
     }
+}
+
+void DrawSpellMagicMissile(Vector2 position, Vector2 aim, Vector2 targetLocation)
+{
+    DrawLine(position.x, position.y, targetLocation.x, targetLocation.y, (Color){255, 255, 255, 255});
+    DrawCircle(position.x, position.y, 5, (Color){255, 255, 255, 255});
 }
 
 void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ringCount, float *angle)
