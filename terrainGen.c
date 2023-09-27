@@ -68,9 +68,61 @@ int getRandomDir()
 
 // Sebastian kod
 //  bool carvePath(Point current, Point direction) {
-
 // }
 
+//counts the amount of booleans in an array which are true
+int trueCount(bool boolArray[],int length){
+    int sum;
+    for(int i = 0; i < length; i++){
+        if(boolArray[i]==true){sum++;}    
+    }
+    return sum;
+}
+Room DrunkardsCleanup(Room map){
+    bool blockChanged = true;
+    while(blockChanged){
+        blockChanged=false;
+        for(int i = 0; i< roomSize; i++){
+            for(int j = 0; j<roomSize; j++){
+                int borderWalls = 4 ;
+                int leftRight =0;
+                int upDown = 0 ;
+                if(map.data[j][i][0]==TILE_TYPE_WALL){
+                    if(!(j == 0 || j == roomSize-1 )){//Not on the west or east sides
+                        if(map.data[j-1][i][0]==TILE_TYPE_EMPTY || map.data[j-1][i][0]==SCHEDULED_FOR_DELETE ){
+                            borderWalls--;
+                            leftRight++;
+                        };//Left
+                        if(map.data[j+1][i][0]==TILE_TYPE_EMPTY || map.data[j+1][i][0]==SCHEDULED_FOR_DELETE){
+                            borderWalls--;
+                            leftRight++;
+                        };//Right
+                    }
+                    if(!(i == 0 || i == roomSize-1)){//Not on the north or south sides
+                        if(map.data[j][i-1][0]==TILE_TYPE_EMPTY || map.data[j][i-1][0]==SCHEDULED_FOR_DELETE){
+                            borderWalls--;
+                            upDown++;
+                        };//Up
+                        if(map.data[j][i+1][0]==TILE_TYPE_EMPTY || map.data[j][i+1][0]==SCHEDULED_FOR_DELETE){
+                            borderWalls--;
+                            upDown++;
+                        };//Down
+                    }
+                    
+                    if(borderWalls<2||leftRight==2||upDown==2)
+                    {
+                        map.data[j][i][0]=TILE_TYPE_EMPTY;
+                        blockChanged=true;
+                    }
+                }
+                
+            }
+        }
+    }
+    
+    
+    return map;
+}
 // En funktion för random terrain generation med "the drunkards walk" algoritmen
 Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering, Point StartPOS)
 {
@@ -170,74 +222,75 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
         i++;
     }
     //Dunkard cleanup
-    for(int i = 0; i< roomSize; i++){
-        for(int j = 0; j<roomSize; j++){
-            if(i == 0 || i == roomSize-1 || j == 0 || j == roomSize-1){}
-            else{
-                int borderWalls = 4 ;
-                int leftRight =0;
-                int upDown = 0 ;
-                if(map.data[j][i][0]==TILE_TYPE_WALL){
-                    if(map.data[j-1][i][0]==TILE_TYPE_EMPTY || map.data[j-1][i][0]==SCHEDULED_FOR_DELETE ){
-                        borderWalls--;
-                        leftRight++;
-                    };//Left
-                    if(map.data[j+1][i][0]==TILE_TYPE_EMPTY || map.data[j+1][i][0]==SCHEDULED_FOR_DELETE){
-                        borderWalls--;
-                        leftRight++;
-                    };//Right
-                    if(map.data[j][i-1][0]==TILE_TYPE_EMPTY || map.data[j][i-1][0]==SCHEDULED_FOR_DELETE){
-                        borderWalls--;
-                        upDown++;
-                    };//Up
-                    if(map.data[j][i+1][0]==TILE_TYPE_EMPTY || map.data[j][i+1][0]==SCHEDULED_FOR_DELETE){
-                        borderWalls--;
-                        upDown++;
-                    };//Down
-                }
-                if(borderWalls<2||leftRight==2||upDown==2)
-                {
-                    map.data[j][i][0]=SCHEDULED_FOR_DELETE;
-                }
-            }
-        }
-    }
-    for(int i = 0; i<roomSize; i++){
-        for(int j = 0; j < roomSize; j ++)
-        {if(i == 0 || i == roomSize-1 || j == 0 || j == roomSize-1){}
-                else
-                {
-                    int borderWalls = 4 ;
-                    int leftRight =0;
-                    int upDown = 0 ;
-                    if(map.data[j][i][0]==TILE_TYPE_WALL){
-                        if(map.data[j-1][i][0]==TILE_TYPE_EMPTY || map.data[j-1][i][0]==SCHEDULED_FOR_DELETE ){
-                            borderWalls--;
-                            leftRight++;
-                        };//Left
-                        if(map.data[j+1][i][0]==TILE_TYPE_EMPTY || map.data[j+1][i][0]==SCHEDULED_FOR_DELETE){
-                            borderWalls--;
-                            leftRight++;
-                        };//Right
-                        if(map.data[j][i-1][0]==TILE_TYPE_EMPTY || map.data[j][i-1][0]==SCHEDULED_FOR_DELETE){
-                            borderWalls--;
-                            upDown++;
-                        };//Up
-                        if(map.data[j][i+1][0]==TILE_TYPE_EMPTY || map.data[j][i+1][0]==SCHEDULED_FOR_DELETE){
-                            borderWalls--;
-                            upDown++;
-                        };//Down
-                    }
-                    if(borderWalls<2||leftRight==2||upDown==2){
-                        map.data[j][i][0]=SCHEDULED_FOR_DELETE;
-                    }
-                }
-            if(map.data[j][i][0]==SCHEDULED_FOR_DELETE){
+    map = DrunkardsCleanup(map);
+    // for(int i = 0; i< roomSize; i++){
+    //     for(int j = 0; j<roomSize; j++){
+    //         if(i == 0 || i == roomSize-1 || j == 0 || j == roomSize-1){}
+    //         else{
+    //             int borderWalls = 4 ;
+    //             int leftRight =0;
+    //             int upDown = 0 ;
+    //             if(map.data[j][i][0]==TILE_TYPE_WALL){
+    //                 if(map.data[j-1][i][0]==TILE_TYPE_EMPTY || map.data[j-1][i][0]==SCHEDULED_FOR_DELETE ){
+    //                     borderWalls--;
+    //                     leftRight++;
+    //                 };//Left
+    //                 if(map.data[j+1][i][0]==TILE_TYPE_EMPTY || map.data[j+1][i][0]==SCHEDULED_FOR_DELETE){
+    //                     borderWalls--;
+    //                     leftRight++;
+    //                 };//Right
+    //                 if(map.data[j][i-1][0]==TILE_TYPE_EMPTY || map.data[j][i-1][0]==SCHEDULED_FOR_DELETE){
+    //                     borderWalls--;
+    //                     upDown++;
+    //                 };//Up
+    //                 if(map.data[j][i+1][0]==TILE_TYPE_EMPTY || map.data[j][i+1][0]==SCHEDULED_FOR_DELETE){
+    //                     borderWalls--;
+    //                     upDown++;
+    //                 };//Down
+    //             }
+    //             if(borderWalls<2||leftRight==2||upDown==2)
+    //             {
+    //                 map.data[j][i][0]=SCHEDULED_FOR_DELETE;
+    //             }
+    //         }
+    //     }
+    // }
+    // for(int i = 0; i<roomSize; i++){
+    //     for(int j = 0; j < roomSize; j ++)
+    //     {if(i == 0 || i == roomSize-1 || j == 0 || j == roomSize-1){}
+    //             else
+    //             {
+    //                 int borderWalls = 4 ;
+    //                 int leftRight =0;
+    //                 int upDown = 0 ;
+    //                 if(map.data[j][i][0]==TILE_TYPE_WALL){
+    //                     if(map.data[j-1][i][0]==TILE_TYPE_EMPTY || map.data[j-1][i][0]==SCHEDULED_FOR_DELETE ){
+    //                         borderWalls--;
+    //                         leftRight++;
+    //                     };//Left
+    //                     if(map.data[j+1][i][0]==TILE_TYPE_EMPTY || map.data[j+1][i][0]==SCHEDULED_FOR_DELETE){
+    //                         borderWalls--;
+    //                         leftRight++;
+    //                     };//Right
+    //                     if(map.data[j][i-1][0]==TILE_TYPE_EMPTY || map.data[j][i-1][0]==SCHEDULED_FOR_DELETE){
+    //                         borderWalls--;
+    //                         upDown++;
+    //                     };//Up
+    //                     if(map.data[j][i+1][0]==TILE_TYPE_EMPTY || map.data[j][i+1][0]==SCHEDULED_FOR_DELETE){
+    //                         borderWalls--;
+    //                         upDown++;
+    //                     };//Down
+    //                 }
+    //                 if(borderWalls<2||leftRight==2||upDown==2){
+    //                     map.data[j][i][0]=SCHEDULED_FOR_DELETE;
+    //                 }
+    //             }
+    //         if(map.data[j][i][0]==SCHEDULED_FOR_DELETE){
                 
-                map.data[j][i][0]=TILE_TYPE_EMPTY;
-            }
-        }
-    }
+    //             map.data[j][i][0]=TILE_TYPE_EMPTY;
+    //         }
+    //     }
+    // }
 
     //Corners
     //God has forsaken me for this disgusting code
