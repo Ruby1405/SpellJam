@@ -20,6 +20,7 @@ typedef enum TileType
     TILE_TYPE_CORNER_NORTH_WEST,
     TILE_TYPE_CORNER_SOUTH_EAST,
     TILE_TYPE_CORNER_SOUTH_WEST,
+    TILE_TYPE_DOOR,
     TILE_TYPE_DOOR_NORTH,
     TILE_TYPE_DOOR_EAST,
     TILE_TYPE_DOOR_SOUTH,
@@ -35,22 +36,24 @@ typedef enum Directions
     South,
     West
 } directions;
-
+typedef struct Point
+{
+    int x;
+    int y;
+} Point;
 typedef struct Room
 {
     bool empty;
-    TileType data[roomSize][roomSize][2];
+    TileType data[roomSize][roomSize][2]; 
+    int exitDir;
+    Point exitPOS;
 } Room;
 typedef struct RoomGrid
 {
     Room data[roomGridSize][roomGridSize];
 } RoomGrid;
 
-typedef struct Point
-{
-    int x;
-    int y;
-} Point;
+
 
 // Sebastian kod
 //  Point directions[] = {
@@ -77,7 +80,7 @@ int getRandomDir()
 
 //counts the amount of booleans in an array which are true
 int trueCount(bool boolArray[],int length){
-    int sum;
+    int sum = 0;
     for(int i = 0; i < length; i++){
         if(boolArray[i]==true){sum++;}    
     }
@@ -150,7 +153,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
     int i = 0;
     while (i <= staggering || !drunkardOutOfBounds)
     {
-        printf("%d\n", i);
+        
         // Sets the drunkard loose
         map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_EMPTY;
         switch (getRandomDir())
@@ -174,61 +177,102 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
 
         if (drunkardsPOS.x < 0) // THE WEST HAS FALLEN
         {
-            puts("The west has fallen");
+            //puts("The west has fallen");
             drunkardsPOS.x++;
             if (!west && i >= staggering)
             {
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_WEST;
+                map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
+                map.exitDir=West;
+                map.exitPOS=drunkardsPOS;
             }
             else{
-                puts("smhing my hed");
+                //puts("smhing my hed");
             }
         }
         else if (drunkardsPOS.x >= roomSize) // East bound and down, loaded up and truckin'
         {
-            puts("East bound and down, loaded up and truckin'");
+            //puts("East bound and down, loaded up and truckin'");
             drunkardsPOS.x--;
             if (!east && i >= staggering)
             {
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_EAST;
+                map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
+                map.exitDir=East;
+                map.exitPOS=drunkardsPOS;
             }
             else{
-                puts("We're gonna do what they say cant be done");
+                //puts("We're gonna do what they say cant be done");
             }
         }
         else if (drunkardsPOS.y < 0) // King in the north
         {
-            puts("King in the north");
+            //puts("King in the north");
             drunkardsPOS.y++;
             if (!north && i >= staggering)
             {
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_NORTH;
+                map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
+                map.exitDir=North;
+                map.exitPOS=drunkardsPOS;
             }
             else{
-                puts("He ded");
+                //puts("He ded");
             }
         }
         else if (drunkardsPOS.y >= roomSize) // Away down South in the land of traitors, rattlesnakes and alligators
         {
-            puts("Away down South in the land of traitors, rattlesnakes and alligators");
+            //puts("Away down South in the land of traitors, rattlesnakes and alligators");
             drunkardsPOS.y--;
             if (!south && i >= staggering)
             {
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_SOUTH;
+                map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
+                map.exitDir=South;
+                map.exitPOS=drunkardsPOS;
             }
             else if(south){
-                puts("Come away");
+                //puts("Come away");
             }
         }
         i++;
     }
+    printf("%d\n", i);
     //Dunkard cleanup
     map = DrunkardsCleanup(map);
 
+    //TODO
+    //THIS IS IMPORTANT
+    //PLACES DOOR FROM WHERE YOU CAME (AYO).
+    if(!(StartPOS.x==floor(roomSize/2) && StartPOS.y==floor(roomSize/2))){
+        switch (map.exitDir)
+        {
+        case North:
+            map.data[StartPOS.x][StartPOS.y][0]=TILE_TYPE_DOOR_SOUTH;
+            map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
+            break;
+        case East:
+            map.data[StartPOS.x][StartPOS.y][0]=TILE_TYPE_DOOR_WEST;
+            map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
+            break;
+        case South:
+            map.data[StartPOS.x][StartPOS.y][0]=TILE_TYPE_DOOR_NORTH;
+            map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
+            break;
+        case West:
+            map.data[StartPOS.x][StartPOS.y][0]=TILE_TYPE_DOOR_EAST;
+            map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
+            break;
+        
+        default:
+            break;
+        }
+        
+    }
     //Corners
     //God has forsaken me for this disgusting code
     //Forgive me father for i have sinned
@@ -475,12 +519,13 @@ TODO
     - Treasure rooms 
     - Multiple doors in a room
     - Boss rooms if the drunkard is trapped
-- Boss room 
+    - Boss room 
 */
 RoomGrid RoomCreator(){
+    puts("room creator has been called");
     Point startPOS;
-    startPOS.x=roomSize/2;
-    startPOS.y=roomSize/2;
+    startPOS.x=floor(roomSize/2);
+    startPOS.y=floor(roomSize/2);
     
     bool treasureRoom=false;
 
@@ -491,67 +536,54 @@ RoomGrid RoomCreator(){
         }
     }
     Point currentPOS;
-    currentPOS.x=0;
-    currentPOS.y=0;
+    currentPOS.x=floor(roomGridSize/2);
+    currentPOS.y=floor(roomGridSize/2);
     for(int i = 0; i < floor(roomGridSize/2); i++){
+       printf("creating room %d",i);
        bool doorAvailability[4]={true};
        bool failsafe = true;
-        while(failsafe)
+
+       printf("Drunkard is walking at %d ,%d\n",currentPOS.x,currentPOS.y);
+
+        roomGrid.data[currentPOS.x][currentPOS.y] = DrunkardsWalk(doorAvailability[North],doorAvailability[East],doorAvailability[South],doorAvailability[West],2500,startPOS);
+        if(roomGrid.data[currentPOS.x][currentPOS.y-1].empty==true){//North
+            doorAvailability[North]=false;
+        }
+        if(roomGrid.data[currentPOS.x+1][currentPOS.y].empty==true){//East
+            doorAvailability[East]=false;
+        }
+        if(roomGrid.data[currentPOS.x][currentPOS.y+1].empty==true){//South
+            doorAvailability[South]=false;
+        }
+        if(roomGrid.data[currentPOS.x-1][currentPOS.y].empty==true){//West
+            doorAvailability[West]=false;
+        }
+        switch (roomGrid.data[currentPOS.x][currentPOS.y].exitDir)
         {
-            //Room occupancy checker
-            if(roomGrid.data[currentPOS.x][currentPOS.y-1].empty==true){//North
-                doorAvailability[North]=false;
-            }
-            if(roomGrid.data[currentPOS.x+1][currentPOS.y].empty==true){//East
-                doorAvailability[East]=false;
-            }
-            if(roomGrid.data[currentPOS.x][currentPOS.y+1].empty==true){//South
-                doorAvailability[South]=false;
-            }
-            if(roomGrid.data[currentPOS.x-1][currentPOS.y].empty==true){//West
-                doorAvailability[West]=false;
-            }
-            switch (getRandomDir())
-            {
-            case North: // North
-                if(doorAvailability[North]==false){
-                    currentPOS.y--;
-                    failsafe=false;
-                    break;
-                }
-            case East: // East
-                if(doorAvailability[East]==false){
-                    currentPOS.x++;
-                    failsafe=false;
-                    break;
-                }
-            case South: // South
-                if(doorAvailability[South==false]){
-                    currentPOS.y++;
-                    failsafe=false;
-                    break;
-                }
-            case West: // West
-                if(doorAvailability[West]==false){
-                    currentPOS.x--;
-                    failsafe=false;
-                    break;
-                }
-            default:
-                break;
-            }
-        }
-        
-        if(trueCount(doorAvailability,4)==4){
-            treasureRoom=true;
-        }
-        //while true loop för gilltig rum värde, ingen double back
-        if(treasureRoom){
-            //Treasure room
+        case North:
+            currentPOS.y++;
+            break;
+        case East:
+            currentPOS.x++;
+            break;
+        case South:
+            currentPOS.y--;
+            break;
+        case West:
+            currentPOS.x--;
+            break;
+        default:
             break;
         }
-        //224*224 är 50176
-        DrunkardsWalk(doorAvailability[North],doorAvailability[East],doorAvailability[South],doorAvailability[West],2500,startPOS);
+        startPOS = roomGrid.data[currentPOS.x][currentPOS.y].exitPOS;
+        // if(trueCount(doorAvailability,4)==4){
+        //     treasureRoom=true;
+        // }
+        // if(treasureRoom){
+        //     //Treasure room
+        //     break;
+        // }
+        
 
     }
     //Boss room
