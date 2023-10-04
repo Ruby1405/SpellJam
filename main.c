@@ -85,7 +85,7 @@ int main()
     enemies[2] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, mage, chase};
     enemies[3] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, warrior, chase};
 
-    Room room = DrunkardsWalk(false, false, false, false, 2500, (Point){14, 14});
+    Room room = DrunkardsWalk(false, false, false, false, 2500, 14,14,-1);
     RoomGrid roomGrid= RoomCreator();
     Point roomPOS;
     roomPOS.x = floor(roomGridSize/2);
@@ -150,42 +150,45 @@ int main()
         }
         //DOORS
         if(hasLeftDoor){
+            //North
             if (room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] == TILE_TYPE_DOOR_NORTH){
                 //Exits south in the next room
-                playerPosition.y=((roomSize-1)*tileSize)+tileSize/2;
-                roomPOS.y--;
+                roomPOS.y++;
+                playerMovePosition.y=((roomSize-1)*tileSize)+tileSize/2;
                 hasLeftDoor = false;
-                puts("Door collsion");
+                puts("North facing door collision");
                 printf("current room is %d, %d\n", roomPOS.x,roomPOS.y);
             }
+            //East
             if (room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] == TILE_TYPE_DOOR_EAST){
                 //Exits west in the next room
-                playerPosition.x = tileSize/2;
-                roomPOS.x--;
+                playerMovePosition.x = tileSize/2;
+                roomPOS.x++;
                 hasLeftDoor = false;
-                puts("Door colasion");
+                puts("East facing door collision");
                 printf("current room is %d, %d\n", roomPOS.x,roomPOS.y);
             }
+            //South
             if (room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] == TILE_TYPE_DOOR_SOUTH){
                 //Exits North in the next room
-                playerPosition.y=tileSize/2;
+                playerMovePosition.y=tileSize/2;
                 roomPOS.y--;
                 hasLeftDoor = false;
-                puts("Door cällsion");
+                puts("South facing door collision");
                 printf("current room is %d, %d\n", roomPOS.x,roomPOS.y);
             }
+            //West
             if (room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] == TILE_TYPE_DOOR_WEST){
-                //Exits south in the next room
-                playerPosition.y=((roomSize-1)*tileSize)+tileSize/2;
+                //Exits East in the next room
+                playerMovePosition.x=((roomSize-1)*tileSize)+tileSize/2;
                 roomPOS.x--;
                 hasLeftDoor = false;
-                puts("Door colsion");
+                puts("West facing door collision");
                 printf("current room is %d, %d\n", roomPOS.x,roomPOS.y);
             }
         }
         else if(room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][1] != TILE_TYPE_DOOR){
             hasLeftDoor=true;
-            puts("The eagle has left the roost and has been fed a worm");
         }    
         
         // ---------
