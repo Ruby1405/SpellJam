@@ -69,6 +69,9 @@ int main()
     v2f playerPosition = {roomSize / 2 * tileSize + tileSize / 2, roomSize / 2 * tileSize + tileSize / 2};
     v2f playerAim = {0, 0};
     v2f spellAim = {0, -1};
+    float playerHealth = 200;
+    float playerMana = 200;
+    float manaAngle = 0;
 
     // Initialize spell casting
     Incantation magicCircle[16];
@@ -147,7 +150,6 @@ int main()
         }
         //DOORS
         if(hasLeftDoor){
-            puts("The eagle has landed");
             if (room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][0] == TILE_TYPE_DOOR_NORTH){
                 //Exits south in the next room
                 playerPosition.y=((roomSize-1)*tileSize)+tileSize/2;
@@ -299,6 +301,15 @@ int main()
         // -------------
         // Spell Casting
         // -------------
+        if (playerMana < 200)
+        {
+            playerMana += 20 * GetFrameTime();
+            if (playerMana > 200)
+            {
+                playerMana = 200;
+            }
+        }
+
         // Avoid making the spell aim 0, 0
         if (playerAim.x != 0 || playerAim.y != 0)
         {
@@ -399,6 +410,19 @@ int main()
                                 }
                                 goto spellCast;
                             }
+                            case block:
+                            {
+                                // Find an empty slot and place moon beam in front of the player
+                                for (int k = 0; k < maxSpellEntities; k++)
+                                {
+                                    if (spellEntities[k].lifetime <= 0)
+                                    {
+                                        spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, playerPosition, (v2f){0,0}, 0};
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
                             default:
                             {
                                 goto spellCast;
@@ -410,6 +434,7 @@ int main()
             }
         // Clear the magic circle of incantations
         spellCast:
+            playerMana -= (ringCount - 1)*20;
             ringCount = 0;
         }
         // Add incantations to the magic circle
@@ -782,10 +807,25 @@ int main()
                 DrawPoly((Vector2){(x + (int)(playerPosition.x / tileSize)) * tileSize + tileSize, (y + (int)(playerPosition.y / tileSize)) * tileSize + tileSize}, 4, 3, 0, ORANGE);
             }
         }
-        DrawText(TextFormat("%f", ), 10, 10, 20, (Color){255, 255, 255, 255});
         DrawText(TextFormat("%f", GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X)), 10, 40, 20, (Color){255, 255, 255, 255});
         DrawText(TextFormat("%d", (int)littleBoolOfMine), 10, 70, 20, WHITE);
         */
+
+        /*
+        TODO
+        - Find out why polygons can't be drawn here
+        */
+        // DRAW HUD
+        v2f manaCirclePosition = Vector2Subtract(windowSize,(v2f){50,50});
+        int radius = 50 / sin(30 * DEG2RAD);
+        int lineThickness = 3;
+        manaAngle += 1 * GetFrameTime();
+        DrawPolyLinesEx((v2f){100,100}, 3, radius, ((manaAngle * 3) / (radius * 0.0002 + 0.01)), lineThickness + 5, (Color){0,255,255});
+        DrawPolyLinesEx(manaCirclePosition, 3, radius, ((manaAngle * 3) / (radius * 0.0002 + 0.01)) + 60, lineThickness + 5, (Color){0,255,255});
+        DrawPoly(playerPosition, 3, 50, 0, (Color){0,255,255});
+        //DrawCircle(500,500,50,WHITE);
+        //manaAngle = -manaAngle;
+        DrawText(TextFormat("Mana %f", playerMana), 10, 10, 20, (Color){255, 255, 255, 255});
 
         EndDrawing();
     }
