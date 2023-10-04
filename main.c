@@ -30,17 +30,22 @@ int main()
 {
     time_t t;
     srand((unsigned)time(&t));
+
+    // ----------------
+    // DISPLAY SETTINGS
+    // ----------------
     // 1120,1280 är *5
     // v2f windowSize = {1120, 1286};
     v2f windowSize = {1440, 900};
     // v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
     ToggleFullscreen();
-    // ------------
-    // Get textures
-    // ------------
+    //SetTargetFPS(10);
+
+    // Load textures
     Texture2D worldSprites = LoadTexture("Assets/world.png");
 
+    // Initialize inputs
     bool upDown = false;
     bool downDown = false;
     bool leftDown = false;
@@ -50,8 +55,9 @@ int main()
     bool circlePressed = false;
     bool executePressed = false;
 
-    int moveSpeed = 150;
+    int playerMoveSpeed = 150;
 
+    // Initialize spell entities
     const int maxSpellEntities = 16;
     SpellEntity spellEntities[maxSpellEntities];
     for (int i = 0; i < maxSpellEntities; i++)
@@ -59,14 +65,17 @@ int main()
         spellEntities[i] = (SpellEntity){0};
     }
 
+    // Initialize player
     v2f playerPosition = {roomSize / 2 * tileSize + tileSize / 2, roomSize / 2 * tileSize + tileSize / 2};
     v2f playerAim = {0, 0};
     v2f spellAim = {0, -1};
 
+    // Initialize spell casting
     Incantation magicCircle[16];
     int ringCount = 0;
     float angle = 0;
 
+    // Initialize enemies
     Enemy enemies[32] = {0};
     enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, warrior, chase};
     enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, mage, chase};
@@ -81,6 +90,9 @@ int main()
     roomPOS.y = floor(roomGridSize/2);
     bool hasLeftDoor = true;
 
+    // ---------
+    // GAME LOOP
+    // ---------
     while (!WindowShouldClose())
     {
         // ------
@@ -95,6 +107,7 @@ int main()
         circlePressed = IsKeyPressed(KEY_RIGHT);
         executePressed = IsKeyPressed(KEY_DOWN);
 
+        // Determine where the player is aimed
         playerAim = (v2f){0, 0};
         if (upDown)
         {
@@ -118,7 +131,7 @@ int main()
         // -----------
         // Move Player
         // -----------
-        v2f playerMovePosition = Vector2Add(playerPosition, Vector2Scale(playerAim, (moveSpeed * GetFrameTime())));
+        v2f playerMovePosition = Vector2Add(playerPosition, Vector2Scale(playerAim, (playerMoveSpeed * GetFrameTime())));
         // v2f redRectx = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerPosition.y + playerRadiusVector.y) / tileSize)};
         // v2f redRecty = (v2f){(int)((playerMovePosition.x + playerRadiusVector.x) / tileSize),(int)((playerMovePosition.y + playerRadiusVector.y) / tileSize)};
 
@@ -159,23 +172,32 @@ int main()
             }
         }
         
+        // ---------
+        // CORNERING
+        // ---------
+        // For each of the 9 tiles around the player
         for (int x = -1; x < 2; x++)
         {
             for (int y = -1; y < 2; y++)
             {
+                // Avoid index out of range
                 if (x + (int)(playerPosition.x / tileSize) >= 0 && y + (int)(playerPosition.y / tileSize) >= 0 && x + (int)(playerPosition.x / tileSize) < roomSize && y + (int)(playerPosition.y / tileSize) < roomSize)
                 {
+                    // Switch based on tile type
                     switch (room.data[x + (int)(playerPosition.x / tileSize)][y + (int)(playerPosition.y / tileSize)][1])
                     {
                     case TILE_TYPE_CORNER_NORTH_EAST:
                     {
+                        // Vector for the position of the colliding corner
                         v2f cornerVector = (Vector2){
                             (x + 1 + (int)(playerPosition.x / tileSize)) * tileSize,
                             (y + (int)(playerPosition.y / tileSize)) * tileSize};
+                        // Check for collision with the corner
                         if (CheckCollisionPointCircle(cornerVector, playerPosition, playerRadius))
                         {
                             if (Vector2Distance(playerMovePosition, cornerVector) < playerRadius)
                             {
+                                // Slide the player around the corner based on where they are headed
                                 if (fabsf(playerMovePosition.x - cornerVector.x) < fabsf(playerMovePosition.y - cornerVector.y))
                                 {
                                     playerMovePosition.x += cornerVector.x - (playerPosition.x - playerRadius);
@@ -257,36 +279,44 @@ int main()
                 }
             }
         }
+        // Actually move the player, finally
         playerPosition = playerMovePosition;
 
         // -------------
         // Spell Casting
         // -------------
+        // Avoid making the spell aim 0, 0
         if (playerAim.x != 0 || playerAim.y != 0)
         {
             spellAim = playerAim;
         }
         if (executePressed)
         {
+            // Assign the last incantation of the magic circle as execute
             magicCircle[ringCount] = execute;
+            // For each spell match the player's incantations with the spell's
             for (int spellIndex = 0; spellIndex < spellBookCount; spellIndex++)
             {
                 for (int ringIndex = 0; ringIndex < ringCount + 1; ringIndex++)
                 {
+                    // If there's no match move on to the next spell
                     if (magicCircle[ringIndex] != spellBook[spellIndex].Incantation[ringIndex])
                     {
                         break;
                     }
                     else
                     {
+                        // If everything has been matching and we have reached execute cast the spell
                         if (magicCircle[ringIndex] == execute)
                         {
                             switch (spellBook[spellIndex].name)
                             {
+                            // Basic projectile spells
                             case fireBall:
                             case manaSpark:
                             case chromaticOrb:
                             {
+                                // Find an empty slot in the spell entity array and create a projectile
                                 for (int k = 0; k < maxSpellEntities; k++)
                                 {
                                     if (spellEntities[k].lifetime <= 0)
@@ -299,15 +329,21 @@ int main()
                             }
                             case magicMissile:
                             {
+                                // Make three projectiles
                                 for (int i = 0; i < 3; i++)
                                 {
+                                    // Find an empty slot in the spell entity array
                                     for (int k = 0; k < maxSpellEntities; k++)
                                     {
                                         if (spellEntities[k].lifetime <= 0)
                                         {
+                                            // Index of the target enemy
                                             int targetIndex = -1;
-                                            float magicMissileStartSpeed = 20000;
-                                            spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, (v2f){playerPosition.x + k*5, playerPosition.y + k*5}, Vector2Scale(spellAim,magicMissileStartSpeed), targetIndex};
+                                            float magicMissileStartSpeed = 800;
+
+                                            spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, Vector2Add(playerPosition,Vector2Rotate(Vector2Scale(spellAim,30),(-70 + i * 70) * DEG2RAD)), Vector2Scale(Vector2Rotate(spellAim,(-10 + i * 10) * DEG2RAD),magicMissileStartSpeed), targetIndex};
+
+                                            // Set the target index to the index of the closest enemy
                                             for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
                                             {
                                                 if (enemies[enemyIndex].health > 0)
@@ -322,7 +358,6 @@ int main()
                                                 {
                                                     if (enemies[enemyIndex].health > 0)
                                                     {
-                                                        printf("%f\n", Vector2Distance(spellEntities[k].position, enemies[enemyIndex].position));
                                                         if (Vector2Distance(spellEntities[k].position, enemies[targetIndex].position) > Vector2Distance(spellEntities[k].position, enemies[enemyIndex].position))
                                                         {
                                                             targetIndex = enemyIndex;
@@ -339,11 +374,12 @@ int main()
                             }
                             case moonBeam:
                             {
+                                // Find an empty slot and place moon beam in front of the player
                                 for (int k = 0; k < maxSpellEntities; k++)
                                 {
                                     if (spellEntities[k].lifetime <= 0)
                                     {
-                                        spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, Vector2Add(Vector2Scale(spellAim, 100), playerPosition), Vector2Normalize(spellAim), 0};
+                                        spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, Vector2Add(Vector2Scale(spellAim, 100), playerPosition), (v2f){0,0}, 0};
                                         break;
                                     }
                                 }
@@ -358,9 +394,11 @@ int main()
                     }
                 }
             }
+        // Clear the magic circle of incantations
         spellCast:
             ringCount = 0;
         }
+        // Add incantations to the magic circle
         if (ringCount < 16)
         {
             if (squarePressed)
@@ -392,7 +430,13 @@ int main()
                 case manaSpark:
                     spellEntities[i].position.x += spellEntities[i].aim.x * 500 * GetFrameTime();
                     spellEntities[i].position.y += spellEntities[i].aim.y * 500 * GetFrameTime();
+                    // Check that is inside the map
                     if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
+                    // Check room collision
+                    if (room.data[(int)(spellEntities[i].position.x / tileSize)][(int)(spellEntities[i].position.y / tileSize)][0] == TILE_TYPE_WALL)
                     {
                         spellEntities[i].lifetime = 0;
                     }
@@ -412,7 +456,13 @@ int main()
                 case fireBall:
                     spellEntities[i].position.x += spellEntities[i].aim.x * 500 * GetFrameTime();
                     spellEntities[i].position.y += spellEntities[i].aim.y * 500 * GetFrameTime();
+                    // Check that is inside the map
                     if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
+                    // Check room collision
+                    if (room.data[(int)(spellEntities[i].position.x / tileSize)][(int)(spellEntities[i].position.y / tileSize)][0] == TILE_TYPE_WALL)
                     {
                         spellEntities[i].lifetime = 0;
                     }
@@ -457,10 +507,17 @@ int main()
                     break;
 
                 case chromaticOrb:
+
                     spellEntities[i].position.x += spellEntities[i].aim.x * 300 * GetFrameTime();
                     spellEntities[i].position.y += spellEntities[i].aim.y * 300 * GetFrameTime();
                     spellEntities[i].lifetime += GetFrameTime();
+                    // Check that is inside the map
                     if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
+                    // Check room collision
+                    if (room.data[(int)(spellEntities[i].position.x / tileSize)][(int)(spellEntities[i].position.y / tileSize)][0] == TILE_TYPE_WALL)
                     {
                         spellEntities[i].lifetime = 0;
                     }
@@ -478,28 +535,56 @@ int main()
 
                 case magicMissile:
                 {
-                    float magicMissileSpeed = 200;
+                    // Check that is inside the map
+                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
+                    // If the target is dead find a new target
+                    if (enemies[spellEntities[i].targetIndex].health <= 0)
+                    {
+                        int targetIndex = -1;
+                        for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
+                        {
+                            if (enemies[enemyIndex].health > 0)
+                            {
+                                targetIndex = enemyIndex;
+                                break;
+                            }
+                        }
+                        if (targetIndex != -1)
+                        {
+                            for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
+                            {
+                                if (enemies[enemyIndex].health > 0)
+                                {
+                                    if (Vector2Distance(spellEntities[i].position, enemies[targetIndex].position) > Vector2Distance(spellEntities[i].position, enemies[enemyIndex].position))
+                                    {
+                                        targetIndex = enemyIndex;
+                                    }
+                                }
+                            }
+                        }
+                        spellEntities[i].targetIndex = targetIndex;
+                    }
+
+                    float magicMissileSpeed = 800;
+                    float magicMissileSteering = 1600 * GetFrameTime();
                     
-                    v2f desired = Vector2Scale(Vector2Normalize(Vector2Subtract(enemies[spellEntities[i].targetIndex].position, spellEntities[i].position)), magicMissileSpeed);
+                    // If there's a target perform a seeking steering behaviour
+                    if (spellEntities[i].targetIndex != -1)
+                    {
+                        v2f desired = Vector2Scale(Vector2Normalize(Vector2Subtract(enemies[spellEntities[i].targetIndex].position, spellEntities[i].position)), magicMissileSpeed);
+                        v2f steering = Vector2Subtract(desired,spellEntities[i].aim);
+                        steering = Vector2Scale(Vector2Normalize(steering),magicMissileSteering);
+                        spellEntities[i].aim = Vector2Add(spellEntities[i].aim,steering);
+                    }
 
-
-                    spellEntities[i].aim = 
-                    Vector2Add(
-                        spellEntities[i].aim,
-                        Vector2Scale(
-                            Vector2Subtract(
-                                desired,
-                                spellEntities[i].aim
-                            ),
-                            1
-                        )
-                    );
-                    printf("%f %f desired\n", desired.x, desired.y);
-                    printf("%f %f aim\n", spellEntities[i].aim.x, spellEntities[i].aim.y);
                     // Add aim to position accounting for frametime
                     spellEntities[i].position.x += spellEntities[i].aim.x * GetFrameTime();
                     spellEntities[i].position.y += spellEntities[i].aim.y * GetFrameTime();
-//                    spellEntities[i].position = Vector2Add(spellEntities[i].position, Vector2Scale(spellEntities[i].aim, GetFrameTime()));
+
+                    // Check enemy collision
                     for (int j = 0; j < 32; j++)
                     {
                         if (enemies[j].health > 0)

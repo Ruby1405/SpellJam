@@ -150,7 +150,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
     int i = 0;
     while (i <= staggering || !drunkardOutOfBounds)
     {
-        printf("%d\n", i);
+        //printf("%d\n", i);
         // Sets the drunkard loose
         map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_EMPTY;
         switch (getRandomDir())
@@ -174,7 +174,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
 
         if (drunkardsPOS.x < 0) // THE WEST HAS FALLEN
         {
-            puts("The west has fallen");
+            // puts("The west has fallen");
             drunkardsPOS.x++;
             if (!west && i >= staggering)
             {
@@ -182,12 +182,12 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_WEST;
             }
             else{
-                puts("smhing my hed");
+                // puts("smhing my hed");
             }
         }
         else if (drunkardsPOS.x >= roomSize) // East bound and down, loaded up and truckin'
         {
-            puts("East bound and down, loaded up and truckin'");
+            // puts("East bound and down, loaded up and truckin'");
             drunkardsPOS.x--;
             if (!east && i >= staggering)
             {
@@ -195,12 +195,12 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_EAST;
             }
             else{
-                puts("We're gonna do what they say cant be done");
+                // puts("We're gonna do what they say cant be done");
             }
         }
         else if (drunkardsPOS.y < 0) // King in the north
         {
-            puts("King in the north");
+            // puts("King in the north");
             drunkardsPOS.y++;
             if (!north && i >= staggering)
             {
@@ -208,12 +208,12 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_NORTH;
             }
             else{
-                puts("He ded");
+                // puts("He ded");
             }
         }
         else if (drunkardsPOS.y >= roomSize) // Away down South in the land of traitors, rattlesnakes and alligators
         {
-            puts("Away down South in the land of traitors, rattlesnakes and alligators");
+            // puts("Away down South in the land of traitors, rattlesnakes and alligators");
             drunkardsPOS.y--;
             if (!south && i >= staggering)
             {
@@ -221,7 +221,7 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_SOUTH;
             }
             else if(south){
-                puts("Come away");
+                // puts("Come away");
             }
         }
         i++;
