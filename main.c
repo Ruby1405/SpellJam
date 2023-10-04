@@ -337,6 +337,12 @@ int main()
                         // If everything has been matching and we have reached execute cast the spell
                         if (magicCircle[ringIndex] == execute)
                         {
+                            if (playerMana < (ringCount-1)*20)
+                            {
+                                goto spellCast;
+                            }
+                            playerMana -= (ringCount - 1)*20;
+                            
                             switch (spellBook[spellIndex].name)
                             {
                             // Basic projectile spells
@@ -437,7 +443,6 @@ int main()
             }
         // Clear the magic circle of incantations
         spellCast:
-            playerMana -= (ringCount - 1)*20;
             ringCount = 0;
         }
         // Add incantations to the magic circle
