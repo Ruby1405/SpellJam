@@ -6,6 +6,7 @@
 #include "/opt/homebrew/Cellar/raylib/4.5.0/include/raylib.h"
 
 const int roomSize = 28;
+const int roomGridSize = 21;
 
 typedef enum TileType
 {
@@ -40,6 +41,10 @@ typedef struct Room
     bool empty;
     TileType data[roomSize][roomSize][2];
 } Room;
+typedef struct RoomGrid
+{
+    Room data[roomGridSize][roomGridSize];
+} RoomGrid;
 
 typedef struct Point
 {
@@ -472,38 +477,38 @@ TODO
     - Boss rooms if the drunkard is trapped
 - Boss room 
 */
-Room* RoomCreator(){
+RoomGrid RoomCreator(){
     Point startPOS;
     startPOS.x=roomSize/2;
     startPOS.y=roomSize/2;
     
     bool treasureRoom=false;
 
-    Room roomGrid[21][21]={0};
-    for(int i= 0; i < 21; i++){
-        for(int j = 0; j<21 ;j++){
-            roomGrid[j][i].empty = true;
+    RoomGrid roomGrid;
+    for(int i= 0; i < roomGridSize; i++){
+        for(int j = 0; j<roomGridSize ;j++){
+            roomGrid.data[j][i].empty = true;
         }
     }
     Point currentPOS;
     currentPOS.x=0;
     currentPOS.y=0;
-    for(int i = 0; i < 10; i++){
+    for(int i = 0; i < floor(roomGridSize/2); i++){
        bool doorAvailability[4]={true};
        bool failsafe = true;
         while(failsafe)
         {
             //Room occupancy checker
-            if(roomGrid[currentPOS.x][currentPOS.y-1].empty==true){//North
+            if(roomGrid.data[currentPOS.x][currentPOS.y-1].empty==true){//North
                 doorAvailability[North]=false;
             }
-            if(roomGrid[currentPOS.x+1][currentPOS.y].empty==true){//East
+            if(roomGrid.data[currentPOS.x+1][currentPOS.y].empty==true){//East
                 doorAvailability[East]=false;
             }
-            if(roomGrid[currentPOS.x][currentPOS.y+1].empty==true){//South
+            if(roomGrid.data[currentPOS.x][currentPOS.y+1].empty==true){//South
                 doorAvailability[South]=false;
             }
-            if(roomGrid[currentPOS.x-1][currentPOS.y].empty==true){//West
+            if(roomGrid.data[currentPOS.x-1][currentPOS.y].empty==true){//West
                 doorAvailability[West]=false;
             }
             switch (getRandomDir())
