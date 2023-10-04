@@ -31,9 +31,9 @@ int main()
     time_t t;
     srand((unsigned)time(&t));
     // 1120,1280 är *5
-    // v2f windowSize = {1120, 1286};
-    // v2f windowSize = {1440, 900};
     v2f windowSize = {1120, 1286};
+    // v2f windowSize = {1440, 900};
+    //v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
     // ToggleFullscreen();
     // ------------
@@ -320,7 +320,8 @@ int main()
                                         if (spellEntities[k].lifetime <= 0)
                                         {
                                             int targetIndex = -1;
-                                            spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, (v2f){playerPosition.x + k*5, playerPosition.y + k*5}, Vector2Normalize(spellAim), targetIndex};
+                                            float magicMissileStartSpeed = 20000;
+                                            spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, (v2f){playerPosition.x + k*5, playerPosition.y + k*5}, Vector2Scale(spellAim,magicMissileStartSpeed), targetIndex};
                                             for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
                                             {
                                                 if (enemies[enemyIndex].health > 0)
@@ -493,8 +494,42 @@ int main()
                 {
                     float magicMissileSpeed = 200;
                     
-                    spellEntities[i].aim = Vector2Add(spellEntities[i].aim, Vector2Normalize(Vector2Subtract(enemies[spellEntities[i].targetIndex].position, spellEntities[i].position)));
-                    spellEntities[i].position = Vector2Add(spellEntities[i].position, Vector2Scale(Vector2Normalize(spellEntities[i].aim), magicMissileSpeed * GetFrameTime()));
+                    v2f desired = Vector2Scale(Vector2Normalize(Vector2Subtract(enemies[spellEntities[i].targetIndex].position, spellEntities[i].position)), magicMissileSpeed);
+
+
+                    spellEntities[i].aim = 
+                    Vector2Add(
+                        spellEntities[i].aim,
+                        Vector2Scale(
+                            Vector2Subtract(
+                                desired,
+                                spellEntities[i].aim
+                            ),
+                            1
+                        )
+                    );
+                    printf("%f %f desired\n", desired.x, desired.y);
+                    printf("%f %f aim\n", spellEntities[i].aim.x, spellEntities[i].aim.y);
+                    // Add aim to position accounting for frametime
+                    spellEntities[i].position.x += spellEntities[i].aim.x * GetFrameTime();
+                    spellEntities[i].position.y += spellEntities[i].aim.y * GetFrameTime();
+//                    spellEntities[i].position = Vector2Add(spellEntities[i].position, Vector2Scale(spellEntities[i].aim, GetFrameTime()));
+                    for (int j = 0; j < 32; j++)
+                    {
+                        if (enemies[j].health > 0)
+                        {
+                            if (CheckCollisionPointCircle(spellEntities[i].position, enemies[j].position, enemyRadius))
+                            {
+                                enemies[j].health -= 10;
+                                spellEntities[i].lifetime = 0;
+                            }
+                        }
+                    }
+                    // Check room collision
+                    if (room.data[(int)(spellEntities[i].position.x / tileSize)][(int)(spellEntities[i].position.y / tileSize)][0] == TILE_TYPE_WALL)
+                    {
+                        spellEntities[i].lifetime = 0;
+                    }
                 }
                 break;
 
@@ -662,7 +697,7 @@ int main()
                 DrawPoly((Vector2){(x + (int)(playerPosition.x / tileSize)) * tileSize + tileSize, (y + (int)(playerPosition.y / tileSize)) * tileSize + tileSize}, 4, 3, 0, ORANGE);
             }
         }
-        DrawText(TextFormat("%s", GetGamepadName(1)), 10, 10, 20, (Color){255, 255, 255, 255});
+        DrawText(TextFormat("%f", ), 10, 10, 20, (Color){255, 255, 255, 255});
         DrawText(TextFormat("%f", GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X)), 10, 40, 20, (Color){255, 255, 255, 255});
         DrawText(TextFormat("%d", (int)littleBoolOfMine), 10, 70, 20, WHITE);
         */
