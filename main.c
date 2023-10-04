@@ -64,6 +64,11 @@ int main()
     {
         spellEntities[i] = (SpellEntity){0};
     }
+    SpellEntity enemySpellEntities[maxSpellEntities];
+    for (int i = 0; i < maxSpellEntities; i++)
+    {
+        spellEntities[i] = (SpellEntity){0};
+    }
 
     // Initialize player
     v2f playerPosition = {roomSize / 2 * tileSize + tileSize / 2, roomSize / 2 * tileSize + tileSize / 2};
@@ -72,6 +77,7 @@ int main()
     float playerHealth = 200;
     float playerMana = 200;
     float manaAngle = 0;
+    float shield = 0;
 
     // Initialize spell casting
     Incantation magicCircle[16];
@@ -195,6 +201,7 @@ int main()
         // CORNERING
         // ---------
         // For each of the 9 tiles around the player
+        playerRadius-1;
         for (int x = -1; x < 2; x++)
         {
             for (int y = -1; y < 2; y++)
@@ -298,6 +305,7 @@ int main()
                 }
             }
         }
+        playerRadius+1;
         // Actually move the player, finally
         playerPosition = playerMovePosition;
 
@@ -342,7 +350,7 @@ int main()
                                 goto spellCast;
                             }
                             playerMana -= (ringCount - 1)*20;
-                            
+
                             switch (spellBook[spellIndex].name)
                             {
                             // Basic projectile spells
@@ -421,15 +429,7 @@ int main()
                             }
                             case block:
                             {
-                                // Find an empty slot and place moon beam in front of the player
-                                for (int k = 0; k < maxSpellEntities; k++)
-                                {
-                                    if (spellEntities[k].lifetime <= 0)
-                                    {
-                                        spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, playerPosition, (v2f){0,0}, 0};
-                                        break;
-                                    }
-                                }
+                                shield = spellBook[spellIndex].startingLifeTime;
                                 break;
                             }
                             default:
@@ -468,6 +468,10 @@ int main()
         // -------------
         // SPELL UPDATES
         // -------------
+        if (shield > 0)
+        {
+            shield -= GetFrameTime();
+        }
         for (int i = 0; i < maxSpellEntities; i++)
         {
             if (spellEntities[i].lifetime > 0)
@@ -532,11 +536,6 @@ int main()
                             }
                         }
                     }
-                    break;
-
-                case block:
-                    spellEntities[i].position = playerPosition;
-                    spellEntities[i].lifetime -= GetFrameTime();
                     break;
 
                 case moonBeam:
@@ -664,7 +663,7 @@ int main()
         {
             if (enemies[i].health > 0)
             {
-                UpdateEnemy(&enemies[i], playerPosition, &room);
+                UpdateEnemy(&enemies[i], playerPosition, &playerHealth, shield, &room);
             }
         }
 
@@ -755,6 +754,10 @@ int main()
             }
         }
 
+        if (shield > 0)
+        {
+            DrawSpellBlock(playerPosition);
+        }
         for (int i = 0; i < maxSpellEntities; i++)
         {
             if (spellEntities[i].lifetime > 0)
@@ -763,10 +766,6 @@ int main()
                 {
                 case manaSpark:
                     DrawSpellManaSpark(spellEntities[i].position, spellEntities[i].aim);
-                    break;
-
-                case block:
-                    DrawSpellBlock(spellEntities[i].position);
                     break;
 
                 case fireBall:
@@ -791,7 +790,12 @@ int main()
             }
         }
 
-        DrawMagicCircle(playerPosition, magicCircle, ringCount, &angle);
+        angle += 1 * GetFrameTime();
+        if (angle > 360)
+        {
+            angle -= 360;
+        }
+        DrawMagicCircle(playerPosition, magicCircle, ringCount, angle);
 
         /* if (redRectx.x != 0 || redRectx.y != 0)
         {
@@ -833,7 +837,8 @@ int main()
         DrawPoly(playerPosition, 3, 50, 0, (Color){0,255,255});
         //DrawCircle(500,500,50,WHITE);
         //manaAngle = -manaAngle;
-        DrawText(TextFormat("Mana %f", playerMana), 10, 10, 20, (Color){255, 255, 255, 255});
+        DrawText(TextFormat("Health %f", playerHealth), 10, 10, 20, (Color){255, 255, 255, 255});
+        DrawText(TextFormat("Mana %f", playerMana), 10, 40, 20, (Color){255, 255, 255, 255});
 
         EndDrawing();
     }

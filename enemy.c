@@ -58,7 +58,7 @@ void DrawEnemy(Enemy *enemy)
     DrawLineEx(Vector2Add(enemy->position,Vector2Scale(enemy->direction,enemyRadius)), Vector2Add(enemy->position, Vector2Scale(enemy->direction, enemyRadius + (20 * enemy->attackCooldown))), 3, WHITE);
 }
 
-void UpdateEnemy(Enemy *enemy, Vector2 playerPosition, Room *room)
+void UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, float shield, Room *room)
 {
     int tileSize = 40;
     for (int i = 0; i < maxBuffCount; i++)
@@ -112,17 +112,17 @@ void UpdateEnemy(Enemy *enemy, Vector2 playerPosition, Room *room)
                     enemy->state = chase;
                     break;
                 }
-                if (enemy->attackCooldown == 0)
+                if (enemy->attackCooldown <= 0)
                 {
+                    if (shield <= 0)
+                    {
+                        *playerHealth -= 10;
+                    }
                     enemy->attackCooldown = attackCooldown;
                 }
                 if (enemy->attackCooldown > 0)
                 {
                     enemy->attackCooldown -= GetFrameTime();
-                }
-                if (enemy->attackCooldown < 0)
-                {
-                    enemy->attackCooldown = 0;
                 }
             }
 
