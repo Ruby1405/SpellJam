@@ -116,8 +116,13 @@ void DrawSpellChromaticOrb(Vector2 targetLocation, Vector2 aim, float lifeTime)
 
 void DrawSpellMagicMissile(Vector2 position, Vector2 aim, Vector2 targetLocation)
 {
-    DrawLine(position.x, position.y, targetLocation.x, targetLocation.y, (Color){255, 255, 255, 255});
-    DrawCircle(position.x, position.y, 5, (Color){255, 255, 255, 255});
+    //DrawLine(position.x, position.y, targetLocation.x, targetLocation.y, (Color){255, 255, 255, 255});
+    DrawCircle(position.x, position.y, 5, (Color){255, 0, 255, 255});
+    aim = Vector2Scale(Vector2Normalize(aim), 5);
+    for (int i = 0; i < 10; i++)
+    {
+        DrawCircle(position.x - aim.x * i, position.y - aim.y * i, 5-(i/2), (Color){255, 0, 255, 255});
+    }
 }
 
 void DrawMagicCircle(Vector2 playerPosition, Incantation magicCircle[16], int ringCount, float *angle)
