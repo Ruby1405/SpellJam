@@ -35,9 +35,9 @@ int main()
     // DISPLAY SETTINGS
     // ----------------
     // 1120,1280 är *5
-    v2f windowSize = {1120, 1286};
+    //v2f windowSize = {1120, 1286};
     // v2f windowSize = {1440, 900};
-    //v2f windowSize = {2560, 1440};
+    v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
     ToggleFullscreen();
     //SetTargetFPS(10);
@@ -84,12 +84,6 @@ int main()
     int ringCount = 0;
     float angle = 0;
 
-    // Initialize enemies
-    Enemy enemies[32] = {0};
-    enemies[0] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, warrior, chase};
-    enemies[1] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, mage, chase};
-    enemies[2] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, mage, chase};
-    enemies[3] = (Enemy){(Vector2){windowSize.x / 2, windowSize.y / 2}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, warrior, chase};
 
     Room room = DrunkardsWalk(false, false, false, false, 2500, 14,14,-1);
     RoomGrid roomGrid= RoomCreator();
@@ -99,6 +93,13 @@ int main()
     bool hasLeftDoor = true;
     printf("current room is %d, %d\n", roomPOS.x,roomPOS.y);
 
+    // Initialize enemies
+    Enemy enemies[21][21][32] = {0};
+    enemies[roomPOS.x][roomPOS.y][0] = (Enemy){(Vector2){playerPosition.x, playerPosition.y}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, warrior, chase};
+    enemies[roomPOS.x][roomPOS.y][1] = (Enemy){(Vector2){playerPosition.x, playerPosition.y}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, mage, chase};
+    enemies[roomPOS.x][roomPOS.y][2] = (Enemy){(Vector2){playerPosition.x, playerPosition.y}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, mage, chase};
+    enemies[roomPOS.x][roomPOS.y][3] = (Enemy){(Vector2){playerPosition.x, playerPosition.y}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, warrior, chase};
+    
     // ---------
     // GAME LOOP
     // ---------
@@ -192,10 +193,33 @@ int main()
                 puts("West facing door collision");
                 printf("current room is %d, %d\n", roomPOS.x,roomPOS.y);
             }
+            if (!hasLeftDoor)
+            {
+                for (int i = 0; i < maxSpellEntities; i++)
+                {
+                    spellEntities[i] = (SpellEntity){0};
+                    enemySpellEntities[i] = (SpellEntity){0};
+                }
+            }
         }
         else if(room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][1] != TILE_TYPE_DOOR){
+            for (int x = -1; x < 2; x++)
+            {
+                for (int y = -1; y < 2; y++)
+                {
+                    if (x + (int)(playerPosition.x / tileSize) >= 0 && y + (int)(playerPosition.y / tileSize) >= 0 && x + (int)(playerPosition.x / tileSize) < roomSize && y + (int)(playerPosition.y / tileSize) < roomSize)
+                    {
+                        if(room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][1] == TILE_TYPE_DOOR)
+                        {
+                            goto stillInDoor;
+                        }
+                    }
+                }
+            }
             hasLeftDoor=true;
-        }    
+            stillInDoor:
+        }
+            
         
         // ---------
         // CORNERING
@@ -388,7 +412,7 @@ int main()
                                             // Set the target index to the index of the closest enemy
                                             for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
                                             {
-                                                if (enemies[enemyIndex].health > 0)
+                                                if (enemies[roomPOS.x][roomPOS.y][enemyIndex].health > 0)
                                                 {
                                                     targetIndex = enemyIndex;
                                                     break;
@@ -398,9 +422,9 @@ int main()
                                             {
                                                 for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
                                                 {
-                                                    if (enemies[enemyIndex].health > 0)
+                                                    if (enemies[10][10][enemyIndex].health > 0)
                                                     {
-                                                        if (Vector2Distance(spellEntities[k].position, enemies[targetIndex].position) > Vector2Distance(spellEntities[k].position, enemies[enemyIndex].position))
+                                                        if (Vector2Distance(spellEntities[k].position, enemies[roomPOS.x][roomPOS.y][targetIndex].position) > Vector2Distance(spellEntities[k].position, enemies[roomPOS.x][roomPOS.y][enemyIndex].position))
                                                         {
                                                             targetIndex = enemyIndex;
                                                         }
@@ -465,6 +489,42 @@ int main()
             }
         }
 
+        // ------------
+        // ENEMY UPDATE
+        // ------------
+        for (int i = 0; i < 32; i++)
+        {
+            if (enemies[roomPOS.x][roomPOS.y][i].health > 0)
+            {
+                switch (enemies[roomPOS.x][roomPOS.y][i].type)
+                {
+                case warrior:
+                    UpdateEnemy(&enemies[roomPOS.x][roomPOS.y][i], playerPosition, &playerHealth, shield, &room);
+                    break;
+                
+                case mage:
+                {
+                    if (UpdateEnemy(&enemies[roomPOS.x][roomPOS.y][i], playerPosition, &playerHealth, shield, &room) != -1)
+                    {
+                        // Find an empty slot in the spell entity array and create a projectile
+                        for (int k = 0; k < maxSpellEntities; k++)
+                        {
+                            if (enemySpellEntities[k].lifetime <= 0)
+                            {
+                                enemySpellEntities[k] = (SpellEntity){1, manaSpark, enemies[roomPOS.x][roomPOS.y][i].position, Vector2Normalize(Vector2Subtract(playerPosition, enemies[roomPOS.x][roomPOS.y][i].position)), 0};
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+
+                default:
+                    break;
+                }
+            }
+        }
+
         // -------------
         // SPELL UPDATES
         // -------------
@@ -493,11 +553,11 @@ int main()
                     }
                     for (int j = 0; j < 32; j++)
                     {
-                        if (enemies[j].health > 0)
+                        if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                         {
-                            if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[j].position, enemyRadius))
+                            if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
                             {
-                                enemies[j].health -= 10;
+                                enemies[roomPOS.x][roomPOS.y][j].health -= 10;
                                 spellEntities[i].lifetime = 0;
                             }
                         }
@@ -519,17 +579,17 @@ int main()
                     }
                     for (int j = 0; j < 32; j++)
                     {
-                        if (enemies[j].health > 0)
+                        if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                         {
-                            if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[j].position, enemyRadius))
+                            if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
                             {
-                                enemies[j].health -= 20;
+                                enemies[roomPOS.x][roomPOS.y][j].health -= 20;
                                 spellEntities[i].lifetime = 0;
                                 for (int buffIndex = 0; buffIndex < 8; buffIndex++)
                                 {
-                                    if (enemies[j].buffs[buffIndex].duration <= 0)
+                                    if (enemies[roomPOS.x][roomPOS.y][j].buffs[buffIndex].duration <= 0)
                                     {
-                                        enemies[j].buffs[buffIndex] = (Buff){5, 5};
+                                        enemies[roomPOS.x][roomPOS.y][j].buffs[buffIndex] = (Buff){5, 5};
                                         break;
                                     }
                                 }
@@ -542,11 +602,11 @@ int main()
                     spellEntities[i].lifetime -= GetFrameTime();
                     for (int j = 0; j < 32; j++)
                     {
-                        if (enemies[j].health > 0)
+                        if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                         {
-                            if (CheckCollisionCircles(spellEntities[i].position, 50, enemies[j].position, enemyRadius))
+                            if (CheckCollisionCircles(spellEntities[i].position, 50, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
                             {
-                                enemies[j].health -= 20 * GetFrameTime();
+                                enemies[roomPOS.x][roomPOS.y][j].health -= 20 * GetFrameTime();
                             }
                         }
                     }
@@ -569,11 +629,11 @@ int main()
                     }
                     for (int j = 0; j < 32; j++)
                     {
-                        if (enemies[j].health > 0)
+                        if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                         {
-                            if (CheckCollisionCircles(spellEntities[i].position, 16, enemies[j].position, enemyRadius))
+                            if (CheckCollisionCircles(spellEntities[i].position, 16, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
                             {
-                                enemies[j].health -= 150 * GetFrameTime();
+                                enemies[roomPOS.x][roomPOS.y][j].health -= 150 * GetFrameTime();
                             }
                         }
                     }
@@ -587,12 +647,12 @@ int main()
                         spellEntities[i].lifetime = 0;
                     }
                     // If the target is dead find a new target
-                    if (enemies[spellEntities[i].targetIndex].health <= 0)
+                    if (enemies[roomPOS.x][roomPOS.y][spellEntities[i].targetIndex].health <= 0)
                     {
                         int targetIndex = -1;
                         for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
                         {
-                            if (enemies[enemyIndex].health > 0)
+                            if (enemies[roomPOS.x][roomPOS.y][enemyIndex].health > 0)
                             {
                                 targetIndex = enemyIndex;
                                 break;
@@ -602,9 +662,9 @@ int main()
                         {
                             for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
                             {
-                                if (enemies[enemyIndex].health > 0)
+                                if (enemies[roomPOS.x][roomPOS.y][enemyIndex].health > 0)
                                 {
-                                    if (Vector2Distance(spellEntities[i].position, enemies[targetIndex].position) > Vector2Distance(spellEntities[i].position, enemies[enemyIndex].position))
+                                    if (Vector2Distance(spellEntities[i].position, enemies[roomPOS.x][roomPOS.y][targetIndex].position) > Vector2Distance(spellEntities[i].position, enemies[roomPOS.x][roomPOS.y][enemyIndex].position))
                                     {
                                         targetIndex = enemyIndex;
                                     }
@@ -620,7 +680,7 @@ int main()
                     // If there's a target perform a seeking steering behaviour
                     if (spellEntities[i].targetIndex != -1)
                     {
-                        v2f desired = Vector2Scale(Vector2Normalize(Vector2Subtract(enemies[spellEntities[i].targetIndex].position, spellEntities[i].position)), magicMissileSpeed);
+                        v2f desired = Vector2Scale(Vector2Normalize(Vector2Subtract(enemies[roomPOS.x][roomPOS.y][spellEntities[i].targetIndex].position, spellEntities[i].position)), magicMissileSpeed);
                         v2f steering = Vector2Subtract(desired,spellEntities[i].aim);
                         steering = Vector2Scale(Vector2Normalize(steering),magicMissileSteering);
                         spellEntities[i].aim = Vector2Add(spellEntities[i].aim,steering);
@@ -633,11 +693,11 @@ int main()
                     // Check enemy collision
                     for (int j = 0; j < 32; j++)
                     {
-                        if (enemies[j].health > 0)
+                        if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                         {
-                            if (CheckCollisionPointCircle(spellEntities[i].position, enemies[j].position, enemyRadius))
+                            if (CheckCollisionPointCircle(spellEntities[i].position, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
                             {
-                                enemies[j].health -= 10;
+                                enemies[roomPOS.x][roomPOS.y][j].health -= 10;
                                 spellEntities[i].lifetime = 0;
                             }
                         }
@@ -655,17 +715,45 @@ int main()
                 }
             }
         }
-
-        // ------------
-        // ENEMY UPDATE
-        // ------------
-        for (int i = 0; i < 32; i++)
+        // Enemy spell updates
+        for (int i = 0; i < maxSpellEntities; i++)
         {
-            if (enemies[i].health > 0)
+            if (enemySpellEntities[i].lifetime > 0)
             {
-                UpdateEnemy(&enemies[i], playerPosition, &playerHealth, shield, &room);
+                switch (enemySpellEntities[i].name)
+                {
+                case manaSpark:
+                {
+                    enemySpellEntities[i].position.x += enemySpellEntities[i].aim.x * 500 * GetFrameTime();
+                    enemySpellEntities[i].position.y += enemySpellEntities[i].aim.y * 500 * GetFrameTime();
+                    // Check that is inside the map
+                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, enemySpellEntities[i].position))
+                    {
+                        enemySpellEntities[i].lifetime = 0;
+                    }
+                    // Check room collision
+                    if (room.data[(int)(enemySpellEntities[i].position.x / tileSize)][(int)(enemySpellEntities[i].position.y / tileSize)][0] == TILE_TYPE_WALL)
+                    {
+                        enemySpellEntities[i].lifetime = 0;
+                    }
+                    if (CheckCollisionCircles(enemySpellEntities[i].position, 10, playerPosition, playerRadius))
+                    {
+                        if (shield <= 0)
+                        {
+                            playerHealth -= 10;
+                        }
+                        enemySpellEntities[i].lifetime = 0;
+                    }
+                }
+                    break;
+                
+                default:
+                    break;
+                }
             }
         }
+        
+
 
         // ------
         // RENDER
@@ -748,9 +836,9 @@ int main()
 
         for (int i = 0; i < 32; i++)
         {
-            if (enemies[i].health > 0)
+            if (enemies[roomPOS.x][roomPOS.y][i].health > 0)
             {
-                DrawEnemy(&enemies[i]);
+                DrawEnemy(&enemies[roomPOS.x][roomPOS.y][i]);
             }
         }
 
@@ -781,9 +869,24 @@ int main()
                     break;
 
                 case magicMissile:
-                    DrawSpellMagicMissile(spellEntities[i].position, spellEntities[i].aim, enemies[spellEntities[i].targetIndex].position);
+                    DrawSpellMagicMissile(spellEntities[i].position, spellEntities[i].aim, enemies[roomPOS.x][roomPOS.y][spellEntities[i].targetIndex].position);
                     break;
 
+                default:
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < maxSpellEntities; i++)
+        {
+            if (enemySpellEntities[i].lifetime > 0)
+            {
+                switch (enemySpellEntities[i].name)
+                {
+                case manaSpark:
+                    DrawSpellManaSpark(enemySpellEntities[i].position, enemySpellEntities[i].aim);
+                    break;
+                
                 default:
                     break;
                 }
@@ -839,6 +942,7 @@ int main()
         //manaAngle = -manaAngle;
         DrawText(TextFormat("Health %f", playerHealth), 10, 10, 20, (Color){255, 255, 255, 255});
         DrawText(TextFormat("Mana %f", playerMana), 10, 40, 20, (Color){255, 255, 255, 255});
+        DrawText(TextFormat("Has left door %d", hasLeftDoor), 10, 70, 20, (Color){255, 255, 255, 255});
 
         EndDrawing();
     }

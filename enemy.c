@@ -3,6 +3,11 @@
 #include "/opt/homebrew/Cellar/raylib/4.5.0/include/raylib.h"
 #include "/opt/homebrew/Cellar/raylib/4.5.0/include/raymath.h"
 
+/*
+TODO
+ - Separate cooldown and attacking action
+*/
+
 typedef enum AIType
 {
     archer,
@@ -58,9 +63,10 @@ void DrawEnemy(Enemy *enemy)
     DrawLineEx(Vector2Add(enemy->position,Vector2Scale(enemy->direction,enemyRadius)), Vector2Add(enemy->position, Vector2Scale(enemy->direction, enemyRadius + (20 * enemy->attackCooldown))), 3, WHITE);
 }
 
-void UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, float shield, Room *room)
+int UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, float shield, Room *room)
 {
     int tileSize = 40;
+    int returnValue = -1;
     for (int i = 0; i < maxBuffCount; i++)
     {
         if (enemy->buffs[i].duration > 0)
@@ -146,8 +152,19 @@ void UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, floa
                 else
                 {
                     enemy->direction = Vector2Normalize(Vector2Subtract(playerPosition, enemy->position));
+                    
                     // Broad phase collision
-                    enemy->position = Vector2Add(enemy->position, Vector2Scale(enemy->direction, enemy->speed * GetFrameTime()));
+                    v2f enemyRadiusVector = {enemyRadius * enemy->direction.x, enemyRadius * enemy->direction.y};
+                    v2f enemyMovePosition = Vector2Add(enemy->position, Vector2Scale(enemy->direction, (enemy->speed * GetFrameTime())));
+                    if (room->data[(int)((enemyMovePosition.x + enemyRadiusVector.x) / tileSize)][(int)((enemy->position.y + enemyRadiusVector.y) / tileSize)][0] == TILE_TYPE_WALL)
+                    {
+                        enemyMovePosition.x = enemy->position.x;
+                    }
+                    if (room->data[(int)((enemy->position.x + enemyRadiusVector.x) / tileSize)][(int)((enemyMovePosition.y + enemyRadiusVector.y) / tileSize)][0] == TILE_TYPE_WALL)
+                    {
+                        enemyMovePosition.y = enemy->position.y;
+                    }
+                    enemy->position = enemyMovePosition;
                 }
             }
             break;
@@ -164,17 +181,14 @@ void UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, floa
                     enemy->state = flee;
                     break;
                 }
-                if (enemy->attackCooldown == 0)
+                if (enemy->attackCooldown <= 0)
                 {
                     enemy->attackCooldown = attackCooldown;
+                    returnValue = manaSpark;
                 }
                 if (enemy->attackCooldown > 0)
                 {
                     enemy->attackCooldown -= GetFrameTime();
-                }
-                if (enemy->attackCooldown < 0)
-                {
-                    enemy->attackCooldown = 0;
                 }
             }
             break;
@@ -188,7 +202,19 @@ void UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, floa
                 else
                 {
                     enemy->direction = Vector2Normalize(Vector2Subtract(enemy->position, playerPosition));
-                    enemy->position = Vector2Add(enemy->position, Vector2Scale(enemy->direction, enemy->speed * GetFrameTime()));
+                    
+                    // Broad phase collision
+                    v2f enemyRadiusVector = {enemyRadius * enemy->direction.x, enemyRadius * enemy->direction.y};
+                    v2f enemyMovePosition = Vector2Add(enemy->position, Vector2Scale(enemy->direction, (enemy->speed * GetFrameTime())));
+                    if (room->data[(int)((enemyMovePosition.x + enemyRadiusVector.x) / tileSize)][(int)((enemy->position.y + enemyRadiusVector.y) / tileSize)][0] == TILE_TYPE_WALL)
+                    {
+                        enemyMovePosition.x = enemy->position.x;
+                    }
+                    if (room->data[(int)((enemy->position.x + enemyRadiusVector.x) / tileSize)][(int)((enemyMovePosition.y + enemyRadiusVector.y) / tileSize)][0] == TILE_TYPE_WALL)
+                    {
+                        enemyMovePosition.y = enemy->position.y;
+                    }
+                    enemy->position = enemyMovePosition;
                 }
             }
             break;
@@ -203,4 +229,5 @@ void UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, floa
             break;
         }
     }
+    return returnValue;
 }
