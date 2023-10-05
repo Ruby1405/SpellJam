@@ -36,12 +36,12 @@ int main()
     // DISPLAY SETTINGS
     // ----------------
     // 1120,1280 är *5
-    v2f windowSize = {1120, 1286};
+    // v2f windowSize = {1120, 1286};
     //v2f windowSize = {560, 606};
-    // v2f windowSize = {1440, 900};
+    v2f windowSize = {1440, 900};
     //v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-    // ToggleFullscreen();
+    ToggleFullscreen();
     //SetTargetFPS(10);
 
     // Load textures
@@ -94,12 +94,43 @@ int main()
     bool hasLeftDoor = true;
     printf("current room is %d, %d\n", roomPOS.x,roomPOS.y);
 
-    // Initialize enemies
+    // Spawn enemies
     Enemy enemies[21][21][32] = {0};
-    enemies[roomPOS.x][roomPOS.y][0] = (Enemy){(Vector2){playerPosition.x, playerPosition.y}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, warrior, chase};
-    enemies[roomPOS.x][roomPOS.y][1] = (Enemy){(Vector2){playerPosition.x, playerPosition.y}, (Vector2){1, 1}, 100, 100, 100, 0, {0}, mage, chase};
-    enemies[roomPOS.x][roomPOS.y][2] = (Enemy){(Vector2){playerPosition.x, playerPosition.y}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, mage, chase};
-    enemies[roomPOS.x][roomPOS.y][3] = (Enemy){(Vector2){playerPosition.x, playerPosition.y}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, warrior, chase};
+    for (int i = 0; i < roomGridSize; i++)
+    {
+        for (int j = 0; j < roomGridSize; j++)
+        {
+            if (!roomGrid.data[i][j].empty)
+            {
+                int enemyCountSpawning = 0;
+                for (int k = 0; k < 3; k++)
+                {
+                    for (int l = 0; l < 10; l++)
+                    {
+                        int a = GetRandomValue(5,roomSize-6);
+                        int b = GetRandomValue(5,roomSize-6);
+                        if (roomGrid.data[i][j].data[a][b][0] == TILE_TYPE_EMPTY)
+                        {
+                            enemies[i][j][enemyCountSpawning] = (Enemy){(Vector2){a * tileSize, b * tileSize}, (Vector2){1, 1}, 100, 70, 70, 0, {0}, warrior, chase};
+                            enemyCountSpawning++;
+                            break;
+                        }
+                    }
+                    for (int l = 0; l < 10; l++)
+                    {
+                        int a = GetRandomValue(5,roomSize-6);
+                        int b = GetRandomValue(5,roomSize-6);
+                        if (roomGrid.data[i][j].data[a][b][0] == TILE_TYPE_EMPTY)
+                        {
+                            enemies[i][j][enemyCountSpawning] = (Enemy){(Vector2){a * tileSize, b * tileSize}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, mage, chase};
+                            enemyCountSpawning++;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     // ---------
     // GAME LOOP
@@ -563,7 +594,7 @@ int main()
                     spellEntities[i].position.x += spellEntities[i].aim.x * 500 * GetFrameTime();
                     spellEntities[i].position.y += spellEntities[i].aim.y * 500 * GetFrameTime();
                     // Check that is inside the map
-                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    if (!rectCollision((Rectangle){0, 0, roomSize * tileSize, roomSize * tileSize}, spellEntities[i].position))
                     {
                         spellEntities[i].lifetime = 0;
                     }
@@ -589,7 +620,7 @@ int main()
                     spellEntities[i].position.x += spellEntities[i].aim.x * 500 * GetFrameTime();
                     spellEntities[i].position.y += spellEntities[i].aim.y * 500 * GetFrameTime();
                     // Check that is inside the map
-                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    if (!rectCollision((Rectangle){0, 0, roomSize * tileSize, roomSize * tileSize}, spellEntities[i].position))
                     {
                         spellEntities[i].lifetime = 0;
                     }
@@ -639,7 +670,7 @@ int main()
                     spellEntities[i].position.y += spellEntities[i].aim.y * 300 * GetFrameTime();
                     spellEntities[i].lifetime += GetFrameTime();
                     // Check that is inside the map
-                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    if (!rectCollision((Rectangle){0, 0, roomSize * tileSize, roomSize * tileSize}, spellEntities[i].position))
                     {
                         spellEntities[i].lifetime = 0;
                     }
@@ -663,7 +694,7 @@ int main()
                 case magicMissile:
                 {
                     // Check that is inside the map
-                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, spellEntities[i].position))
+                    if (!rectCollision((Rectangle){0, 0, roomSize * tileSize, roomSize * tileSize}, spellEntities[i].position))
                     {
                         spellEntities[i].lifetime = 0;
                     }
@@ -748,7 +779,7 @@ int main()
                     enemySpellEntities[i].position.x += enemySpellEntities[i].aim.x * 500 * GetFrameTime();
                     enemySpellEntities[i].position.y += enemySpellEntities[i].aim.y * 500 * GetFrameTime();
                     // Check that is inside the map
-                    if (!rectCollision((Rectangle){0, 0, windowSize.x, windowSize.y}, enemySpellEntities[i].position))
+                    if (!rectCollision((Rectangle){0, 0, roomSize * tileSize, roomSize * tileSize}, enemySpellEntities[i].position))
                     {
                         enemySpellEntities[i].lifetime = 0;
                     }
@@ -849,10 +880,10 @@ int main()
             // DrawText(TextFormat("%d", x), x * tileSize + 10, 10, 20, (Color){255, 255, 255, 255});
         }
 
-        // if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y)
-        // {
-        //     DrawCircle(tileSize * (roomSize * 0.5 + 0.5), tileSize * (roomSize * 0.8 + 1), 60, (Color){255,255,255,100});
-        // }
+        if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y)
+        {
+            DrawCircle(tileSize * (roomSize * 0.5 + 0.5), tileSize * (roomSize * 0.8 + 1), 60, (Color){255,255,255,100});
+        }
 
         DrawCircle(playerPosition.x + 1, playerPosition.y + 1, playerRadius, (Color){0, 0, 0, 255});
         DrawCircle(playerPosition.x, playerPosition.y, playerRadius, (Color){100, 255, 100, 255});

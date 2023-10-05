@@ -12,7 +12,7 @@
 	- [ ] Script attacks
 	- [ ] Win condition
 - [ ] Enemy
-	- [ ] Spawning
+	- [x] Spawning
 	- [ ] Path finding
 	- [ ] Separate cooldown and attacking action
 - [x] Player collision with map bounds
