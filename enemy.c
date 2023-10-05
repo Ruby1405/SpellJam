@@ -5,17 +5,17 @@
 
 typedef enum AIType
 {
-    archer,
-    mage,
-    warrior
+    AITYPE_ARCHER,
+    AITYPE_MAGE,
+    AITYPE_WARRIOR
 } AIType;
 
 typedef enum AIState
 {
-    idle,
-    chase,
-    attack,
-    flee
+    AISTATE_IDLE,
+    AISTATE_CHASE,
+    AISTATE_ATTACK,
+    AISTATE_FLEE
 } AIState;
 
 typedef struct Buff
@@ -74,16 +74,16 @@ int UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, float
     {
         switch (enemy->type)
         {
-        case warrior:
+        case AITYPE_WARRIOR:
         {
             int engagementDistance = 50;
             switch (enemy->state)
             {
-            case chase:
+            case AISTATE_CHASE:
             {
                 if (Vector2Distance(enemy->position, playerPosition) < engagementDistance)
                 {
-                    enemy->state = attack;
+                    enemy->state = AISTATE_ATTACK;
                     break;
                 }
                 else
@@ -106,11 +106,11 @@ int UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, float
                 }
             }
             break;
-            case attack:
+            case AISTATE_ATTACK:
             {
                 if (Vector2Distance(enemy->position, playerPosition) > engagementDistance)
                 {
-                    enemy->state = chase;
+                    enemy->state = AISTATE_CHASE;
                     break;
                 }
                 if (enemy->attackCooldown <= 0)
@@ -132,17 +132,17 @@ int UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, float
             }
         }
         break;
-        case mage:
+        case AITYPE_MAGE:
         {
             int engagementDistance = 500;
             int disengageDistance = 400;
             switch (enemy->state)
             {
-            case chase:
+            case AISTATE_CHASE:
             {
                 if (Vector2Distance(enemy->position, playerPosition) < engagementDistance)
                 {
-                    enemy->state = attack;
+                    enemy->state = AISTATE_ATTACK;
                 }
                 else
                 {
@@ -164,16 +164,16 @@ int UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, float
             }
             break;
 
-            case attack:
+            case AISTATE_ATTACK:
             {
                 if (Vector2Distance(enemy->position, playerPosition) > engagementDistance)
                 {
-                    enemy->state = chase;
+                    enemy->state = AISTATE_CHASE;
                     break;
                 }
                 if (Vector2Distance(enemy->position, playerPosition) < disengageDistance)
                 {
-                    enemy->state = flee;
+                    enemy->state = AISTATE_FLEE;
                     break;
                 }
                 if (enemy->attackCooldown <= 0)
@@ -188,11 +188,11 @@ int UpdateEnemy(Enemy *enemy, Vector2 playerPosition, float *playerHealth, float
             }
             break;
 
-            case flee:
+            case AISTATE_FLEE:
             {
                 if (Vector2Distance(enemy->position, playerPosition) > engagementDistance)
                 {
-                    enemy->state = chase;
+                    enemy->state = AISTATE_CHASE;
                 }
                 else
                 {
