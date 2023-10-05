@@ -1,0 +1,48 @@
+# TODO
+
+- [ ] State machine
+	- [ ] Main menu
+	- [ ] Victory Screen
+		- [ ] High scores
+- [ ] Boss room
+	- [ ] Design room
+		- [ ] Top
+		- [ ] Bottom
+	- [ ] Design boss
+	- [ ] Script attacks
+	- [ ] Win condition
+- [ ] Enemy
+	- [ ] Path finding
+	- [ ] Separate cooldown and attacking action
+- [ ] Player collision with map bounds
+- [ ] Tweaks
+	- [ ] Spells
+		- [ ] Magic missile pathing
+		- [ ] Moon beam height
+		- [ ] Moon beam damage
+		- [ ] Fire ball AoE
+- [ ] Add spells
+	- [ ] Teleport
+	- [ ] Chain lightning
+	- [ ] Smoke cloud
+- [ ] Aesthetics
+	- [ ] Sprites
+		- [ ] DOOR SPRITES
+		- [ ] Better character sprites
+			- [ ] Player
+			- [ ] Boss
+			- [ ] Enemy
+		- [ ] Better map sprites
+	- [ ] Animations
+		- [ ] Attack
+		- [ ] Hit
+		- [ ] Intro
+- [ ] Code cleaning
+	- [ ] Enemy
+	- [ ] Magic
+	- [ ] Terrain Gen
+		- [ ] Door availabilty flip
+		- [ ] extra wall s
+	- [ ] Main
+	- [ ] Pathfinding
+	- [ ] Boss
