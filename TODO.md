@@ -12,6 +12,7 @@
 	- [ ] Script attacks
 	- [ ] Win condition
 - [ ] Enemy
+	- [ ] Spawning
 	- [ ] Path finding
 	- [ ] Separate cooldown and attacking action
 - [ ] Player collision with map bounds
@@ -40,6 +41,7 @@
 		- [ ] Hit
 		- [ ] Intro
 - [ ] Code cleaning
+	- [ ] Commenting
 	- [ ] Enemy
 	- [ ] Magic
 	- [ ] Terrain Gen
