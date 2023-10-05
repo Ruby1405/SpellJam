@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
-#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raylib.h"
-#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raymath.h"
+#include "raylib.h"
+#include "raymath.h"
 
 #define CircleRotation(radius, angle) ((angle * 3) / (radius * 0.0002 + 0.01))
 

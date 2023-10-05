@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raylib.h"
-#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raymath.h"
+#include "raylib.h"
+#include "raymath.h"
 #include "terrainGen.c"
 #include "magicCircle.c"
 #include "enemy.c"

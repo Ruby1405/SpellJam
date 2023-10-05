@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-#include "/opt/homebrew/Cellar/raylib/4.5.0/include/raylib.h"
+#include "raylib.h"
 
 const int roomSize = 28;
 const int roomGridSize = 21;
