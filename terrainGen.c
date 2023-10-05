@@ -44,16 +44,15 @@ typedef struct Point
 typedef struct Room
 {
     bool empty;
-    TileType data[roomSize][roomSize][2]; 
+    TileType data[roomSize][roomSize][2];
     int exitDir;
     Point exitPOS;
 } Room;
 typedef struct RoomGrid
 {
     Room data[roomGridSize][roomGridSize];
+    Point bossRoomPOS;
 } RoomGrid;
-
-
 
 // Sebastian kod
 //  Point directions[] = {
@@ -78,61 +77,75 @@ int getRandomDir()
 //  bool carvePath(Point current, Point direction) {
 // }
 
-//counts the amount of booleans in an array which are true
-int trueCount(bool boolArray[],int length){
+// counts the amount of booleans in an array which are true
+int trueCount(bool boolArray[], int length)
+{
     int sum = 0;
-    for(int i = 0; i < length; i++){
-        if(boolArray[i]==true){sum++;}    
+    for (int i = 0; i < length; i++)
+    {
+        if (boolArray[i] == true)
+        {
+            sum++;
+        }
     }
     return sum;
 }
-Room DrunkardsCleanup(Room map){
+Room DrunkardsCleanup(Room map)
+{
     bool blockChanged = true;
-    while(blockChanged){
-        blockChanged=false;
-        for(int i = 0; i< roomSize; i++){
-            for(int j = 0; j<roomSize; j++){
-                int borderWalls = 4 ;
-                int leftRight =0;
-                int upDown = 0 ;
-                if(map.data[j][i][0]==TILE_TYPE_WALL){
-                    if(!(j == 0 || j == roomSize-1 )){//Not on the west or east sides
-                        if(map.data[j-1][i][0]==TILE_TYPE_EMPTY || map.data[j-1][i][0]==SCHEDULED_FOR_DELETE ){
+    while (blockChanged)
+    {
+        blockChanged = false;
+        for (int i = 0; i < roomSize; i++)
+        {
+            for (int j = 0; j < roomSize; j++)
+            {
+                int borderWalls = 4;
+                int leftRight = 0;
+                int upDown = 0;
+                if (map.data[j][i][0] == TILE_TYPE_WALL)
+                {
+                    if (!(j == 0 || j == roomSize - 1))
+                    { // Not on the west or east sides
+                        if (map.data[j - 1][i][0] == TILE_TYPE_EMPTY || map.data[j - 1][i][0] == SCHEDULED_FOR_DELETE)
+                        {
                             borderWalls--;
                             leftRight++;
-                        };//Left
-                        if(map.data[j+1][i][0]==TILE_TYPE_EMPTY || map.data[j+1][i][0]==SCHEDULED_FOR_DELETE){
+                        }; // Left
+                        if (map.data[j + 1][i][0] == TILE_TYPE_EMPTY || map.data[j + 1][i][0] == SCHEDULED_FOR_DELETE)
+                        {
                             borderWalls--;
                             leftRight++;
-                        };//Right
+                        }; // Right
                     }
-                    if(!(i == 0 || i == roomSize-1)){//Not on the north or south sides
-                        if(map.data[j][i-1][0]==TILE_TYPE_EMPTY || map.data[j][i-1][0]==SCHEDULED_FOR_DELETE){
+                    if (!(i == 0 || i == roomSize - 1))
+                    { // Not on the north or south sides
+                        if (map.data[j][i - 1][0] == TILE_TYPE_EMPTY || map.data[j][i - 1][0] == SCHEDULED_FOR_DELETE)
+                        {
                             borderWalls--;
                             upDown++;
-                        };//Up
-                        if(map.data[j][i+1][0]==TILE_TYPE_EMPTY || map.data[j][i+1][0]==SCHEDULED_FOR_DELETE){
+                        }; // Up
+                        if (map.data[j][i + 1][0] == TILE_TYPE_EMPTY || map.data[j][i + 1][0] == SCHEDULED_FOR_DELETE)
+                        {
                             borderWalls--;
                             upDown++;
-                        };//Down
+                        }; // Down
                     }
-                    
-                    if(borderWalls<2||leftRight==2||upDown==2)
+
+                    if (borderWalls < 2 || leftRight == 2 || upDown == 2)
                     {
-                        map.data[j][i][0]=TILE_TYPE_EMPTY;
-                        blockChanged=true;
+                        map.data[j][i][0] = TILE_TYPE_EMPTY;
+                        blockChanged = true;
                     }
                 }
-                
             }
         }
     }
-    
-    
+
     return map;
 }
 // En funktion för random terrain generation med "the drunkards walk" algoritmen
-Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering, int StartPOSx,int StartPOSy,int previousExitDir)
+Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering, int StartPOSx, int StartPOSy, int previousExitDir)
 {
     Room map;
     Point drunkardsPOS;
@@ -149,44 +162,45 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
         }
     }
     switch (previousExitDir)
-            {
-            case North:
-                StartPOSy=roomSize-1;
-                map.data[StartPOSx][StartPOSy][0]=TILE_TYPE_DOOR_SOUTH;
-                map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
-                StartPOSy--;
-                break;
-            case East:
-                StartPOSx = 0;
-                map.data[StartPOSx][StartPOSy][0]=TILE_TYPE_DOOR_WEST;
-                map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
-                StartPOSx++;
-                break;
-            case South:
-                StartPOSy=0;
-                map.data[StartPOSx][StartPOSy][0]=TILE_TYPE_DOOR_NORTH;
-                map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
-                StartPOSx--;
-                break;
-            case West:
-                StartPOSx = roomSize-1;
-                map.data[StartPOSx][StartPOSy][0]=TILE_TYPE_DOOR_EAST;
-                map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
-                StartPOSy++;
-                break;
-            default:
-                break;
-            }
+    {
+    case North:
+        StartPOSy = roomSize - 1;
+        map.data[StartPOSx][StartPOSy][0] = TILE_TYPE_DOOR_SOUTH;
+        map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
+        StartPOSy--;
+        break;
+    case East:
+        StartPOSx = 0;
+        map.data[StartPOSx][StartPOSy][0] = TILE_TYPE_DOOR_WEST;
+        map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
+        StartPOSx++;
+        break;
+    case South:
+        StartPOSy = 0;
+        map.data[StartPOSx][StartPOSy][0] = TILE_TYPE_DOOR_NORTH;
+        map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
+        StartPOSx--;
+        break;
+    case West:
+        StartPOSx = roomSize - 1;
+        map.data[StartPOSx][StartPOSy][0] = TILE_TYPE_DOOR_EAST;
+        map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
+        StartPOSy++;
+        break;
+    default:
+        break;
+    }
     drunkardsPOS.x = StartPOSx;
     drunkardsPOS.y = StartPOSy;
     int i = 0;
     while (!drunkardOutOfBounds)
     {
         // Sets the drunkard loose
-        if(map.data[drunkardsPOS.x][drunkardsPOS.y][1]!= TILE_TYPE_DOOR){
+        if (map.data[drunkardsPOS.x][drunkardsPOS.y][1] != TILE_TYPE_DOOR)
+        {
             map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_EMPTY;
         }
-        
+
         switch (getRandomDir())
         {
         case North: // North
@@ -202,7 +216,6 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
             drunkardsPOS.x--;
             break;
         }
-        
 
         // checks if the drunkard is out of bounds
 
@@ -215,11 +228,12 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_WEST;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
-                map.exitDir=West;
-                map.exitPOS.x=drunkardsPOS.x;
-                map.exitPOS.y=drunkardsPOS.y;
+                map.exitDir = West;
+                map.exitPOS.x = drunkardsPOS.x;
+                map.exitPOS.y = drunkardsPOS.y;
             }
-            else{
+            else
+            {
                 // puts("smhing my hed");
             }
         }
@@ -232,11 +246,12 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_EAST;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
-                map.exitDir=East;
-                map.exitPOS.x=drunkardsPOS.x;
-                map.exitPOS.y=drunkardsPOS.y;
+                map.exitDir = East;
+                map.exitPOS.x = drunkardsPOS.x;
+                map.exitPOS.y = drunkardsPOS.y;
             }
-            else{
+            else
+            {
                 // puts("We're gonna do what they say cant be done");
             }
         }
@@ -249,11 +264,12 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_NORTH;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
-                map.exitDir=North;
-                map.exitPOS.x=drunkardsPOS.x;
-                map.exitPOS.y=drunkardsPOS.y;
+                map.exitDir = North;
+                map.exitPOS.x = drunkardsPOS.x;
+                map.exitPOS.y = drunkardsPOS.y;
             }
-            else{
+            else
+            {
                 // puts("He ded");
             }
         }
@@ -266,301 +282,364 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
                 drunkardOutOfBounds = true;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][0] = TILE_TYPE_DOOR_SOUTH;
                 map.data[drunkardsPOS.x][drunkardsPOS.y][1] = TILE_TYPE_DOOR;
-                map.exitDir=South;
-                map.exitPOS.x=drunkardsPOS.x;
-                map.exitPOS.y=drunkardsPOS.y;
+                map.exitDir = South;
+                map.exitPOS.x = drunkardsPOS.x;
+                map.exitPOS.y = drunkardsPOS.y;
             }
-            else if(south){
+            else if (south)
+            {
                 // puts("Come away");
             }
         }
         i++;
     }
     printf("%d\n", i);
-    //Dunkard cleanup
+    // Dunkard cleanup
     map = DrunkardsCleanup(map);
 
-    //Corners
-    //God has forsaken me for this disgusting code
-    //Forgive me father for i have sinned
+    // Corners
+    // God has forsaken me for this disgusting code
+    // Forgive me father for i have sinned
 
-    //The center
-    for(int i = 1; i < roomSize-1; i++){
-        for(int j = 1; j < roomSize-1; j++){
-            if(map.data[j][i][0]==TILE_TYPE_WALL){
-                int north = map.data[j][i-1][0];
-                int east = map.data[j+1][i][0];
-                int south = map.data[j][i+1][0];
-                int west = map.data[j-1][i][0];
-                int northWest = map.data[j-1][i][0] + map.data[j-1][i-1][0] + map.data[j][i-1][0];
-                int northEast = map.data[j+1][i][0] + map.data[j+1][i-1][0] + map.data[j][i-1][0];
-                int southWest = map.data[j-1][i][0] + map.data[j-1][i+1][0] + map.data[j][i+1][0];
-                int southEast = map.data[j+1][i][0] + map.data[j+1][i+1][0] + map.data[j][i+1][0];
-                
-                //CORNERS
-                if(northWest==TILE_TYPE_EMPTY){
-                    map.data[j][i][1]=TILE_TYPE_CORNER_NORTH_WEST;
+    // The center
+    for (int i = 1; i < roomSize - 1; i++)
+    {
+        for (int j = 1; j < roomSize - 1; j++)
+        {
+            if (map.data[j][i][0] == TILE_TYPE_WALL)
+            {
+                int north = map.data[j][i - 1][0];
+                int east = map.data[j + 1][i][0];
+                int south = map.data[j][i + 1][0];
+                int west = map.data[j - 1][i][0];
+                int northWest = map.data[j - 1][i][0] + map.data[j - 1][i - 1][0] + map.data[j][i - 1][0];
+                int northEast = map.data[j + 1][i][0] + map.data[j + 1][i - 1][0] + map.data[j][i - 1][0];
+                int southWest = map.data[j - 1][i][0] + map.data[j - 1][i + 1][0] + map.data[j][i + 1][0];
+                int southEast = map.data[j + 1][i][0] + map.data[j + 1][i + 1][0] + map.data[j][i + 1][0];
+
+                // CORNERS
+                if (northWest == TILE_TYPE_EMPTY)
+                {
+                    map.data[j][i][1] = TILE_TYPE_CORNER_NORTH_WEST;
                 }
-                else if(northEast==TILE_TYPE_EMPTY){
-                    map.data[j][i][1]=TILE_TYPE_CORNER_NORTH_EAST;
+                else if (northEast == TILE_TYPE_EMPTY)
+                {
+                    map.data[j][i][1] = TILE_TYPE_CORNER_NORTH_EAST;
                 }
-                else if(southWest==TILE_TYPE_EMPTY){
-                    map.data[j][i][1]=TILE_TYPE_CORNER_SOUTH_WEST;
+                else if (southWest == TILE_TYPE_EMPTY)
+                {
+                    map.data[j][i][1] = TILE_TYPE_CORNER_SOUTH_WEST;
                 }
-                else if(southEast==TILE_TYPE_EMPTY){
-                    map.data[j][i][1]=TILE_TYPE_CORNER_SOUTH_EAST;
+                else if (southEast == TILE_TYPE_EMPTY)
+                {
+                    map.data[j][i][1] = TILE_TYPE_CORNER_SOUTH_EAST;
                 }
-                //WALLS
-                else if(north==TILE_TYPE_EMPTY){
-                    map.data[j][i][1]=TILE_TYPE_WALL_NORTH;
+                // WALLS
+                else if (north == TILE_TYPE_EMPTY)
+                {
+                    map.data[j][i][1] = TILE_TYPE_WALL_NORTH;
                 }
-                else if(east==TILE_TYPE_EMPTY){
-                    map.data[j][i][1]=TILE_TYPE_WALL_EAST;
+                else if (east == TILE_TYPE_EMPTY)
+                {
+                    map.data[j][i][1] = TILE_TYPE_WALL_EAST;
                 }
-                else if(south==TILE_TYPE_EMPTY){
-                    map.data[j][i][1]=TILE_TYPE_WALL_SOUTH;
+                else if (south == TILE_TYPE_EMPTY)
+                {
+                    map.data[j][i][1] = TILE_TYPE_WALL_SOUTH;
                 }
-                else if(west==TILE_TYPE_EMPTY){
-                    map.data[j][i][1]=TILE_TYPE_WALL_WEST;
+                else if (west == TILE_TYPE_EMPTY)
+                {
+                    map.data[j][i][1] = TILE_TYPE_WALL_WEST;
                 }
             }
         }
     }
 
-    //North except for north east corner
-    for(int i = 0; i< roomSize-1; i++){
-        if(map.data[i][0][0]==TILE_TYPE_WALL){
-            if(i==0){
-                int east = map.data[i+1][0][0];
+    // North except for north east corner
+    for (int i = 0; i < roomSize - 1; i++)
+    {
+        if (map.data[i][0][0] == TILE_TYPE_WALL)
+        {
+            if (i == 0)
+            {
+                int east = map.data[i + 1][0][0];
                 int south = map.data[i][1][0];
-                int southEast = map.data[i+1][0][0] + map.data[i+1][1][0] + map.data[i][1][0];
-                //CORNERS
-                if(southEast==TILE_TYPE_EMPTY){
-                    map.data[i][0][1]=TILE_TYPE_CORNER_SOUTH_EAST;
+                int southEast = map.data[i + 1][0][0] + map.data[i + 1][1][0] + map.data[i][1][0];
+                // CORNERS
+                if (southEast == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][0][1] = TILE_TYPE_CORNER_SOUTH_EAST;
                 }
-                //WALLS
-                else if(east!=TILE_TYPE_WALL){
-                    map.data[i][0][1]=TILE_TYPE_WALL_EAST;
+                // WALLS
+                else if (east != TILE_TYPE_WALL)
+                {
+                    map.data[i][0][1] = TILE_TYPE_WALL_EAST;
                 }
-                else if(south!=TILE_TYPE_WALL){
-                    map.data[i][0][1]=TILE_TYPE_WALL_SOUTH;
+                else if (south != TILE_TYPE_WALL)
+                {
+                    map.data[i][0][1] = TILE_TYPE_WALL_SOUTH;
                 }
             }
-            else{
-                int east = map.data[i+1][0][0];
+            else
+            {
+                int east = map.data[i + 1][0][0];
                 int south = map.data[i][1][0];
-                int west = map.data[i-1][0][0];
-                int southWest = map.data[i-1][0][0] + map.data[i-1][1][0] + map.data[i][1][0];
-                int southEast = map.data[i+1][0][0] + map.data[i+1][1][0] + map.data[i][1][0];
-                //CORNERS
-                if(southWest==TILE_TYPE_EMPTY){
-                    map.data[i][0][1]=TILE_TYPE_CORNER_SOUTH_WEST;
+                int west = map.data[i - 1][0][0];
+                int southWest = map.data[i - 1][0][0] + map.data[i - 1][1][0] + map.data[i][1][0];
+                int southEast = map.data[i + 1][0][0] + map.data[i + 1][1][0] + map.data[i][1][0];
+                // CORNERS
+                if (southWest == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][0][1] = TILE_TYPE_CORNER_SOUTH_WEST;
                 }
-                else if(southEast==TILE_TYPE_EMPTY){
-                    map.data[i][0][1]=TILE_TYPE_CORNER_SOUTH_EAST;
+                else if (southEast == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][0][1] = TILE_TYPE_CORNER_SOUTH_EAST;
                 }
-                //WALLS
-                else if(east!=TILE_TYPE_WALL){
-                    map.data[i][0][1]=TILE_TYPE_WALL_EAST;
+                // WALLS
+                else if (east != TILE_TYPE_WALL)
+                {
+                    map.data[i][0][1] = TILE_TYPE_WALL_EAST;
                 }
-                else if(south!=TILE_TYPE_WALL){
-                    map.data[i][0][1]=TILE_TYPE_WALL_SOUTH;
+                else if (south != TILE_TYPE_WALL)
+                {
+                    map.data[i][0][1] = TILE_TYPE_WALL_SOUTH;
                 }
-                else if(west!=TILE_TYPE_WALL){
-                    map.data[i][0][1]=TILE_TYPE_WALL_WEST;
-                }
-            }
-        }
-        
-    }
-    //East except for south east corner
-    for(int i = 0; i< roomSize-1; i++){
-        if(map.data[roomSize-1][i][0]==TILE_TYPE_WALL){
-            if(i==0){
-                int south = map.data[roomSize-1][i+1][0];
-                int west = map.data[roomSize-2][i][0];
-                int southWest = map.data[roomSize-2][i][0] + map.data[roomSize-2][i+1][0] + map.data[roomSize-1][i+1][0];
-                
-                //CORNERS
-                if(southWest==TILE_TYPE_EMPTY){
-                    map.data[roomSize-1][i][1]=TILE_TYPE_CORNER_SOUTH_WEST;
-                }
-                //WALLS
-                else if(south==TILE_TYPE_EMPTY){
-                    map.data[roomSize-1][i][1]=TILE_TYPE_WALL_SOUTH;
-                }
-                else if(west==TILE_TYPE_EMPTY){
-                    map.data[roomSize-1][i][1]=TILE_TYPE_WALL_WEST;
-                }
-            }
-            else{
-                int north = map.data[roomSize-1][i-1][0];
-                int south = map.data[roomSize-1][i+1][0];
-                int west = map.data[roomSize-2][i][0];
-                int northWest = map.data[roomSize-2][i][0] + map.data[roomSize-2][i-1][0] + map.data[roomSize-1][i-1][0];
-                int southWest = map.data[roomSize-2][i][0] + map.data[roomSize-2][i+1][0] + map.data[roomSize-1][i+1][0];
-                
-                //CORNERS
-                if(northWest==TILE_TYPE_EMPTY){
-                    map.data[roomSize-1][i][1]=TILE_TYPE_CORNER_NORTH_WEST;
-                }
-                else if(southWest==TILE_TYPE_EMPTY){
-                    map.data[roomSize-1][i][1]=TILE_TYPE_CORNER_SOUTH_WEST;
-                }
-                //WALLS
-                else if(north==TILE_TYPE_EMPTY){
-                    map.data[roomSize-1][i][1]=TILE_TYPE_WALL_NORTH;
-                }
-                else if(south==TILE_TYPE_EMPTY){
-                    map.data[roomSize-1][i][1]=TILE_TYPE_WALL_SOUTH;
-                }
-                else if(west==TILE_TYPE_EMPTY){
-                    map.data[roomSize-1][i][1]=TILE_TYPE_WALL_WEST;
+                else if (west != TILE_TYPE_WALL)
+                {
+                    map.data[i][0][1] = TILE_TYPE_WALL_WEST;
                 }
             }
         }
     }
-    //South except for south west corner
-    for(int i = 0; i<roomSize-1; i++){
-        if(map.data[i][roomSize-1][0]==TILE_TYPE_WALL){
-            if(i==0){
-                int north = map.data[i][roomSize-2][0];
-                int west = map.data[i-1][roomSize-1][0];
-                int northWest = map.data[i-1][roomSize-1][0] + map.data[i-1][roomSize-2][0] + map.data[i][roomSize-2][0];
-                
-                //CORNERS
-                if(northWest==TILE_TYPE_EMPTY){
-                    map.data[i][roomSize-1][1]=TILE_TYPE_CORNER_NORTH_WEST;
+    // East except for south east corner
+    for (int i = 0; i < roomSize - 1; i++)
+    {
+        if (map.data[roomSize - 1][i][0] == TILE_TYPE_WALL)
+        {
+            if (i == 0)
+            {
+                int south = map.data[roomSize - 1][i + 1][0];
+                int west = map.data[roomSize - 2][i][0];
+                int southWest = map.data[roomSize - 2][i][0] + map.data[roomSize - 2][i + 1][0] + map.data[roomSize - 1][i + 1][0];
+
+                // CORNERS
+                if (southWest == TILE_TYPE_EMPTY)
+                {
+                    map.data[roomSize - 1][i][1] = TILE_TYPE_CORNER_SOUTH_WEST;
                 }
-                //WALLS
-                else if(north==TILE_TYPE_EMPTY){
-                    map.data[i][roomSize-1][1]=TILE_TYPE_WALL_NORTH;
+                // WALLS
+                else if (south == TILE_TYPE_EMPTY)
+                {
+                    map.data[roomSize - 1][i][1] = TILE_TYPE_WALL_SOUTH;
                 }
-                else if(west==TILE_TYPE_EMPTY){
-                    map.data[i][roomSize-1][1]=TILE_TYPE_WALL_WEST;
+                else if (west == TILE_TYPE_EMPTY)
+                {
+                    map.data[roomSize - 1][i][1] = TILE_TYPE_WALL_WEST;
                 }
             }
-            else{
-                int north = map.data[i][roomSize-2][0];
-                int east = map.data[i+1][roomSize-1][0];
-                int west = map.data[i-1][roomSize-1][0];
-                int northWest = map.data[i-1][roomSize-1][0] + map.data[i-1][roomSize-2][0] + map.data[i][roomSize-2][0];
-                int northEast = map.data[i+1][roomSize-1][0] + map.data[i+1][roomSize-2][0] + map.data[i][roomSize-2][0];
-                
-                //CORNERS
-                if(northWest==TILE_TYPE_EMPTY){
-                    map.data[i][roomSize-1][1]=TILE_TYPE_CORNER_NORTH_WEST;
+            else
+            {
+                int north = map.data[roomSize - 1][i - 1][0];
+                int south = map.data[roomSize - 1][i + 1][0];
+                int west = map.data[roomSize - 2][i][0];
+                int northWest = map.data[roomSize - 2][i][0] + map.data[roomSize - 2][i - 1][0] + map.data[roomSize - 1][i - 1][0];
+                int southWest = map.data[roomSize - 2][i][0] + map.data[roomSize - 2][i + 1][0] + map.data[roomSize - 1][i + 1][0];
+
+                // CORNERS
+                if (northWest == TILE_TYPE_EMPTY)
+                {
+                    map.data[roomSize - 1][i][1] = TILE_TYPE_CORNER_NORTH_WEST;
                 }
-                else if(northEast==TILE_TYPE_EMPTY){
-                    map.data[i][roomSize-1][1]=TILE_TYPE_CORNER_NORTH_EAST;
+                else if (southWest == TILE_TYPE_EMPTY)
+                {
+                    map.data[roomSize - 1][i][1] = TILE_TYPE_CORNER_SOUTH_WEST;
                 }
-                
-                //WALLS
-                else if(north==TILE_TYPE_EMPTY){
-                    map.data[i][roomSize-1][1]=TILE_TYPE_WALL_NORTH;
+                // WALLS
+                else if (north == TILE_TYPE_EMPTY)
+                {
+                    map.data[roomSize - 1][i][1] = TILE_TYPE_WALL_NORTH;
                 }
-                else if(east==TILE_TYPE_EMPTY){
-                    map.data[i][roomSize-1][1]=TILE_TYPE_WALL_EAST;
+                else if (south == TILE_TYPE_EMPTY)
+                {
+                    map.data[roomSize - 1][i][1] = TILE_TYPE_WALL_SOUTH;
                 }
-                else if(west==TILE_TYPE_EMPTY){
-                    map.data[i][roomSize-1][1]=TILE_TYPE_WALL_WEST;
+                else if (west == TILE_TYPE_EMPTY)
+                {
+                    map.data[roomSize - 1][i][1] = TILE_TYPE_WALL_WEST;
                 }
             }
         }
     }
-    //West except for north west corner
-    for(int i = roomSize; i>0; i--){
-        if(map.data[0][i][0]==TILE_TYPE_WALL){
-            if(i==0){
-                int north = map.data[0][i-1][0];
+    // South except for south west corner
+    for (int i = 0; i < roomSize - 1; i++)
+    {
+        if (map.data[i][roomSize - 1][0] == TILE_TYPE_WALL)
+        {
+            if (i == 0)
+            {
+                int north = map.data[i][roomSize - 2][0];
+                int west = map.data[i - 1][roomSize - 1][0];
+                int northWest = map.data[i - 1][roomSize - 1][0] + map.data[i - 1][roomSize - 2][0] + map.data[i][roomSize - 2][0];
+
+                // CORNERS
+                if (northWest == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][roomSize - 1][1] = TILE_TYPE_CORNER_NORTH_WEST;
+                }
+                // WALLS
+                else if (north == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][roomSize - 1][1] = TILE_TYPE_WALL_NORTH;
+                }
+                else if (west == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][roomSize - 1][1] = TILE_TYPE_WALL_WEST;
+                }
+            }
+            else
+            {
+                int north = map.data[i][roomSize - 2][0];
+                int east = map.data[i + 1][roomSize - 1][0];
+                int west = map.data[i - 1][roomSize - 1][0];
+                int northWest = map.data[i - 1][roomSize - 1][0] + map.data[i - 1][roomSize - 2][0] + map.data[i][roomSize - 2][0];
+                int northEast = map.data[i + 1][roomSize - 1][0] + map.data[i + 1][roomSize - 2][0] + map.data[i][roomSize - 2][0];
+
+                // CORNERS
+                if (northWest == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][roomSize - 1][1] = TILE_TYPE_CORNER_NORTH_WEST;
+                }
+                else if (northEast == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][roomSize - 1][1] = TILE_TYPE_CORNER_NORTH_EAST;
+                }
+
+                // WALLS
+                else if (north == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][roomSize - 1][1] = TILE_TYPE_WALL_NORTH;
+                }
+                else if (east == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][roomSize - 1][1] = TILE_TYPE_WALL_EAST;
+                }
+                else if (west == TILE_TYPE_EMPTY)
+                {
+                    map.data[i][roomSize - 1][1] = TILE_TYPE_WALL_WEST;
+                }
+            }
+        }
+    }
+    // West except for north west corner
+    for (int i = roomSize; i > 0; i--)
+    {
+        if (map.data[0][i][0] == TILE_TYPE_WALL)
+        {
+            if (i == 0)
+            {
+                int north = map.data[0][i - 1][0];
                 int east = map.data[1][i][0];
-                int northEast = map.data[1][i][0] + map.data[1][i-1][0] + map.data[0][i-1][0];
-                
-                //CORNERS
-                if(northEast==TILE_TYPE_EMPTY){
-                    map.data[0][i][1]=TILE_TYPE_CORNER_NORTH_EAST;
+                int northEast = map.data[1][i][0] + map.data[1][i - 1][0] + map.data[0][i - 1][0];
+
+                // CORNERS
+                if (northEast == TILE_TYPE_EMPTY)
+                {
+                    map.data[0][i][1] = TILE_TYPE_CORNER_NORTH_EAST;
                 }
-                //WALLS
-                else if(north==TILE_TYPE_EMPTY){
-                    map.data[0][i][1]=TILE_TYPE_WALL_NORTH;
+                // WALLS
+                else if (north == TILE_TYPE_EMPTY)
+                {
+                    map.data[0][i][1] = TILE_TYPE_WALL_NORTH;
                 }
-                else if(east==TILE_TYPE_EMPTY){
-                    map.data[0][i][1]=TILE_TYPE_WALL_EAST;
+                else if (east == TILE_TYPE_EMPTY)
+                {
+                    map.data[0][i][1] = TILE_TYPE_WALL_EAST;
                 }
             }
-            else{
-                int north = map.data[0][i-1][0];
+            else
+            {
+                int north = map.data[0][i - 1][0];
                 int east = map.data[1][i][0];
-                int south = map.data[0][i+1][0];
-                int northEast = map.data[1][i][0] + map.data[1][i-1][0] + map.data[0][i-1][0];
-                int southEast = map.data[1][i][0] + map.data[1][i+1][0] + map.data[0][i+1][0];
-                
-                //CORNERS
-                if(northEast==TILE_TYPE_EMPTY){
-                    map.data[0][i][1]=TILE_TYPE_CORNER_NORTH_EAST;
+                int south = map.data[0][i + 1][0];
+                int northEast = map.data[1][i][0] + map.data[1][i - 1][0] + map.data[0][i - 1][0];
+                int southEast = map.data[1][i][0] + map.data[1][i + 1][0] + map.data[0][i + 1][0];
+
+                // CORNERS
+                if (northEast == TILE_TYPE_EMPTY)
+                {
+                    map.data[0][i][1] = TILE_TYPE_CORNER_NORTH_EAST;
                 }
-                else if(southEast==TILE_TYPE_EMPTY){
-                    map.data[0][i][1]=TILE_TYPE_CORNER_SOUTH_EAST;
+                else if (southEast == TILE_TYPE_EMPTY)
+                {
+                    map.data[0][i][1] = TILE_TYPE_CORNER_SOUTH_EAST;
                 }
-                //WALLS
-                else if(north==TILE_TYPE_EMPTY){
-                    map.data[0][i][1]=TILE_TYPE_WALL_NORTH;
+                // WALLS
+                else if (north == TILE_TYPE_EMPTY)
+                {
+                    map.data[0][i][1] = TILE_TYPE_WALL_NORTH;
                 }
-                else if(east==TILE_TYPE_EMPTY){
-                    map.data[0][i][1]=TILE_TYPE_WALL_EAST;
+                else if (east == TILE_TYPE_EMPTY)
+                {
+                    map.data[0][i][1] = TILE_TYPE_WALL_EAST;
                 }
-                else if(south==TILE_TYPE_EMPTY){
-                    map.data[0][i][1]=TILE_TYPE_WALL_SOUTH;
+                else if (south == TILE_TYPE_EMPTY)
+                {
+                    map.data[0][i][1] = TILE_TYPE_WALL_SOUTH;
                 }
             }
         }
     }
-    map.empty=false;
+    map.empty = false;
     return map;
 }
-
 
 /*
 TODO
 - Implement a way to randomise rooms in certain ways such as
-    - Treasure rooms 
+    - Treasure rooms
     - Multiple doors in a room
     - Boss rooms if the drunkard is trapped
-    - Boss room 
+    - Boss room
 */
-RoomGrid RoomCreator(){
+RoomGrid RoomCreator()
+{
     puts("room creator has been called");
     Point startPOS;
-    startPOS.x=floor(roomSize/2);
-    startPOS.y=floor(roomSize/2);
-    
-    bool treasureRoom=false;
+    startPOS.x = floor(roomSize / 2);
+    startPOS.y = floor(roomSize / 2);
+
+    bool treasureRoom = false;
     int previousDir = -1;
 
     RoomGrid roomGrid;
-    for(int i= 0; i < roomGridSize; i++){
-        for(int j = 0; j<roomGridSize ;j++){
+    for (int i = 0; i < roomGridSize; i++)
+    {
+        for (int j = 0; j < roomGridSize; j++)
+        {
             roomGrid.data[j][i].empty = true;
         }
     }
     Point currentPOS;
-    currentPOS.x=floor(roomGridSize/2);
-    currentPOS.y=floor(roomGridSize/2);
-    bool doorAvailability[4]={false};
-    for(int i = 0; i < floor(roomGridSize/2); i++){
-       printf("room %d: ",i+1);
-       
-       printf("Drunkard is walking at %d ,%d\n",currentPOS.x,currentPOS.y);
+    currentPOS.x = floor(roomGridSize / 2);
+    currentPOS.y = floor(roomGridSize / 2);
+    bool doorAvailability[4] = {false};
+    for (int i = 0; i < floor(roomGridSize / 2); i++)
+    {
+        printf("room %d: ", i + 1);
 
-        roomGrid.data[currentPOS.x][currentPOS.y] = DrunkardsWalk(doorAvailability[North],doorAvailability[East],doorAvailability[South],doorAvailability[West],2500,startPOS.x,startPOS.y,previousDir);
+        printf("Drunkard is walking at %d ,%d\n", currentPOS.x, currentPOS.y);
+
+        roomGrid.data[currentPOS.x][currentPOS.y] = DrunkardsWalk(doorAvailability[North], doorAvailability[East], doorAvailability[South], doorAvailability[West], 2500, startPOS.x, startPOS.y, previousDir);
         startPOS.x = roomGrid.data[currentPOS.x][currentPOS.y].exitPOS.x;
         startPOS.y = roomGrid.data[currentPOS.x][currentPOS.y].exitPOS.y;
-        for(int j = 0; j < 4; j++){
-            doorAvailability[j]=false;
+        for (int j = 0; j < 4; j++)
+        {
+            doorAvailability[j] = false;
         }
-        if(treasureRoom){
-            //Treasure room
-            
+        if (treasureRoom)
+        {
+            // Treasure room
         }
         switch (roomGrid.data[currentPOS.x][currentPOS.y].exitDir)
         {
@@ -587,22 +666,137 @@ RoomGrid RoomCreator(){
         default:
             break;
         }
-        if(roomGrid.data[currentPOS.x][currentPOS.y+1].empty==false){//North
-            doorAvailability[North]=true;
+        if (roomGrid.data[currentPOS.x][currentPOS.y + 1].empty == false)
+        { // North
+            doorAvailability[North] = true;
         }
-        if(roomGrid.data[currentPOS.x+1][currentPOS.y].empty==false){//East
-            doorAvailability[East]=true;
+        if (roomGrid.data[currentPOS.x + 1][currentPOS.y].empty == false)
+        { // East
+            doorAvailability[East] = true;
         }
-        if(roomGrid.data[currentPOS.x][currentPOS.y-1].empty==false){//South
-            doorAvailability[South]=true;
+        if (roomGrid.data[currentPOS.x][currentPOS.y - 1].empty == false)
+        { // South
+            doorAvailability[South] = true;
         }
-        if(roomGrid.data[currentPOS.x-1][currentPOS.y].empty==false){//West
-            doorAvailability[West]=true;
+        if (roomGrid.data[currentPOS.x - 1][currentPOS.y].empty == false)
+        { // West
+            doorAvailability[West] = true;
         }
-        
     }
-    //Boss room
+    // ---------
+    // BOSS ROOM
+    // ---------
+    // Set the four corners to walls
+    roomGrid.data[currentPOS.x][currentPOS.y].data[0][0][0] = TILE_TYPE_WALL;
+    roomGrid.data[currentPOS.x][currentPOS.y].data[0][roomSize - 1][0] = TILE_TYPE_WALL;
+    roomGrid.data[currentPOS.x][currentPOS.y].data[roomSize - 1][0][0] = TILE_TYPE_WALL;
+    roomGrid.data[currentPOS.x][currentPOS.y].data[roomSize - 1][roomSize - 1][0] = TILE_TYPE_WALL;
+
+    for (int i = 1; i < roomSize - 1; i++)
+    {
+        roomGrid.data[currentPOS.x][currentPOS.y].data[i][0][1] = TILE_TYPE_WALL_SOUTH;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[i][0][0] = TILE_TYPE_WALL;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[i][roomSize - 1][1] = TILE_TYPE_WALL_NORTH;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[i][roomSize - 1][0] = TILE_TYPE_WALL;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[0][i][1] = TILE_TYPE_WALL_EAST;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[0][i][0] = TILE_TYPE_WALL;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[roomSize - 1][i][1] = TILE_TYPE_WALL_WEST;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[roomSize - 1][i][0] = TILE_TYPE_WALL;
+    }
+
+    switch (previousDir)
+    {
+    case North:
+        startPOS.y = roomSize - 1;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y][0] = TILE_TYPE_DOOR_SOUTH;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y][1] = TILE_TYPE_DOOR;
+        if (startPOS.x == 0)
+        {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y-1][0] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y-1][1] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y-2][1] = TILE_TYPE_CORNER_SOUTH_EAST;
+        } else {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x - 1][startPOS.y][1] = TILE_TYPE_CORNER_NORTH_EAST;
+        }
+        if (startPOS.x == roomSize-1)
+        {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y-1][0] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y-1][1] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y-2][1] = TILE_TYPE_CORNER_SOUTH_WEST;
+        } else {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x + 1][startPOS.y][1] = TILE_TYPE_CORNER_NORTH_WEST;
+        }
+        startPOS.y--;
+        break;
+    case East:
+        startPOS.x = 0;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y][0] = TILE_TYPE_DOOR_WEST;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y][1] = TILE_TYPE_DOOR;
+        if (startPOS.y == 0)
+        {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x+1][startPOS.y][0] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x+1][startPOS.y][1] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x+2][startPOS.y][1] = TILE_TYPE_CORNER_SOUTH_WEST;
+        } else {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y - 1][1] = TILE_TYPE_CORNER_SOUTH_EAST;
+        }
+        if (startPOS.y == roomSize-1)
+        {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x+1][startPOS.y][0] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x+1][startPOS.y][1] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x+2][startPOS.y][1] = TILE_TYPE_CORNER_NORTH_WEST;
+        } else {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y + 1][1] = TILE_TYPE_CORNER_NORTH_EAST;
+        }
+        startPOS.x++;
+        break;
+    case South:
+        startPOS.y = 0;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y][0] = TILE_TYPE_DOOR_NORTH;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y][1] = TILE_TYPE_DOOR;
+        if (startPOS.x == 0)
+        {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y+1][0] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y+1][1] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y+2][1] = TILE_TYPE_CORNER_NORTH_EAST;
+        } else {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x - 1][startPOS.y][1] = TILE_TYPE_CORNER_SOUTH_EAST;
+        }
+        if (startPOS.y == roomSize-1)
+        {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y+1][0] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y+1][1] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y+2][1] = TILE_TYPE_CORNER_NORTH_WEST;
+        } else {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x + 1][startPOS.y][1] = TILE_TYPE_CORNER_SOUTH_WEST;
+        }
+        startPOS.x--;
+        break;
+    case West:
+        startPOS.x = roomSize - 1;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y][0] = TILE_TYPE_DOOR_EAST;
+        roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y][1] = TILE_TYPE_DOOR;
+        if (startPOS.y == 0)
+        {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x-1][startPOS.y][0] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x-1][startPOS.y][1] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x-2][startPOS.y][1] = TILE_TYPE_CORNER_SOUTH_EAST;
+        } else {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y - 1][1] = TILE_TYPE_CORNER_SOUTH_WEST;
+        }
+        if (startPOS.y == roomSize-1)
+        {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x-1][startPOS.y][0] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x-1][startPOS.y][1] = TILE_TYPE_EMPTY;
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x-2][startPOS.y][1] = TILE_TYPE_CORNER_NORTH_EAST;
+        } else {
+            roomGrid.data[currentPOS.x][currentPOS.y].data[startPOS.x][startPOS.y + 1][1] = TILE_TYPE_CORNER_NORTH_WEST;
+        }
+        startPOS.y++;
+        break;
+    default:
+        break;
+    }
 
     return roomGrid;
 }
-

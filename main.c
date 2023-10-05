@@ -84,8 +84,7 @@ int main()
     int ringCount = 0;
     float angle = 0;
 
-
-    Room room = DrunkardsWalk(false, false, false, false, 2500, 14,14,-1);
+    Room room;
     RoomGrid roomGrid= RoomCreator();
     Point roomPOS;
     roomPOS.x = floor(roomGridSize/2);
@@ -827,6 +826,11 @@ int main()
             }
             // Number tiles
             // DrawText(TextFormat("%d", x), x * tileSize + 10, 10, 20, (Color){255, 255, 255, 255});
+        }
+
+        if (roomPOS.x == RoomGrid.bossRoomPOS.x && roomPOS.y == RoomGrid.bossRoomPOS.y)
+        {
+            //DrawCircle()
         }
 
         DrawCircle(playerPosition.x + 1, playerPosition.y + 1, playerRadius, (Color){0, 0, 0, 255});
