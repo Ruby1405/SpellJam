@@ -136,8 +136,6 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
 {
     Room map;
     Point drunkardsPOS;
-    drunkardsPOS.x = StartPOSx;
-    drunkardsPOS.y = StartPOSy;
 
     bool drunkardOutOfBounds = false;
 
@@ -153,24 +151,34 @@ Room DrunkardsWalk(bool north, bool east, bool south, bool west, int staggering,
     switch (previousExitDir)
             {
             case North:
-                map.data[StartPOSx][roomSize-1][0]=TILE_TYPE_DOOR_SOUTH;
-                map.data[StartPOSx][roomSize-1][1] = TILE_TYPE_DOOR;
+                StartPOSy=roomSize-1;
+                map.data[StartPOSx][StartPOSy][0]=TILE_TYPE_DOOR_SOUTH;
+                map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
+                StartPOSy--;
                 break;
             case East:
-                map.data[0][StartPOSy][0]=TILE_TYPE_DOOR_WEST;
-                map.data[0][StartPOSy][1] = TILE_TYPE_DOOR;
+                StartPOSx = 0;
+                map.data[StartPOSx][StartPOSy][0]=TILE_TYPE_DOOR_WEST;
+                map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
+                StartPOSx++;
                 break;
             case South:
-                map.data[StartPOSx][0][0]=TILE_TYPE_DOOR_NORTH;
-                map.data[StartPOSx][0][1] = TILE_TYPE_DOOR;
+                StartPOSy=0;
+                map.data[StartPOSx][StartPOSy][0]=TILE_TYPE_DOOR_NORTH;
+                map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
+                StartPOSx--;
                 break;
             case West:
-                map.data[roomSize-1][StartPOSy][0]=TILE_TYPE_DOOR_EAST;
-                map.data[roomSize-1][StartPOSy][1] = TILE_TYPE_DOOR;
+                StartPOSx = roomSize-1;
+                map.data[StartPOSx][StartPOSy][0]=TILE_TYPE_DOOR_EAST;
+                map.data[StartPOSx][StartPOSy][1] = TILE_TYPE_DOOR;
+                StartPOSy++;
                 break;
             default:
                 break;
             }
+    drunkardsPOS.x = StartPOSx;
+    drunkardsPOS.y = StartPOSy;
     int i = 0;
     while (!drunkardOutOfBounds)
     {
@@ -538,16 +546,18 @@ RoomGrid RoomCreator(){
     Point currentPOS;
     currentPOS.x=floor(roomGridSize/2);
     currentPOS.y=floor(roomGridSize/2);
+    bool doorAvailability[4]={false};
     for(int i = 0; i < floor(roomGridSize/2); i++){
        printf("room %d: ",i+1);
-       bool doorAvailability[4]={false};
-
+       
        printf("Drunkard is walking at %d ,%d\n",currentPOS.x,currentPOS.y);
 
         roomGrid.data[currentPOS.x][currentPOS.y] = DrunkardsWalk(doorAvailability[North],doorAvailability[East],doorAvailability[South],doorAvailability[West],2500,startPOS.x,startPOS.y,previousDir);
         startPOS.x = roomGrid.data[currentPOS.x][currentPOS.y].exitPOS.x;
         startPOS.y = roomGrid.data[currentPOS.x][currentPOS.y].exitPOS.y;
-        
+        for(int j = 0; j < 4; j++){
+            doorAvailability[j]=false;
+        }
         if(treasureRoom){
             //Treasure room
             
@@ -577,22 +587,19 @@ RoomGrid RoomCreator(){
         default:
             break;
         }
-        if(roomGrid.data[currentPOS.x][currentPOS.y-1].empty==false){//North
-            doorAvailability[North]=false;
+        if(roomGrid.data[currentPOS.x][currentPOS.y+1].empty==false){//North
+            doorAvailability[North]=true;
         }
         if(roomGrid.data[currentPOS.x+1][currentPOS.y].empty==false){//East
-            doorAvailability[East]=false;
+            doorAvailability[East]=true;
         }
-        if(roomGrid.data[currentPOS.x][currentPOS.y+1].empty==false){//South
-            doorAvailability[South]=false;
+        if(roomGrid.data[currentPOS.x][currentPOS.y-1].empty==false){//South
+            doorAvailability[South]=true;
         }
         if(roomGrid.data[currentPOS.x-1][currentPOS.y].empty==false){//West
-            doorAvailability[West]=false;
+            doorAvailability[West]=true;
         }
         
-        
-        
-
     }
     //Boss room
 
