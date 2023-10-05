@@ -54,29 +54,10 @@ typedef struct RoomGrid
 } RoomGrid;
 
 
-
-// Sebastian kod
-//  Point directions[] = {
-//      (Point) {0, -1},
-//      (Point) {1, 0},
-//      (Point) {0, 1},
-//      (Point) {-1, 0},
-//  };
-// Sebastian kod
-//  Point getRandomDir() {
-//      time_t t;
-//      srand((unsigned) time(&t));
-//      return directions[rand() % 4];
-//  }
-
 int getRandomDir()
 {
     return rand() % 4;
 }
-
-// Sebastian kod
-//  bool carvePath(Point current, Point direction) {
-// }
 
 //counts the amount of booleans in an array which are true
 int trueCount(bool boolArray[],int length){

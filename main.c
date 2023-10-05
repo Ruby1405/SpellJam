@@ -5,8 +5,9 @@
 #include <time.h>
 #include "raylib.h"
 #include "raymath.h"
-#include "terrainGen.c"
 #include "magic.c"
+#include "terrainGen.c"
+#include "pathfinding.c"
 #include "enemy.c"
 #include "boss.c"
 
