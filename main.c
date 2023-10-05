@@ -6,7 +6,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "terrainGen.c"
-#include "magicCircle.c"
+#include "magic.c"
 #include "enemy.c"
 #include "boss.c"
 
