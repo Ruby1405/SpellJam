@@ -209,15 +209,16 @@ int main()
                 {
                     if (x + (int)(playerPosition.x / tileSize) >= 0 && y + (int)(playerPosition.y / tileSize) >= 0 && x + (int)(playerPosition.x / tileSize) < roomSize && y + (int)(playerPosition.y / tileSize) < roomSize)
                     {
-                        if(room.data[(int)((playerPosition.x + playerRadiusVector.x) / tileSize)][(int)((playerPosition.y + playerRadiusVector.y) / tileSize)][1] == TILE_TYPE_DOOR)
+                        if(room.data[x + (int)(playerPosition.x / tileSize)][y + (int)(playerPosition.y / tileSize)][1] == TILE_TYPE_DOOR)
                         {
                             goto stillInDoor;
                         }
                     }
                 }
             }
-            hasLeftDoor=true;
+            hasLeftDoor = true;
             stillInDoor:
+            {}
         }
             
         
