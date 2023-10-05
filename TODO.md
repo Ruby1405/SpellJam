@@ -40,6 +40,7 @@
 		- [ ] Hit
 		- [ ] Intro
 - [ ] Code cleaning
+	- [ ] Commenting
 	- [ ] Enemy
 	- [ ] Magic
 	- [ ] Terrain Gen
