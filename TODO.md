@@ -15,7 +15,7 @@
 	- [ ] Spawning
 	- [ ] Path finding
 	- [ ] Separate cooldown and attacking action
-- [ ] Player collision with map bounds
+- [x] Player collision with map bounds
 - [ ] Player UI
 - [ ] Tweaks
 	- [ ] Spells

@@ -668,6 +668,10 @@ RoomGrid RoomCreator()
     // ---------
     // BOSS ROOM
     // ---------
+
+    roomGrid.bossRoomPOS.x = currentPOS.x;
+    roomGrid.bossRoomPOS.y = currentPOS.y;
+
     // Set the four corners to walls
     roomGrid.data[currentPOS.x][currentPOS.y].data[0][0][0] = TILE_TYPE_WALL;
     roomGrid.data[currentPOS.x][currentPOS.y].data[0][roomSize - 1][0] = TILE_TYPE_WALL;

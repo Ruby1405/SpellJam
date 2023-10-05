@@ -38,9 +38,10 @@ int main()
     // 1120,1280 är *5
     v2f windowSize = {1120, 1286};
     //v2f windowSize = {560, 606};
+    // v2f windowSize = {1440, 900};
     //v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-    //ToggleFullscreen();
+    // ToggleFullscreen();
     //SetTargetFPS(10);
 
     // Load textures
@@ -56,7 +57,6 @@ int main()
     bool circlePressed = false;
     bool executePressed = false;
 
-    int playerMoveSpeed = 150;
 
     // Initialize spell entities
     const int maxSpellEntities = 16;
@@ -75,6 +75,7 @@ int main()
     v2f playerPosition = {roomSize / 2 * tileSize + tileSize / 2, roomSize / 2 * tileSize + tileSize / 2};
     v2f playerAim = {0, 0};
     v2f spellAim = {0, -1};
+    int playerMoveSpeed = 150; //150
     float playerHealth = 200;
     float playerMana = 200;
     float manaAngle = 0;
@@ -331,6 +332,25 @@ int main()
             }
         }
         playerRadius+1;
+
+        // Collision with map edges
+        if (playerMovePosition.x > roomSize * tileSize - playerRadius)
+        {
+            playerMovePosition.x = roomSize * tileSize - playerRadius;
+        }
+        if (playerMovePosition.x < playerRadius)
+        {
+            playerMovePosition.x = playerRadius;
+        }
+        if (playerMovePosition.y > roomSize * tileSize - playerRadius)
+        {
+            playerMovePosition.y = roomSize * tileSize - playerRadius;
+        }
+        if (playerMovePosition.y < playerRadius)
+        {
+            playerMovePosition.y = playerRadius;
+        }
+
         // Actually move the player, finally
         playerPosition = playerMovePosition;
 
@@ -829,10 +849,10 @@ int main()
             // DrawText(TextFormat("%d", x), x * tileSize + 10, 10, 20, (Color){255, 255, 255, 255});
         }
 
-        if (roomPOS.x == RoomGrid.bossRoomPOS.x && roomPOS.y == RoomGrid.bossRoomPOS.y)
-        {
-            //DrawCircle()
-        }
+        // if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y)
+        // {
+        //     DrawCircle(tileSize * (roomSize * 0.5 + 0.5), tileSize * (roomSize * 0.8 + 1), 60, (Color){255,255,255,100});
+        // }
 
         DrawCircle(playerPosition.x + 1, playerPosition.y + 1, playerRadius, (Color){0, 0, 0, 255});
         DrawCircle(playerPosition.x, playerPosition.y, playerRadius, (Color){100, 255, 100, 255});
@@ -948,7 +968,7 @@ int main()
         //manaAngle = -manaAngle;
         DrawText(TextFormat("Health %f", playerHealth), 10, 10, 20, (Color){255, 255, 255, 255});
         DrawText(TextFormat("Mana %f", playerMana), 10, 40, 20, (Color){255, 255, 255, 255});
-        DrawText(TextFormat("Has left door %d", hasLeftDoor), 10, 70, 20, (Color){255, 255, 255, 255});
+        //DrawText(TextFormat("Has left door %d", hasLeftDoor), 10, 70, 20, (Color){255, 255, 255, 255});
 
         EndDrawing();
     }
