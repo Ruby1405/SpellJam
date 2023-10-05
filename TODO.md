@@ -15,6 +15,7 @@
 	- [ ] Path finding
 	- [ ] Separate cooldown and attacking action
 - [ ] Player collision with map bounds
+- [ ] Player UI
 - [ ] Tweaks
 	- [ ] Spells
 		- [ ] Magic missile pathing
@@ -33,6 +34,7 @@
 			- [ ] Boss
 			- [ ] Enemy
 		- [ ] Better map sprites
+	- [ ] Player UI
 	- [ ] Animations
 		- [ ] Attack
 		- [ ] Hit
