@@ -5,12 +5,12 @@
 	- [ ] Victory Screen
 		- [ ] High scores
 - [ ] Boss room
-	- [ ] Design room
+	- [x] Design room
 	- [ ] Design boss
-	- [ ] Script attacks
+	- [x] Script attacks
 		- [x] Mana spark burst
 		- [x] Moon beams
-		- [ ] Summon minions
+		- [x] Summon minions
 	- [ ] Win condition
 - [ ] Enemy
 	- [x] Spawning

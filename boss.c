@@ -22,7 +22,7 @@ typedef struct BossAttack
 const int bossAttackCount = 3;
 
 bool bossNotSpawned = true;
-v2f bossPosition = {tileSize * roomSize * 0.5, tileSize * roomSize * 0.2};
+v2f bossPosition = {tileSize * roomSize * 0.5, tileSize *roomSize * 0.2};
 int bossMaxHealth = 1000;
 int bossHealth = 1000;
 int minionCount = 0;
@@ -35,7 +35,7 @@ SpellEntity bossSpellEntities[maxBossSpellEntities];
 const int moonBeamCount = 10;
 v2f moonBeamPositions[moonBeamCount] = {0};
 
-void UpdateBoss(Vector2 playerPosition, float *playerHealth)
+void UpdateBoss(Vector2 playerPosition, float *playerHealth, Enemy (*enemies)[roomGridSize][roomGridSize][maxEnemies], Point roomPOS)
 {
     int availableAttacks[bossAttackCount] = {0, 0, 0};
     int availableAttackCount = 0;
@@ -46,26 +46,35 @@ void UpdateBoss(Vector2 playerPosition, float *playerHealth)
         durations += bossAttacks[i].duration;
     }
 
+    minionCount = 0;
+    for (int i = 0; i < maxEnemies; i++)
+    {
+        if ((*enemies)[roomPOS.x][roomPOS.y][i].health > 0)
+        {
+            minionCount++;
+        }
+    }
+
     if (durations <= 0)
     {
         puts("Duration was 0");
-        if (bossAttacks[BOSSATTACKTYPE_MANA_SPARK_BURST-1].cooldown <= 0)
+        if (bossAttacks[BOSSATTACKTYPE_MANA_SPARK_BURST - 1].cooldown <= 0)
         {
             availableAttacks[availableAttackCount] = BOSSATTACKTYPE_MANA_SPARK_BURST;
             availableAttackCount++;
-            printf("added %d but it turned into %d, mana burst\n", BOSSATTACKTYPE_MANA_SPARK_BURST, availableAttacks[availableAttackCount-1]);
+            printf("added %d but it turned into %d, mana burst\n", BOSSATTACKTYPE_MANA_SPARK_BURST, availableAttacks[availableAttackCount - 1]);
         }
-        if (bossAttacks[BOSSATTACKTYPE_MOON_BEAMS-1].cooldown <= 0)
+        if (bossAttacks[BOSSATTACKTYPE_MOON_BEAMS - 1].cooldown <= 0)
         {
             availableAttacks[availableAttackCount] = BOSSATTACKTYPE_MOON_BEAMS;
             availableAttackCount++;
-            printf("added %d but it turned into %d, moon beams\n", BOSSATTACKTYPE_MOON_BEAMS, availableAttacks[availableAttackCount-1]);
+            printf("added %d but it turned into %d, moon beams\n", BOSSATTACKTYPE_MOON_BEAMS, availableAttacks[availableAttackCount - 1]);
         }
-        if (bossAttacks[BOSSATTACKTYPE_SUMMON_MINIONS-1].cooldown <= 0 && minionCount == 0)
+        if (bossAttacks[BOSSATTACKTYPE_SUMMON_MINIONS - 1].cooldown <= 0 && minionCount == 0)
         {
             availableAttacks[availableAttackCount] = BOSSATTACKTYPE_SUMMON_MINIONS;
             availableAttackCount++;
-            printf("added %d but it turned into %d, summon minions\n", BOSSATTACKTYPE_SUMMON_MINIONS, availableAttacks[availableAttackCount-1]);
+            printf("added %d but it turned into %d, summon minions\n", BOSSATTACKTYPE_SUMMON_MINIONS, availableAttacks[availableAttackCount - 1]);
         }
         if (availableAttackCount > 0)
         {
@@ -73,11 +82,10 @@ void UpdateBoss(Vector2 playerPosition, float *playerHealth)
 
             printf("%d attacks available. Picked %d with type %d\n", availableAttackCount, attackIndex, bossAttacks[availableAttacks[attackIndex]].type);
 
-            bossAttacks[availableAttacks[attackIndex]-1].cooldown = bossAttacks[availableAttacks[attackIndex]-1].startCooldown;
-            bossAttacks[availableAttacks[attackIndex]-1].duration = bossAttacks[availableAttacks[attackIndex]-1].startDuration;
+            bossAttacks[availableAttacks[attackIndex] - 1].cooldown = bossAttacks[availableAttacks[attackIndex] - 1].startCooldown;
+            bossAttacks[availableAttacks[attackIndex] - 1].duration = bossAttacks[availableAttacks[attackIndex] - 1].startDuration;
         }
     }
-
 
     for (int i = 0; i < bossAttackCount; i++)
     {
@@ -91,9 +99,6 @@ void UpdateBoss(Vector2 playerPosition, float *playerHealth)
                 {
                     int manaSparkCount = 10;
                     puts("mana spark burst\n");
-                    /* if (
-                        bossAttacks[i].duration > bossAttacks[i].startDuration / manaSparkCount * j &&
-                        bossAttacks[i].duration - GetFrameTime() <= bossAttacks[i].startDuration / manaSparkCount * j) */
                     for (int j = manaSparkCount - 1; j > -1; j--)
                     {
                         for (int k = 0; k < maxBossSpellEntities; k++)
@@ -117,11 +122,11 @@ void UpdateBoss(Vector2 playerPosition, float *playerHealth)
                     puts("moon beams");
                     for (int j = 0; j < moonBeamCount; j++)
                     {
-                        moonBeamPositions[j] = (v2f){GetRandomValue(tileSize, (roomSize-1) * tileSize), GetRandomValue(tileSize, (roomSize-1) * tileSize)};
+                        moonBeamPositions[j] = (v2f){GetRandomValue(tileSize, (roomSize - 1) * tileSize), GetRandomValue(tileSize, (roomSize - 1) * tileSize)};
                     }
                 }
                 if (bossAttacks[i].duration > bossAttacks[i].startDuration / 2 &&
-                    bossAttacks[i].duration - GetFrameTime() <= bossAttacks[i].startDuration / 2 )
+                    bossAttacks[i].duration - GetFrameTime() <= bossAttacks[i].startDuration / 2)
                 {
                     for (int j = 0; j < moonBeamCount; j++)
                     {
@@ -141,7 +146,19 @@ void UpdateBoss(Vector2 playerPosition, float *playerHealth)
                 if (bossAttacks[i].duration == bossAttacks[i].startDuration)
                 {
                     puts("summon minions");
-                    minionCount = 0;
+                    int warriorCount = GetRandomValue(1, 3);
+                    for (int j = 0; j < warriorCount; j++)
+                    {
+                        (*enemies)[roomPOS.x][roomPOS.y][j] = (Enemy){(Vector2){GetRandomValue(tileSize,(roomSize-1)*tileSize), bossPosition.y - 2 * tileSize}, (Vector2){1, 1}, 100, 70, 70, 0, {0}, AITYPE_WARRIOR, AISTATE_CHASE};
+                    }
+                    //minionCount += warriorCount;
+                    int mageCount = GetRandomValue(-3,2);
+                    mageCount = 0 + (mageCount * (mageCount > 0));
+                    for (int j = 0; j < mageCount; j++)
+                    {
+                        (*enemies)[roomPOS.x][roomPOS.y][j] = (Enemy){(Vector2){GetRandomValue(tileSize,(roomSize-1)*tileSize), bossPosition.y - 2 * tileSize}, (Vector2){1, 1}, 70, 100, 100, 0, {0}, AITYPE_MAGE, AISTATE_CHASE};
+                    }
+                    //minionCount += mageCount;
                 }
                 break;
             default:
@@ -172,11 +189,11 @@ void DrawBoss()
     DrawCircleV(bossPosition, 10, (Color){255, 0, 0, 255});
     DrawCircleV(bossPosition, 5, (Color){255, 255, 255, 255});
 
-    if (bossAttacks[BOSSATTACKTYPE_MOON_BEAMS-1].duration > bossAttacks[BOSSATTACKTYPE_MOON_BEAMS-1].startDuration / 2)
+    if (bossAttacks[BOSSATTACKTYPE_MOON_BEAMS - 1].duration > bossAttacks[BOSSATTACKTYPE_MOON_BEAMS - 1].startDuration / 2)
     {
         for (int i = 0; i < moonBeamCount; i++)
         {
-            DrawCircleV(Vector2Lerp(moonBeamPositions[i],bossPosition,(bossAttacks[BOSSATTACKTYPE_MOON_BEAMS-1].duration - (bossAttacks[BOSSATTACKTYPE_MOON_BEAMS-1].startDuration/2))/(bossAttacks[BOSSATTACKTYPE_MOON_BEAMS-1].startDuration/2)), 20, (Color){255, 255, 255, 100});
+            DrawCircleV(Vector2Lerp(moonBeamPositions[i], bossPosition, (bossAttacks[BOSSATTACKTYPE_MOON_BEAMS - 1].duration - (bossAttacks[BOSSATTACKTYPE_MOON_BEAMS - 1].startDuration / 2)) / (bossAttacks[BOSSATTACKTYPE_MOON_BEAMS - 1].startDuration / 2)), 20, (Color){255, 255, 255, 100});
         }
     }
 

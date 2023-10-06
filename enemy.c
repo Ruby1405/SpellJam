@@ -27,6 +27,7 @@ typedef struct Buff
 const int enemyRadius = 20;
 const float attackCooldown = 1.0f;
 const int maxBuffCount = 8;
+const int maxEnemies = 16;
 
 typedef struct Enemy
 {
