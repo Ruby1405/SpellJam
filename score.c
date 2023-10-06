@@ -17,8 +17,8 @@ bool isRoomCleared (Enemy enemies[32]){
     }
     return roomIsCleared;
 }
-
+//https://www.desmos.com/calculator/oqzyr80y6h
 int calculateScore(int roomsCleared, int health, int maxHealth, float timeElapsed){
-    int score = floor(100*roomsCleared*(1+(health/maxHealth))/(timeElapsed/60));
+    int score = floor(1000*roomsCleared*(1+(health/maxHealth))/((timeElapsed+120)/60));
     return score;
 }
