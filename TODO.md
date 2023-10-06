@@ -1,9 +1,9 @@
 # TODO
 
-- [ ] State machine
-	- [ ] Main menu
-	- [ ] Victory Screen
-		- [ ] High scores
+- [x] State machine
+	- [x] Main menu
+	- [x] Victory Screen
+		- [x] High scores
 - [ ] Boss room
 	- [x] Design room
 	- [ ] Design boss
