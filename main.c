@@ -14,7 +14,6 @@
 
 
 const int playerRadius = 20;
-const int tileSize = 40;
 const int playerMaxHealth = 200;
 
 typedef enum GameState
@@ -71,7 +70,11 @@ int main()
     SpellEntity enemySpellEntities[maxSpellEntities];
     for (int i = 0; i < maxSpellEntities; i++)
     {
-        spellEntities[i] = (SpellEntity){0};
+        enemySpellEntities[i] = (SpellEntity){0};
+    }
+    for (int i = 0; i < maxBossSpellEntities; i++)
+    {
+        bossSpellEntities[i] = (SpellEntity){0};
     }
 
     // Initialize player
@@ -107,12 +110,13 @@ int main()
     {
         for (int j = 0; j < roomGridSize; j++)
         {
-            if (!roomGrid.data[i][j].empty)
+            if (!roomGrid.data[i][j].empty && (i != roomPOS.x || j != roomPOS.y))
             {
                 int enemyCountSpawning = 0;
                 for (int k = 0; k < 3; k++)
                 {
-                    for (int l = 0; l < 10; l++)
+                    int spawnAttempts = 1;
+                    for (int l = 0; l < spawnAttempts; l++)
                     {
                         int a = GetRandomValue(5, roomSize - 6);
                         int b = GetRandomValue(5, roomSize - 6);
@@ -123,18 +127,19 @@ int main()
                             break;
                         }
                     }
-                    for (int l = 0; l < 10; l++)
+                    for (int l = 0; l < spawnAttempts; l++)
                     {
                         int a = GetRandomValue(5, roomSize - 6);
                         int b = GetRandomValue(5, roomSize - 6);
                         if (roomGrid.data[i][j].data[a][b][0] == TILE_TYPE_EMPTY)
                         {
-                            enemies[i][j][enemyCountSpawning] = (Enemy){(Vector2){a * tileSize, b * tileSize}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, AITYPE_MAGE, AISTATE_CHASE};
+                            enemies[i][j][enemyCountSpawning] = (Enemy){(Vector2){a * tileSize, b * tileSize}, (Vector2){1, 1}, 70, 100, 100, 0, {0}, AITYPE_MAGE, AISTATE_CHASE};
                             enemyCountSpawning++;
                             break;
                         }
                     }
                 }
+                // printf("Spawned %d enemies in room %d, %d\n", enemyCountSpawning, i, j);
             }
         }
     }
@@ -290,7 +295,6 @@ int main()
             // CORNERING
             // ---------
             // For each of the 9 tiles around the player
-            playerRadius - 1;
             for (int x = -1; x < 2; x++)
             {
                 for (int y = -1; y < 2; y++)
@@ -394,7 +398,6 @@ int main()
                     }
                 }
             }
-            playerRadius + 1;
 
             // Collision with map edges
             if (playerMovePosition.x > roomSize * tileSize - playerRadius)
@@ -612,14 +615,15 @@ int main()
             // -----------
             // BOSS UPDATE
             // -----------
-            // if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y && bossNotSpawned && CheckCollisionPointCircle(playerPosition, (v2f){tileSize * (roomSize * 0.5 + 0.5), tileSize * (roomSize * 0.8 + 1)}, 60))
-            // {
-            //     bossNotSpawned = false;
-            // }
-            // if (roomGrid.data[roomPOS.x][roomPOS.y].boss)
-            // {
-            //     UpdateBoss(playerPosition, &playerHealth);
-            // }
+            if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y && bossNotSpawned && CheckCollisionPointCircle(playerPosition, (v2f){tileSize * (roomSize * 0.5), tileSize * (roomSize * 0.8 + 1)}, 60))
+            {
+                bossNotSpawned = false;
+                puts("Boss spawned");
+            }
+            if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y && !bossNotSpawned)
+            {
+                UpdateBoss(playerPosition, &playerHealth);
+            }
 
             // -------------
             // SPELL UPDATES
@@ -910,6 +914,8 @@ int main()
                         break;
                     case TILE_TYPE_CORNER_SOUTH_WEST:
                         DrawTextureRec(worldSprites, (Rectangle){160, 0, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
+                    default:
+                        break;
                     }
                     // Number tiles
                     // if (y != 0)
@@ -923,7 +929,8 @@ int main()
 
             if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y)
             {
-                DrawCircle(tileSize * (roomSize * 0.5 + 0.5), tileSize * (roomSize * 0.8 + 1), 60, (Color){255, 255, 255, 100});
+                DrawCircle(tileSize * (roomSize * 0.5), tileSize * (roomSize * 0.8 + 1), 60, (Color){255, 255, 255, 100});
+                DrawBoss();
             }
 
             DrawCircle(playerPosition.x + 1, playerPosition.y + 1, playerRadius, (Color){0, 0, 0, 255});
@@ -988,6 +995,24 @@ int main()
 
                     default:
                         break;
+                    }
+                }
+            }
+            if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y)
+            {
+                for (int i = 0; i < maxBossSpellEntities; i++)
+                {
+                    if (bossSpellEntities[i].lifetime > 0)
+                    {
+                        switch (bossSpellEntities[i].name)
+                        {
+                        case manaSpark:
+                            DrawSpellManaSpark(bossSpellEntities[i].position, bossSpellEntities[i].aim);
+                            break;
+
+                        default:
+                            break;
+                        }
                     }
                 }
             }
@@ -1066,6 +1091,9 @@ int main()
             EndDrawing();
         }
         break;
+
+        default:
+            break;
         }
     }
     CloseWindow();

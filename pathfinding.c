@@ -13,6 +13,6 @@ typedef struct Paths
     v2f pathList[10];
 }Paths;
 
-Paths Pathfinding(v2f chaserPOS, v2f targetPOS){
+/* Paths Pathfinding(v2f chaserPOS, v2f targetPOS){
     
-}
+} */
