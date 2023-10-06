@@ -49,9 +49,9 @@ void UpdateBoss(Vector2 playerPosition, float *playerHealth)
         for (int i = 0; i < bossAttackCount; i++)
         {
             switch (bossAttacks[i].type)
-            {
-            case BOSSATTACKTYPE_MANA_SPARK_BURST:
+            { 
             case BOSSATTACKTYPE_MOON_BEAMS:
+            case BOSSATTACKTYPE_MANA_SPARK_BURST:
             {
                 if (bossAttacks[i].cooldown <= 0)
                 {
@@ -92,7 +92,6 @@ void UpdateBoss(Vector2 playerPosition, float *playerHealth)
             {
             case BOSSATTACKTYPE_MANA_SPARK_BURST:
             {
-                bossAttacks[i].cooldown = bossAttacks[i].startCooldown;
                 if (bossAttacks[i].duration == bossAttacks[i].startDuration)
                 {
                     int manaSparkCount = 10;
