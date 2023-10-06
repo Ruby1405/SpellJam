@@ -835,6 +835,47 @@ int main()
                 }
             }
 
+            // Boss spell updates
+            if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y)
+            {
+                for (int i = 0; i < maxBossSpellEntities; i++)
+                {
+                    if (bossSpellEntities[i].lifetime > 0)
+                    {
+                        switch (bossSpellEntities[i].name)
+                        {
+                        case manaSpark:
+                        {
+                            bossSpellEntities[i].position.x += bossSpellEntities[i].aim.x * 500 * GetFrameTime();
+                            bossSpellEntities[i].position.y += bossSpellEntities[i].aim.y * 500 * GetFrameTime();
+                            // Check that is inside the map
+                            if (!rectCollision((Rectangle){0, 0, roomSize * tileSize, roomSize * tileSize}, bossSpellEntities[i].position))
+                            {
+                                bossSpellEntities[i].lifetime = 0;
+                            }
+                            // Check room collision
+                            if (room.data[(int)(bossSpellEntities[i].position.x / tileSize)][(int)(bossSpellEntities[i].position.y / tileSize)][0] == TILE_TYPE_WALL)
+                            {
+                                bossSpellEntities[i].lifetime = 0;
+                            }
+                            if (CheckCollisionCircles(bossSpellEntities[i].position, 10, playerPosition, playerRadius))
+                            {
+                                if (shield <= 0)
+                                {
+                                    playerHealth -= 10;
+                                }
+                                bossSpellEntities[i].lifetime = 0;
+                            }
+                        }
+                        break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
+
             // ------
             // RENDER
             // ------

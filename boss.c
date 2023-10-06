@@ -92,12 +92,15 @@ void UpdateBoss(Vector2 playerPosition, float *playerHealth)
             {
             case BOSSATTACKTYPE_MANA_SPARK_BURST:
             {
-                int manaSparkCount = 10;
-                for (int j = manaSparkCount - 1; j > -1; j--)
+                bossAttacks[i].cooldown = bossAttacks[i].startCooldown;
+                if (bossAttacks[i].duration == bossAttacks[i].startDuration)
                 {
-                    if (
+                    int manaSparkCount = 10;
+                    puts("mana spark burst");
+                    /* if (
                         bossAttacks[i].duration > bossAttacks[i].startDuration / manaSparkCount * j &&
-                        bossAttacks[i].duration - GetFrameTime() <= bossAttacks[i].startDuration / manaSparkCount * j)
+                        bossAttacks[i].duration - GetFrameTime() <= bossAttacks[i].startDuration / manaSparkCount * j) */
+                    for (int j = manaSparkCount - 1; j > -1; j--)
                     {
                         for (int k = 0; k < maxBossSpellEntities; k++)
                         {
@@ -124,8 +127,21 @@ void UpdateBoss(Vector2 playerPosition, float *playerHealth)
             default:
                 break;
             }
+            bossAttacks[i].duration -= GetFrameTime();
+            if (bossAttacks[i].duration < 0)
+            {
+                bossAttacks[i].duration = 0;
+            }
         }
     }
+    for (int i = 0; i < bossAttackCount; i++)
+    {
+        if (bossAttacks[i].cooldown > 0)
+        {
+            bossAttacks[i].cooldown -= GetFrameTime();
+        }
+    }
+    
 }
 
 void DrawBoss()
@@ -136,4 +152,7 @@ void DrawBoss()
     DrawCircleV(bossPosition, 20, (Color){255, 255, 255, 255});
     DrawCircleV(bossPosition, 10, (Color){255, 0, 0, 255});
     DrawCircleV(bossPosition, 5, (Color){255, 255, 255, 255});
+
+    DrawText(TextFormat("Duration %f", bossAttacks[0].duration), 10, 70, 20, (Color){255, 255, 255, 255});
+    DrawText(TextFormat("Cooldown %f", bossAttacks[0].cooldown), 10, 90, 20, (Color){255, 255, 255, 255});
 }
