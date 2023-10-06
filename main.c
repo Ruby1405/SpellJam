@@ -12,7 +12,7 @@
 #include "boss.c"
 
 const int playerRadius = 20;
-const int tileSize = 40;
+
 
 typedef enum GameState
 {
@@ -37,12 +37,12 @@ int main()
     // DISPLAY SETTINGS
     // ----------------
     // 1120,1280 är *5
-    // v2f windowSize = {1120, 1286};
+    v2f windowSize = {1120, 1286};
     // v2f windowSize = {560, 606};
-    v2f windowSize = {1440, 900};
+    // v2f windowSize = {1440, 900};
     // v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-    ToggleFullscreen();
+    // ToggleFullscreen();
     // SetTargetFPS(10);
 
     // Load textures
@@ -68,14 +68,18 @@ int main()
     SpellEntity enemySpellEntities[maxSpellEntities];
     for (int i = 0; i < maxSpellEntities; i++)
     {
-        spellEntities[i] = (SpellEntity){0};
+        enemySpellEntities[i] = (SpellEntity){0};
+    }
+    for (int i = 0; i < maxBossSpellEntities; i++)
+    {
+        bossSpellEntities[i] = (SpellEntity){0};
     }
 
     // Initialize player
     v2f playerPosition = {roomSize / 2 * tileSize + tileSize / 2, roomSize / 2 * tileSize + tileSize / 2};
     v2f playerAim = {0, 0};
     v2f spellAim = {0, -1};
-    int playerMoveSpeed = 150; // 150
+    int playerMoveSpeed = 500; // 150
     float playerHealth = 200;
     float playerMana = 200;
     float manaAngle = 0;
@@ -94,18 +98,20 @@ int main()
     bool hasLeftDoor = true;
     printf("current room is %d, %d\n", roomPOS.x, roomPOS.y);
 
+
     // Spawn enemies
     Enemy enemies[21][21][32] = {0};
     for (int i = 0; i < roomGridSize; i++)
     {
         for (int j = 0; j < roomGridSize; j++)
         {
-            if (!roomGrid.data[i][j].empty)
+            if (!roomGrid.data[i][j].empty && (i != roomPOS.x || j != roomPOS.y))
             {
                 int enemyCountSpawning = 0;
                 for (int k = 0; k < 3; k++)
                 {
-                    for (int l = 0; l < 10; l++)
+                    int spawnAttempts = 1;
+                    for (int l = 0; l < spawnAttempts; l++)
                     {
                         int a = GetRandomValue(5, roomSize - 6);
                         int b = GetRandomValue(5, roomSize - 6);
@@ -116,18 +122,19 @@ int main()
                             break;
                         }
                     }
-                    for (int l = 0; l < 10; l++)
+                    for (int l = 0; l < spawnAttempts; l++)
                     {
                         int a = GetRandomValue(5, roomSize - 6);
                         int b = GetRandomValue(5, roomSize - 6);
                         if (roomGrid.data[i][j].data[a][b][0] == TILE_TYPE_EMPTY)
                         {
-                            enemies[i][j][enemyCountSpawning] = (Enemy){(Vector2){a * tileSize, b * tileSize}, (Vector2){1, 1}, 80, 100, 100, 0, {0}, AITYPE_MAGE, AISTATE_CHASE};
+                            enemies[i][j][enemyCountSpawning] = (Enemy){(Vector2){a * tileSize, b * tileSize}, (Vector2){1, 1}, 70, 100, 100, 0, {0}, AITYPE_MAGE, AISTATE_CHASE};
                             enemyCountSpawning++;
                             break;
                         }
                     }
                 }
+                //printf("Spawned %d enemies in room %d, %d\n", enemyCountSpawning, i, j);
             }
         }
     }
@@ -272,7 +279,6 @@ int main()
             // CORNERING
             // ---------
             // For each of the 9 tiles around the player
-            playerRadius - 1;
             for (int x = -1; x < 2; x++)
             {
                 for (int y = -1; y < 2; y++)
@@ -376,7 +382,6 @@ int main()
                     }
                 }
             }
-            playerRadius + 1;
 
             // Collision with map edges
             if (playerMovePosition.x > roomSize * tileSize - playerRadius)
@@ -893,6 +898,8 @@ int main()
                         break;
                     case TILE_TYPE_CORNER_SOUTH_WEST:
                         DrawTextureRec(worldSprites, (Rectangle){160, 0, 40, 40}, (Vector2){x * tileSize, y * tileSize}, (Color){255, 255, 255, 255});
+                    default:
+                        break;
                     }
                     // Number tiles
                     // if (y != 0)
@@ -906,7 +913,8 @@ int main()
 
             if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y)
             {
-                DrawCircle(tileSize * (roomSize * 0.5 + 0.5), tileSize * (roomSize * 0.8 + 1), 60, (Color){255, 255, 255, 100});
+                DrawCircle(tileSize * (roomSize * 0.5), tileSize * (roomSize * 0.8 + 1), 60, (Color){255, 255, 255, 100});
+                DrawBoss();
             }
 
             DrawCircle(playerPosition.x + 1, playerPosition.y + 1, playerRadius, (Color){0, 0, 0, 255});
@@ -961,6 +969,7 @@ int main()
             }
             for (int i = 0; i < maxSpellEntities; i++)
             {
+                //printf("%f\n", enemySpellEntities[i].lifetime);
                 if (enemySpellEntities[i].lifetime > 0)
                 {
                     switch (enemySpellEntities[i].name)
@@ -974,6 +983,7 @@ int main()
                     }
                 }
             }
+            //puts("\n\n");
 
             angle += 1 * GetFrameTime();
             if (angle > 360)
@@ -1034,6 +1044,9 @@ int main()
         {
         }
         break;
+
+        default:
+            break;
         }
     }
     CloseWindow();
