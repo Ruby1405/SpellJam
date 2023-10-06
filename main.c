@@ -13,7 +13,6 @@
 
 const int playerRadius = 20;
 
-
 typedef enum GameState
 {
     STATE_MENU,
@@ -79,7 +78,7 @@ int main()
     v2f playerPosition = {roomSize / 2 * tileSize + tileSize / 2, roomSize / 2 * tileSize + tileSize / 2};
     v2f playerAim = {0, 0};
     v2f spellAim = {0, -1};
-    int playerMoveSpeed = 500; // 150
+    int playerMoveSpeed = 150; // 150
     float playerHealth = 200;
     float playerMana = 200;
     float manaAngle = 0;
@@ -97,7 +96,6 @@ int main()
     roomPOS.y = floor(roomGridSize / 2);
     bool hasLeftDoor = true;
     printf("current room is %d, %d\n", roomPOS.x, roomPOS.y);
-
 
     // Spawn enemies
     Enemy enemies[21][21][32] = {0};
@@ -134,7 +132,7 @@ int main()
                         }
                     }
                 }
-                //printf("Spawned %d enemies in room %d, %d\n", enemyCountSpawning, i, j);
+                // printf("Spawned %d enemies in room %d, %d\n", enemyCountSpawning, i, j);
             }
         }
     }
@@ -599,14 +597,15 @@ int main()
             // -----------
             // BOSS UPDATE
             // -----------
-            // if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y && bossNotSpawned && CheckCollisionPointCircle(playerPosition, (v2f){tileSize * (roomSize * 0.5 + 0.5), tileSize * (roomSize * 0.8 + 1)}, 60))
-            // {
-            //     bossNotSpawned = false;
-            // }
-            // if (roomGrid.data[roomPOS.x][roomPOS.y].boss)
-            // {
-            //     UpdateBoss(playerPosition, &playerHealth);
-            // }
+            if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y && bossNotSpawned && CheckCollisionPointCircle(playerPosition, (v2f){tileSize * (roomSize * 0.5), tileSize * (roomSize * 0.8 + 1)}, 60))
+            {
+                bossNotSpawned = false;
+                puts("Boss spawned");
+            }
+            if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y && !bossNotSpawned)
+            {
+                UpdateBoss(playerPosition, &playerHealth);
+            }
 
             // -------------
             // SPELL UPDATES
@@ -969,7 +968,6 @@ int main()
             }
             for (int i = 0; i < maxSpellEntities; i++)
             {
-                //printf("%f\n", enemySpellEntities[i].lifetime);
                 if (enemySpellEntities[i].lifetime > 0)
                 {
                     switch (enemySpellEntities[i].name)
@@ -983,7 +981,24 @@ int main()
                     }
                 }
             }
-            //puts("\n\n");
+            if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y)
+            {
+                for (int i = 0; i < maxBossSpellEntities; i++)
+                {
+                    if (bossSpellEntities[i].lifetime > 0)
+                    {
+                        switch (bossSpellEntities[i].name)
+                        {
+                        case manaSpark:
+                            DrawSpellManaSpark(bossSpellEntities[i].position, bossSpellEntities[i].aim);
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
 
             angle += 1 * GetFrameTime();
             if (angle > 360)
