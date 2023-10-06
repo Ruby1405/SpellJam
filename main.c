@@ -105,6 +105,7 @@ int main()
     float timeElapsed = 0;
     bool gameOverFirstPass = true;
     int roomsCleared = 0;
+    int highscore = 0;
 
     // Spawn enemies
     Enemy enemies[21][21][32] = {0};
@@ -1130,13 +1131,13 @@ int main()
                         }
                     }
                 }
-                UpdateHighScore(CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed));
+                highscore = UpdateHighScore(CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed));
                 gameOverFirstPass = false;
             }
             
             BeginDrawing();
             ClearBackground(BLACK);
-            DrawText(TextFormat("This is where your journey ends traveller\n your final score was %d", CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed)), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
+            DrawText(TextFormat("This is where your journey ends traveller\n your final score was %d, the high score is %d", CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed) , highscore), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
             EndDrawing();
         }
         break;

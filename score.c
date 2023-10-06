@@ -22,7 +22,7 @@ int CalculateScore(int roomsCleared, int health, int maxHealth, float timeElapse
     int score = floor(1000*roomsCleared*(1+(health/maxHealth))/((timeElapsed+120)/60));
     return score;
 }
-void UpdateHighScore(int score){
+int UpdateHighScore(int score){
     int previousScore = 0;
     FILE *fptr;
     fptr=fopen("highscore.txt","r");
@@ -39,6 +39,9 @@ void UpdateHighScore(int score){
         fprintf(fptr, "%d",score);
         printf("%d > %d ",score,previousScore);
         fclose(fptr);
+        return score;
     }
-    
+    else{
+        return previousScore;
+    }
 }
