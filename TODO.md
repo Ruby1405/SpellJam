@@ -1,9 +1,10 @@
 # TODO
 
 - [ ] State machine
-	- [ ] Main menu
-	- [ ] Victory Screen
-		- [ ] High scores
+	- [x] Main menu
+	- [x] Victory Screen
+		- [x] High scores
+        - [ ] Spell book 
 - [ ] Boss room
 	- [x] Design room
 	- [ ] Design boss

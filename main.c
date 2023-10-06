@@ -101,8 +101,11 @@ int main()
     bool hasLeftDoor = true;
     printf("current room is %d, %d\n", roomPOS.x, roomPOS.y);
 
-    //Initialize time elapsed
+    //Initialize variables for score
     float timeElapsed = 0;
+    bool gameOverFirstPass = true;
+    int roomsCleared = 0;
+    int highscore = 0;
 
     // Spawn enemies
     Enemy enemies[roomGridSize][roomGridSize][maxEnemies] = {0};
@@ -159,7 +162,7 @@ int main()
             executePressed = IsKeyPressed(KEY_DOWN);
             BeginDrawing();
             ClearBackground(BLACK);
-            DrawText(TextFormat("This is where your joureny starts traveller.\nBeware Danger lies this way \n \n Press down arrrow to continue"), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
+            DrawText(TextFormat("This is where your joureny starts traveller.\nBeware, danger lies this way \n \n Press down arrrow to continue"), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
             EndDrawing();
             if(executePressed){
                 gameState = STATE_GAME;
@@ -1140,19 +1143,23 @@ int main()
 
         case STATE_GAMEOVER:
         {
-            int roomsCleared = 0;
-            for(int i = 0; i < roomGridSize; i ++){
-                for(int j = 0; j < roomGridSize; j++){
-                    if(roomGrid.data[j][i].empty==false){
-                        if(isRoomCleared(enemies[j][i])){
-                            roomsCleared++;
+            if(gameOverFirstPass == true){
+                for(int i = 0; i < roomGridSize; i ++){
+                    for(int j = 0; j < roomGridSize; j++){
+                        if(roomGrid.data[j][i].empty==false){
+                            if(IsRoomCleared(enemies[j][i])){
+                                roomsCleared++;
+                            }
                         }
                     }
                 }
+                highscore = UpdateHighScore(CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed));
+                gameOverFirstPass = false;
             }
+            
             BeginDrawing();
             ClearBackground(BLACK);
-            DrawText(TextFormat("This is where your journey ends traveller\n your final score was %d", calculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed)), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
+            DrawText(TextFormat("This is where your journey ends traveller\n your final score was %d, the high score is %d", CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed) , highscore), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
             EndDrawing();
         }
         break;
