@@ -156,18 +156,15 @@ int main()
             executePressed = IsKeyPressed(KEY_DOWN);
             BeginDrawing();
             ClearBackground(BLACK);
-            printf("gameState is MENU: %d\n",gameState);
             DrawText(TextFormat("This is where your joureny starts traveller.\nBeware Danger lies this way \n \n Press down arrrow to continue"), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
             EndDrawing();
             if(executePressed){
                 gameState = STATE_GAME;
-                printf("gameState change to GAME: %d\n",gameState);
             }
         }
         break;
         case STATE_GAME:
         {
-           
             timeElapsed += GetFrameTime();
             room = roomGrid.data[roomPOS.x][roomPOS.y];
             // ------
@@ -1133,8 +1130,7 @@ int main()
             }
             BeginDrawing();
             ClearBackground(BLACK);
-            printf("gameState is GAMEOVER: %d\n",gameState);
-            DrawText(TextFormat("This is where your journey ends traveller\n your final score was %f", calculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed*1000)), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
+            DrawText(TextFormat("This is where your journey ends traveller\n your final score was %d", calculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed)), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
             EndDrawing();
         }
         break;

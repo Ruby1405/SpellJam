@@ -15,10 +15,10 @@ bool isRoomCleared (Enemy enemies[32]){
             roomIsCleared=false;
         }
     }
-    
+    return roomIsCleared;
 }
 
-int calculateScore(int roomsCleared, int health, int maxHealth, int timeElapsed){
-    int score = floor(roomsCleared*(1+(health/maxHealth))/(timeElapsed/60000));
+int calculateScore(int roomsCleared, int health, int maxHealth, float timeElapsed){
+    int score = floor(100*roomsCleared*(1+(health/maxHealth))/(timeElapsed/60));
     return score;
 }
