@@ -39,12 +39,12 @@ int main()
     // DISPLAY SETTINGS
     // ----------------
     // 1120,1280 är *5
-    // v2f windowSize = {1120, 1286};
+    v2f windowSize = {1120, 1286};
     // v2f windowSize = {560, 606};
-    v2f windowSize = {1440, 900};
+    // v2f windowSize = {1440, 900};
     // v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-    ToggleFullscreen();
+    // ToggleFullscreen();
     // SetTargetFPS(10);
 
     // Load textures
@@ -143,6 +143,9 @@ int main()
             }
         }
     }
+    // Place boss in boss room
+    enemies[roomGrid.bossRoomPOS.x][roomGrid.bossRoomPOS.y][0] = (Enemy){bossPosition, (v2f){0,0}, 0, bossMaxHealth, bossMaxHealth, 0, {0}, AITYPE_BOSS, AISTATE_IDLE};
+    
 
     // ---------
     // GAME LOOP
@@ -652,7 +655,7 @@ int main()
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
-                                if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
+                                if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius + (bossRadius * (enemies[roomPOS.x][roomPOS.y][j].type == AITYPE_BOSS))))
                                 {
                                     enemies[roomPOS.x][roomPOS.y][j].health -= 10;
                                     spellEntities[i].lifetime = 0;
@@ -678,7 +681,7 @@ int main()
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
-                                if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
+                                if (CheckCollisionCircles(spellEntities[i].position, 10, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius + (bossRadius * (enemies[roomPOS.x][roomPOS.y][j].type == AITYPE_BOSS))))
                                 {
                                     enemies[roomPOS.x][roomPOS.y][j].health -= 20;
                                     spellEntities[i].lifetime = 0;
@@ -701,7 +704,7 @@ int main()
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
-                                if (CheckCollisionCircles(spellEntities[i].position, 50, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
+                                if (CheckCollisionCircles(spellEntities[i].position, 50, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius + (bossRadius * (enemies[roomPOS.x][roomPOS.y][j].type == AITYPE_BOSS))))
                                 {
                                     enemies[roomPOS.x][roomPOS.y][j].health -= 20 * GetFrameTime();
                                 }
@@ -728,7 +731,7 @@ int main()
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
-                                if (CheckCollisionCircles(spellEntities[i].position, 16, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
+                                if (CheckCollisionCircles(spellEntities[i].position, 16, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius + (bossRadius * (enemies[roomPOS.x][roomPOS.y][j].type == AITYPE_BOSS))))
                                 {
                                     enemies[roomPOS.x][roomPOS.y][j].health -= 150 * GetFrameTime();
                                 }
@@ -792,7 +795,7 @@ int main()
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
-                                if (CheckCollisionPointCircle(spellEntities[i].position, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius))
+                                if (CheckCollisionPointCircle(spellEntities[i].position, enemies[roomPOS.x][roomPOS.y][j].position, enemyRadius + (bossRadius * (enemies[roomPOS.x][roomPOS.y][j].type == AITYPE_BOSS))))
                                 {
                                     enemies[roomPOS.x][roomPOS.y][j].health -= 10;
                                     spellEntities[i].lifetime = 0;
@@ -983,7 +986,6 @@ int main()
             if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y)
             {
                 DrawCircle(tileSize * (roomSize * 0.5), tileSize * (roomSize * 0.8 + 1), 60, (Color){255, 255, 255, 100});
-                DrawBoss();
             }
 
             DrawCircle(playerPosition.x + 1, playerPosition.y + 1, playerRadius, (Color){0, 0, 0, 255});
@@ -997,7 +999,14 @@ int main()
             {
                 if (enemies[roomPOS.x][roomPOS.y][i].health > 0)
                 {
-                    DrawEnemy(&enemies[roomPOS.x][roomPOS.y][i]);
+                    if (enemies[roomPOS.x][roomPOS.y][i].type == AITYPE_BOSS)
+                    {
+                        DrawBoss(enemies[roomPOS.x][roomPOS.y][i].health);
+                    }
+                    else
+                    {
+                        DrawEnemy(&enemies[roomPOS.x][roomPOS.y][i]);
+                    }
                 }
             }
 

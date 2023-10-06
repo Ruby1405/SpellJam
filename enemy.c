@@ -5,7 +5,7 @@
 
 typedef enum AIType
 {
-    AITYPE_ARCHER,
+    AITYPE_BOSS,
     AITYPE_MAGE,
     AITYPE_WARRIOR
 } AIType;

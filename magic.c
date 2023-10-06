@@ -62,8 +62,8 @@ void DrawSpellMoonBeam(Vector2 targetLocation, float lifeTime)
     {
         DrawEllipse(targetLocation.x, targetLocation.y, i * 2, i, (Color){gitter, gitter, 255, 15});
     }
-    DrawRectangle(targetLocation.x - curve / 2, targetLocation.y - 1000, curve, 1000, (Color){gitter, gitter, 255, 255});
-    DrawRectangle(targetLocation.x - (curve / 2 + 1), targetLocation.y - 1000, curve + 2, 1000, (Color){gitter, gitter, 255, 100});
+    DrawRectangle(targetLocation.x - curve / 2, targetLocation.y - 2000, curve, 2000, (Color){gitter, gitter, 255, 255});
+    DrawRectangle(targetLocation.x - (curve / 2 + 1), targetLocation.y - 2000, curve + 2, 2000, (Color){gitter, gitter, 255, 100});
     DrawEllipse(targetLocation.x, targetLocation.y, curve / 2, curve / 4, (Color){gitter, gitter, 255, 255});
 }
 
