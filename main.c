@@ -9,10 +9,13 @@
 #include "terrainGen.c"
 #include "pathfinding.c"
 #include "enemy.c"
+#include "score.c"
 #include "boss.c"
+
 
 const int playerRadius = 20;
 const int tileSize = 40;
+const int playerMaxHealth = 200;
 
 typedef enum GameState
 {
@@ -37,12 +40,12 @@ int main()
     // DISPLAY SETTINGS
     // ----------------
     // 1120,1280 är *5
-    // v2f windowSize = {1120, 1286};
+    v2f windowSize = {1120, 1286};
     // v2f windowSize = {560, 606};
-    v2f windowSize = {1440, 900};
+    //v2f windowSize = {1440, 900};
     // v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-    ToggleFullscreen();
+    //ToggleFullscreen();
     // SetTargetFPS(10);
 
     // Load textures
@@ -76,7 +79,7 @@ int main()
     v2f playerAim = {0, 0};
     v2f spellAim = {0, -1};
     int playerMoveSpeed = 150; // 150
-    float playerHealth = 200;
+    float playerHealth = playerMaxHealth;
     float playerMana = 200;
     float manaAngle = 0;
     float shield = 0;
@@ -86,6 +89,7 @@ int main()
     int ringCount = 0;
     float angle = 0;
 
+    //Initialize room
     Room room;
     RoomGrid roomGrid = RoomCreator();
     Point roomPOS;
@@ -93,6 +97,9 @@ int main()
     roomPOS.y = floor(roomGridSize / 2);
     bool hasLeftDoor = true;
     printf("current room is %d, %d\n", roomPOS.x, roomPOS.y);
+
+    //Initialize time elapsed
+    float timeElapsed = 0;
 
     // Spawn enemies
     Enemy enemies[21][21][32] = {0};
@@ -141,10 +148,22 @@ int main()
         {
         case STATE_MENU:
         {
+            executePressed = IsKeyPressed(KEY_DOWN);
+            BeginDrawing();
+            ClearBackground(BLACK);
+            printf("gameState is MENU: %d\n",gameState);
+            DrawText(TextFormat("This is where your joureny starts traveller.\nBeware Danger lies this way \n \n Press down arrrow to continue"), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
+            EndDrawing();
+            if(executePressed){
+                gameState = STATE_GAME;
+                printf("gameState change to GAME: %d\n",gameState);
+            }
         }
         break;
         case STATE_GAME:
         {
+           
+            timeElapsed += GetFrameTime();
             room = roomGrid.data[roomPOS.x][roomPOS.y];
             // ------
             // INPUTS
@@ -157,7 +176,6 @@ int main()
             trianglePressed = IsKeyPressed(KEY_UP);
             circlePressed = IsKeyPressed(KEY_RIGHT);
             executePressed = IsKeyPressed(KEY_DOWN);
-
             // Determine where the player is aimed
             playerAim = (v2f){0, 0};
             if (upDown)
@@ -178,7 +196,7 @@ int main()
             }
             v2f playerRadiusVector = {playerRadius * playerAim.x, playerRadius * playerAim.y};
             playerAim = Vector2Normalize(playerAim);
-
+            
             // -----------
             // Move Player
             // -----------
@@ -830,7 +848,6 @@ int main()
                     }
                 }
             }
-
             // ------
             // RENDER
             // ------
@@ -1032,6 +1049,21 @@ int main()
 
         case STATE_GAMEOVER:
         {
+            int roomsCleared = 0;
+            for(int i = 0; i < roomGridSize; i ++){
+                for(int j = 0; j < roomGridSize; j++){
+                    if(roomGrid.data[j][i].empty==false){
+                        if(isRoomCleared(enemies[j][i])){
+                            roomsCleared++;
+                        }
+                    }
+                }
+            }
+            BeginDrawing();
+            ClearBackground(BLACK);
+            printf("gameState is GAMEOVER: %d\n",gameState);
+            DrawText(TextFormat("This is where your journey ends traveller\n your final score was %f", calculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed*1000)), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
+            EndDrawing();
         }
         break;
         }

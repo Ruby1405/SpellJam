@@ -46,7 +46,7 @@
 	- [ ] Magic
 	- [ ] Terrain Gen
 		- [ ] Door availabilty flip
-		- [ ] extra wall s
+		- [ ] extra walls or change doors to be entire walls
 	- [ ] Main
 	- [ ] Pathfinding
 	- [ ] Boss
