@@ -6,10 +6,11 @@
 		- [ ] High scores
 - [ ] Boss room
 	- [ ] Design room
-		- [ ] Top
-		- [ ] Bottom
 	- [ ] Design boss
 	- [ ] Script attacks
+		- [x] Mana spark burst
+		- [x] Moon beams
+		- [ ] Summon minions
 	- [ ] Win condition
 - [ ] Enemy
 	- [x] Spawning
