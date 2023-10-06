@@ -884,6 +884,15 @@ int main()
                         }
                         break;
 
+                        case moonBeam:
+                        {
+                            bossSpellEntities[i].lifetime -= GetFrameTime();
+                            if (CheckCollisionCircles(bossSpellEntities[i].position, 50, playerPosition, playerRadius))
+                            {
+                                playerHealth -= 20 * GetFrameTime();
+                            }
+                        } break;
+
                         default:
                             break;
                         }
@@ -1052,6 +1061,10 @@ int main()
                         {
                         case manaSpark:
                             DrawSpellManaSpark(bossSpellEntities[i].position, bossSpellEntities[i].aim);
+                            break;
+
+                        case moonBeam:
+                            DrawSpellMoonBeam(bossSpellEntities[i].position, bossSpellEntities[i].lifetime);
                             break;
 
                         default:
