@@ -55,6 +55,7 @@ int main()
     bool downDown = false;
     bool leftDown = false;
     bool rightDown = false;
+    bool eDown =false;
     bool squarePressed = false;
     bool trianglePressed = false;
     bool circlePressed = false;
@@ -157,12 +158,17 @@ int main()
         case STATE_MENU:
         {
             executePressed = IsKeyPressed(KEY_DOWN);
+            eDown = IsKeyPressed(KEY_E);
             BeginDrawing();
             ClearBackground(BLACK);
             DrawText(TextFormat("This is where your joureny starts traveller.\nBeware, danger lies this way \n \n Press down arrrow to continue"), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
+            DrawText(TextFormat("Move with WASD.\nCast spells with arrow keys\nOpen spell book with 'E'"), 20, roomGridSize+1*tileSize/2, 20, (Color){200, 200, 250, 255});
             EndDrawing();
             if(executePressed){
                 gameState = STATE_GAME;
+            }
+            else if(eDown){
+                gameState = STATE_SPELLBOOK;
             }
         }
         break;
@@ -177,10 +183,16 @@ int main()
             downDown = IsKeyDown(KEY_S);
             leftDown = IsKeyDown(KEY_A);
             rightDown = IsKeyDown(KEY_D);
+            eDown = IsKeyPressed(KEY_E);
             squarePressed = IsKeyPressed(KEY_LEFT);
             trianglePressed = IsKeyPressed(KEY_UP);
             circlePressed = IsKeyPressed(KEY_RIGHT);
             executePressed = IsKeyPressed(KEY_DOWN);
+            //Checks wheter or not to open spell book
+            if(eDown){
+                gameState=STATE_SPELLBOOK;
+            }
+
             // Determine where the player is aimed
             playerAim = (v2f){0, 0};
             if (upDown)
@@ -575,7 +587,7 @@ int main()
                     ringCount++;
                 }
             }
-
+            
             // ------------
             // ENEMY UPDATE
             // ------------
@@ -1131,7 +1143,18 @@ int main()
             EndDrawing();
         }
         break;
-
+        case STATE_SPELLBOOK:
+        {
+            executePressed = IsKeyPressed(KEY_DOWN);
+            BeginDrawing();
+            ClearBackground(BLACK);
+            DrawText(TextFormat("cast spells\nmanaSpark: left, left, down\nblock: right, right, down\nfireBall: left, right, left, down\nmoonBeam: left, left, right, left, up, down\nchromaticOrb: left, up, right, left, down\nmagicMissile: left, up, up, left, down\n\nPress down to exit"), 20, roomGridSize-1*tileSize/2, 20, (Color){200, 200, 250, 255});
+            EndDrawing();
+            if(executePressed){
+                gameState = STATE_GAME;
+            }
+        }
+        break;
         case STATE_GAMEOVER:
         {
             if(gameOverFirstPass == true){
