@@ -31,7 +31,7 @@ bool rectCollision(Rectangle rect, Vector2 point)
 
 int main()
 {
-    GameState gameState = STATE_GAME;
+    GameState gameState = STATE_MENU;
     time_t t;
     srand((unsigned)time(&t));
 
@@ -892,6 +892,11 @@ int main()
                         }
                     }
                 }
+            }
+
+            // checks if player has perished
+            if(playerHealth<=0){
+                gameState=STATE_GAMEOVER;
             }
 
             // ------
