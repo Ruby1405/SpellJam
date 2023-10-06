@@ -39,9 +39,9 @@ int main()
     // DISPLAY SETTINGS
     // ----------------
     // 1120,1280 är *5
-    v2f windowSize = {1120, 1286};
+    // v2f windowSize = {1120, 1286};
     // v2f windowSize = {560, 606};
-    //v2f windowSize = {1440, 900};
+    v2f windowSize = {1440, 900};
     // v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
     ToggleFullscreen();
@@ -108,7 +108,7 @@ int main()
     int highscore = 0;
 
     // Spawn enemies
-    Enemy enemies[21][21][32] = {0};
+    Enemy enemies[roomGridSize][roomGridSize][maxEnemies] = {0};
     for (int i = 0; i < roomGridSize; i++)
     {
         for (int j = 0; j < roomGridSize; j++)
@@ -497,7 +497,7 @@ int main()
                                                 spellEntities[k] = (SpellEntity){spellBook[spellIndex].startingLifeTime, spellBook[spellIndex].name, Vector2Add(playerPosition, Vector2Rotate(Vector2Scale(spellAim, 30), (-70 + i * 70) * DEG2RAD)), Vector2Scale(Vector2Rotate(spellAim, (-10 + i * 10) * DEG2RAD), magicMissileStartSpeed), targetIndex};
 
                                                 // Set the target index to the index of the closest enemy
-                                                for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
+                                                for (int enemyIndex = 0; enemyIndex < maxEnemies; enemyIndex++)
                                                 {
                                                     if (enemies[roomPOS.x][roomPOS.y][enemyIndex].health > 0)
                                                     {
@@ -507,9 +507,9 @@ int main()
                                                 }
                                                 if (targetIndex != -1)
                                                 {
-                                                    for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
+                                                    for (int enemyIndex = 0; enemyIndex < maxEnemies; enemyIndex++)
                                                     {
-                                                        if (enemies[10][10][enemyIndex].health > 0)
+                                                        if (enemies[roomPOS.x][roomPOS.y][enemyIndex].health > 0)
                                                         {
                                                             if (Vector2Distance(spellEntities[k].position, enemies[roomPOS.x][roomPOS.y][targetIndex].position) > Vector2Distance(spellEntities[k].position, enemies[roomPOS.x][roomPOS.y][enemyIndex].position))
                                                             {
@@ -579,7 +579,7 @@ int main()
             // ------------
             // ENEMY UPDATE
             // ------------
-            for (int i = 0; i < 32; i++)
+            for (int i = 0; i < maxEnemies; i++)
             {
                 if (enemies[roomPOS.x][roomPOS.y][i].health > 0)
                 {
@@ -622,7 +622,7 @@ int main()
             }
             if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y && !bossNotSpawned)
             {
-                UpdateBoss(playerPosition, &playerHealth);
+                UpdateBoss(playerPosition, &playerHealth, &enemies, roomPOS);
             }
 
             // -------------
@@ -651,7 +651,7 @@ int main()
                         {
                             spellEntities[i].lifetime = 0;
                         }
-                        for (int j = 0; j < 32; j++)
+                        for (int j = 0; j < maxEnemies; j++)
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
@@ -677,7 +677,7 @@ int main()
                         {
                             spellEntities[i].lifetime = 0;
                         }
-                        for (int j = 0; j < 32; j++)
+                        for (int j = 0; j < maxEnemies; j++)
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
@@ -700,7 +700,7 @@ int main()
 
                     case moonBeam:
                         spellEntities[i].lifetime -= GetFrameTime();
-                        for (int j = 0; j < 32; j++)
+                        for (int j = 0; j < maxEnemies; j++)
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
@@ -727,7 +727,7 @@ int main()
                         {
                             spellEntities[i].lifetime = 0;
                         }
-                        for (int j = 0; j < 32; j++)
+                        for (int j = 0; j < maxEnemies; j++)
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
@@ -750,7 +750,7 @@ int main()
                         if (enemies[roomPOS.x][roomPOS.y][spellEntities[i].targetIndex].health <= 0)
                         {
                             int targetIndex = -1;
-                            for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
+                            for (int enemyIndex = 0; enemyIndex < maxEnemies; enemyIndex++)
                             {
                                 if (enemies[roomPOS.x][roomPOS.y][enemyIndex].health > 0)
                                 {
@@ -760,7 +760,7 @@ int main()
                             }
                             if (targetIndex != -1)
                             {
-                                for (int enemyIndex = 0; enemyIndex < 32; enemyIndex++)
+                                for (int enemyIndex = 0; enemyIndex < maxEnemies; enemyIndex++)
                                 {
                                     if (enemies[roomPOS.x][roomPOS.y][enemyIndex].health > 0)
                                     {
@@ -791,7 +791,7 @@ int main()
                         spellEntities[i].position.y += spellEntities[i].aim.y * GetFrameTime();
 
                         // Check enemy collision
-                        for (int j = 0; j < 32; j++)
+                        for (int j = 0; j < maxEnemies; j++)
                         {
                             if (enemies[roomPOS.x][roomPOS.y][j].health > 0)
                             {
@@ -886,6 +886,15 @@ int main()
                             }
                         }
                         break;
+
+                        case moonBeam:
+                        {
+                            bossSpellEntities[i].lifetime -= GetFrameTime();
+                            if (CheckCollisionCircles(bossSpellEntities[i].position, 50, playerPosition, playerRadius))
+                            {
+                                playerHealth -= 20 * GetFrameTime();
+                            }
+                        } break;
 
                         default:
                             break;
@@ -987,7 +996,7 @@ int main()
             DrawRectangle(playerPosition.x - 8, playerPosition.y + 2, 16, 2, (Color){0, 0, 0, 255});
 
             // Draw Enemies
-            for (int i = 0; i < 32; i++)
+            for (int i = 0; i < maxEnemies; i++)
             {
                 if (enemies[roomPOS.x][roomPOS.y][i].health > 0)
                 {
@@ -1055,6 +1064,10 @@ int main()
                         {
                         case manaSpark:
                             DrawSpellManaSpark(bossSpellEntities[i].position, bossSpellEntities[i].aim);
+                            break;
+
+                        case moonBeam:
+                            DrawSpellMoonBeam(bossSpellEntities[i].position, bossSpellEntities[i].lifetime);
                             break;
 
                         default:
