@@ -107,6 +107,7 @@ int main()
     bool gameOverFirstPass = true;
     int roomsCleared = 0;
     int highscore = 0;
+    int bossCleared = 0;
 
     // Spawn enemies
     Enemy enemies[roomGridSize][roomGridSize][maxEnemies] = {0};
@@ -637,7 +638,10 @@ int main()
             }
             if (roomPOS.x == roomGrid.bossRoomPOS.x && roomPOS.y == roomGrid.bossRoomPOS.y && !bossNotSpawned)
             {
-                UpdateBoss(playerPosition, &playerHealth, &enemies, roomPOS);
+                if(UpdateBoss(playerPosition, &playerHealth, &enemies, roomPOS)){
+                    gameState=STATE_GAMEOVER;
+                    bossCleared=2500;
+                }
             }
 
             // -------------
@@ -919,7 +923,7 @@ int main()
             }
 
             // checks if player has perished
-            if(playerHealth<=0){
+            if(playerHealth<=0 ){
                 gameState=STATE_GAMEOVER;
             }
 
@@ -1176,13 +1180,14 @@ int main()
                         }
                     }
                 }
-                highscore = UpdateHighScore(CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed));
+                
+                highscore = UpdateHighScore(CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed, bossCleared));
                 gameOverFirstPass = false;
             }
             
             BeginDrawing();
             ClearBackground(BLACK);
-            DrawText(TextFormat("This is where your journey ends traveller\n your final score was %d, the high score is %d", CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed) , highscore), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
+            DrawText(TextFormat("This is where your journey ends traveller\n your final score was %d, the high score is %d", CalculateScore(roomsCleared, playerHealth, playerMaxHealth, timeElapsed, bossCleared) , highscore), 20, roomGridSize*tileSize/2, 40, (Color){200, 200, 250, 255});
             EndDrawing();
         }
         break;
