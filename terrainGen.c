@@ -6,7 +6,7 @@
 #include "raylib.h"
 
 const int roomSize = 28;
-const int roomGridSize = 3;
+const int roomGridSize = 21;
 const int tileSize = 40;
 
 typedef enum TileType
