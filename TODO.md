@@ -5,9 +5,9 @@
 	- [x] Victory Screen
 		- [x] High scores
         - [ ] Spell book 
-- [ ] Boss room
+- [x] Boss room
 	- [x] Design room
-	- [ ] Design boss
+	- [x] Design boss
 	- [x] Script attacks
 		- [x] Mana spark burst
 		- [x] Moon beams
