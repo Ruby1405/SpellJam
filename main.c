@@ -44,7 +44,7 @@ int main()
     // v2f windowSize = {1440, 900};
     // v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-    // ToggleFullscreen();
+    //ToggleFullscreen();
     // SetTargetFPS(10);
 
     // Load textures

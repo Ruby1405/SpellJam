@@ -583,7 +583,6 @@ TODO
     - Treasure rooms
     - Multiple doors in a room
     - Boss rooms if the drunkard is trapped
-    - Boss room
 */
 RoomGrid RoomCreator()
 {
