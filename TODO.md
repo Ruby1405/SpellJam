@@ -12,7 +12,7 @@
 		- [x] Mana spark burst
 		- [x] Moon beams
 		- [x] Summon minions
-	- [ ] Win condition
+	- [x] Win condition
 - [ ] Enemy
 	- [x] Spawning
 	- [ ] Path finding
