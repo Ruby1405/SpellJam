@@ -3,8 +3,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-#include "raylib.h"
-#include "raymath.h"
+
+#include <raylib.h>
+#include <raymath.h>
+
 #include "magic.c"
 #include "terrainGen.c"
 #include "pathfinding.c"
@@ -44,7 +46,7 @@ int main()
     // v2f windowSize = {1440, 900};
     // v2f windowSize = {2560, 1440};
     InitWindow(windowSize.x, windowSize.y, "SpellJam");
-    // ToggleFullscreen();
+    //ToggleFullscreen();
     // SetTargetFPS(10);
 
     // Load textures
@@ -1152,7 +1154,7 @@ int main()
             DrawText(TextFormat("Health %f", playerHealth), 10, 10, 20, (Color){255, 255, 255, 255});
             DrawText(TextFormat("Mana %f", playerMana), 10, 40, 20, (Color){255, 255, 255, 255});
             // DrawText(TextFormat("Has left door %d", hasLeftDoor), 10, 70, 20, (Color){255, 255, 255, 255});
-
+            
             EndDrawing();
         }
         break;
